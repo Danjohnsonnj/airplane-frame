@@ -124,3 +124,24 @@
 - Verified: HANDOFF next action = poster `design-mock-probe`; required reading points at pointer + visual-direction + skill.
 - Learned: Destination-led panel hierarchy superseded by airline-led hero + tag-led dest code; status should reuse tag motif rather than a separate chip.
 - Overwrote: visual-direction panel hierarchy / chrome / empty-error / deferred list; HANDOFF phase → design path (mock probes).
+
+## 2026-08-01 - Poster mock-probe lock pass
+
+- Happened: Grill lock pass for poster wall. Provisional locks: mixed warm+cool swatch book; condensed display + heavy grotesque; status tag four slots (EMPTY/STALE/WAIT/ERR + status/detail/action/updated); corner glyph settings chrome (tag-chip explore later); dual ink; hero-led ~60/40. Building `docs/design-mocks/poster-ad-wall.html`.
+- Verified: locks written into visual-direction mock-provisional rows; HANDOFF next = browser review.
+- Learned: All mock-probe tokens stay soft until browser review.
+- Overwrote: deferred “exact hexes/type/status” → mock-provisional locks; mock inventory → in probe.
+
+## 2026-08-01 - TEMP local airline capture
+
+- Happened: For design carrier inventory: temporary `candidateCarriers` on `/flights`, local `CACHE_TTL_SECONDS=60`, poller `scripts/capture-airlines.mjs` → `docs/scratch/airlines-seen.json` (gitignored). Documented run + teardown in `docs/runbooks/local-dev.md`.
+- Verified: first poll wrote 6 unique carriers; wrangler shows `CACHE_TTL_SECONDS ("60")`.
+- Learned: Wrangler access logs do not include airline names — must read response JSON / candidate list.
+- Overwrote: HANDOFF open items + tech-brief TEMP note; local-dev runbook section.
+
+## 2026-08-01 - Airline capture ended
+
+- Happened: Stopped poller; reverted TTL to 300, removed `candidateCarriers` / `uniqueCarriers` / capture scripts / local-dev TEMP section. Wrote durable summary to `docs/design-reference/airlines-seen-2026-08-01.md` (31 raw strings / ~24 design brands over 48 polls).
+- Verified: `cd worker && npm test` after teardown.
+- Learned: AirLabs brand names coexist with ALL-CAPS INC and trustee/lessor `ownOp` strings — normalize for poster art.
+- Overwrote: HANDOFF open items; tech-brief TEMP note removed.

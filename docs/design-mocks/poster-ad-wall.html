@@ -1,0 +1,936 @@
+<!doctype html>
+<!--
+  CANONICAL DESIGN MOCK — visual reference only; do not port literal DOM/CSS/demo copy.
+  Provisional swatch book:
+    Sun yellow #F2C84B · Navy #17324D · Dusty rose #D98C8C
+    Teal #167D7A · Coral #E85D44 · Mint #A7D8C5
+    Reserved status neutral #D8D0C1
+  Ink: near-black #171A18 on light grounds · cream #F7F0DE on dark grounds.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Airplane Frame — Poster Wall Design Mock</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@500;600;700&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --sun: #f2c84b;
+      --navy: #17324d;
+      --rose: #d98c8c;
+      --teal: #167d7a;
+      --coral: #e85d44;
+      --mint: #a7d8c5;
+      --neutral: #d8d0c1;
+      --ink: #171a18;
+      --cream: #f7f0de;
+      --review: #232522;
+      --review-ink: #eae4d7;
+      --hairline: 1.5px;
+      --display: "Oswald", "Arial Narrow", sans-serif;
+      --heavy: "Archivo Black", "Arial Black", sans-serif;
+      --utility: "Archivo", sans-serif;
+      --type-0: 11px;
+      --type-1: 12px;
+      --type-2: 14px;
+      --type-3: 18px;
+      --type-4: 24px;
+      --type-5: 32px;
+      --type-6: 40px;
+      --type-7: 56px;
+      --type-8: 72px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      background: var(--review);
+      color: var(--review-ink);
+      font-family: var(--utility);
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background:
+        linear-gradient(rgba(255, 255, 255, .025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, .025) 1px, transparent 1px),
+        var(--review);
+      background-size: 24px 24px;
+    }
+
+    .review-shell {
+      width: min(1480px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 44px 0 72px;
+    }
+
+    .review-header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 32px;
+      margin: 0 0 30px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(234, 228, 215, .3);
+    }
+
+    .review-kicker,
+    .frame-label,
+    .review-note {
+      text-transform: uppercase;
+      letter-spacing: .16em;
+      font-size: var(--type-0);
+      font-weight: 700;
+    }
+
+    .review-kicker { margin: 0 0 7px; color: var(--sun); }
+
+    .review-title {
+      margin: 0;
+      font-family: var(--display);
+      font-size: clamp(var(--type-5), 5vw, var(--type-7));
+      font-weight: 500;
+      line-height: .95;
+      text-transform: uppercase;
+    }
+
+    .review-note {
+      max-width: 330px;
+      margin: 0;
+      color: rgba(234, 228, 215, .6);
+      line-height: 1.55;
+      text-align: right;
+    }
+
+    .review-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
+      gap: 48px 38px;
+    }
+
+    .review-frame {
+      min-width: 0;
+    }
+
+    .review-frame.wide {
+      grid-column: 1 / -1;
+    }
+
+    .frame-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0 0 12px;
+      color: rgba(234, 228, 215, .78);
+    }
+
+    .frame-label::before {
+      content: "";
+      width: 18px;
+      height: 3px;
+      background: var(--coral);
+    }
+
+    .device {
+      position: relative;
+      overflow: hidden;
+      margin: 0 auto;
+      background: var(--ink);
+      border: 6px solid #10110f;
+      box-shadow: 0 22px 48px rgba(0, 0, 0, .34);
+    }
+
+    .device.mobile {
+      width: min(100%, 387px);
+      aspect-ratio: 375 / 812;
+      border-radius: 28px;
+    }
+
+    .device.wide {
+      width: 100%;
+      aspect-ratio: 1120 / 650;
+      min-height: clamp(420px, 58vw, 650px);
+      border-radius: 14px;
+    }
+
+    .poster-wall {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      background: var(--ink);
+    }
+
+    .poster-wall.rows {
+      flex-direction: column;
+    }
+
+    .poster-wall.columns {
+      flex-direction: row;
+    }
+
+    .flight-panel,
+    .status-panel {
+      position: relative;
+      display: flex;
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
+      color: var(--panel-ink, var(--ink));
+      background: var(--panel-ground, var(--sun));
+      animation: settle .48s cubic-bezier(.2, .8, .25, 1) both;
+      animation-delay: var(--delay, 0ms);
+    }
+
+    .rows .flight-panel {
+      flex: 1 1 0;
+      flex-direction: column;
+      border-bottom: 3px solid var(--ink);
+    }
+
+    .rows .flight-panel:last-child { border-bottom: 0; }
+
+    .columns .flight-panel {
+      flex: 1 1 0;
+      flex-direction: column;
+      border-right: 4px solid var(--ink);
+    }
+
+    .columns .flight-panel:last-child { border-right: 0; }
+
+    .ground-sun { --panel-ground: var(--sun); --panel-ink: var(--ink); }
+    .ground-navy { --panel-ground: var(--navy); --panel-ink: var(--cream); }
+    .ground-rose { --panel-ground: var(--rose); --panel-ink: var(--ink); }
+    .ground-teal { --panel-ground: var(--teal); --panel-ink: var(--cream); }
+    .ground-coral { --panel-ground: var(--coral); --panel-ink: var(--ink); }
+    .ground-mint { --panel-ground: var(--mint); --panel-ink: var(--ink); }
+
+    .hero {
+      position: relative;
+      display: flex;
+      flex: 3 1 60%;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 0;
+      padding: 8px 17px 7px;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: 10px;
+      left: 17px;
+      width: 20px;
+      border-top: 2px solid currentColor;
+      opacity: .58;
+    }
+
+    .airline {
+      max-width: 95%;
+      margin: 0;
+      font-family: var(--display);
+      font-size: clamp(var(--type-5), 8.3vw, var(--type-6));
+      font-weight: 600;
+      line-height: .88;
+      letter-spacing: -.035em;
+      text-transform: uppercase;
+    }
+
+    .flight-number {
+      margin-top: 5px;
+      font-family: var(--display);
+      font-size: var(--type-1);
+      font-weight: 500;
+      letter-spacing: .19em;
+      text-transform: uppercase;
+      opacity: .72;
+    }
+
+    .tag {
+      position: relative;
+      display: grid;
+      flex: 2 1 40%;
+      min-height: 0;
+      color: var(--panel-ink);
+      border-top: var(--hairline) solid currentColor;
+    }
+
+    .tag::before,
+    .tag::after {
+      content: "";
+      position: absolute;
+      top: -5px;
+      z-index: 2;
+      width: 8px;
+      height: 8px;
+      background: currentColor;
+      border-radius: 50%;
+    }
+
+    .tag::before { left: 7px; }
+    .tag::after { right: 7px; }
+
+    .horizontal-tag {
+      grid-template-columns: 1.04fr 1.96fr;
+      padding: 7px 14px 8px;
+    }
+
+    .tag-code-wrap {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-width: 0;
+      border-right: var(--hairline) solid currentColor;
+    }
+
+    .tag-kicker {
+      margin: 0 0 1px;
+      font-size: var(--type-0);
+      font-weight: 700;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      opacity: .68;
+    }
+
+    .tag-code {
+      margin: 0;
+      font-family: var(--heavy);
+      font-size: clamp(var(--type-5), 9.2vw, var(--type-6));
+      line-height: .82;
+      letter-spacing: -.075em;
+    }
+
+    .tag-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-content: center;
+      min-width: 0;
+      padding-left: 10px;
+    }
+
+    .field {
+      min-width: 0;
+      padding: 3px 4px;
+    }
+
+    .field-label {
+      display: block;
+      margin-bottom: 1px;
+      font-size: var(--type-0);
+      font-weight: 700;
+      letter-spacing: .13em;
+      line-height: 1;
+      text-transform: uppercase;
+      opacity: .62;
+    }
+
+    .field-value {
+      display: block;
+      overflow: hidden;
+      font-size: var(--type-0);
+      font-weight: 700;
+      line-height: 1.15;
+      text-overflow: ellipsis;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .settings-glyph {
+      position: absolute;
+      top: 13px;
+      right: 13px;
+      z-index: 10;
+      display: grid;
+      width: 38px;
+      height: 38px;
+      place-items: center;
+      padding: 0;
+      color: currentColor;
+      background: rgba(247, 240, 222, .18);
+      border: 1px solid currentColor;
+      border-radius: 50%;
+      font: inherit;
+      opacity: .84;
+      pointer-events: none;
+    }
+
+    .settings-glyph svg { width: 17px; height: 17px; }
+
+    .poster-wall > .settings-glyph {
+      color: var(--ink);
+      background: rgba(247, 240, 222, .82);
+    }
+
+    .status-panel {
+      width: 100%;
+      height: 100%;
+      flex-direction: column;
+      color: var(--ink);
+      background: var(--neutral);
+    }
+
+    .status-hero {
+      position: relative;
+      display: flex;
+      flex: 0 0 38%;
+      flex-direction: column;
+      justify-content: end;
+      padding: 38px 27px 25px;
+      color: var(--cream);
+      background: var(--navy);
+      border-bottom: 5px solid var(--ink);
+    }
+
+    .status-panel.error .status-hero {
+      color: var(--ink);
+      background: var(--coral);
+    }
+
+    .status-hero h2 {
+      max-width: 310px;
+      margin: 0;
+      font-family: var(--display);
+      font-size: var(--type-7);
+      font-weight: 600;
+      line-height: .9;
+      letter-spacing: -.045em;
+      text-transform: uppercase;
+    }
+
+    .status-tag {
+      position: relative;
+      display: grid;
+      flex: 1 1 auto;
+      grid-template-rows: auto 1fr;
+      min-height: 0;
+      padding: 28px 27px 25px;
+    }
+
+    .status-word {
+      margin: 0;
+      font-family: var(--heavy);
+      font-size: var(--type-8);
+      line-height: .85;
+      letter-spacing: -.075em;
+    }
+
+    .status-fields {
+      display: grid;
+      align-content: end;
+      margin-top: 22px;
+      border-top: 2px solid var(--ink);
+    }
+
+    .status-row {
+      display: grid;
+      grid-template-columns: 68px 1fr;
+      gap: 10px;
+      padding: 10px 0 9px;
+      border-bottom: 1px solid rgba(23, 26, 24, .5);
+    }
+
+    .status-row:last-child { border-bottom: 0; }
+
+    .status-row .field-label {
+      padding-top: 2px;
+      font-size: var(--type-0);
+    }
+
+    .status-row .field-value {
+      font-size: var(--type-0);
+      line-height: 1.25;
+      white-space: normal;
+    }
+
+    .status-row.action .field-value {
+      text-decoration: underline;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 3px;
+    }
+
+    .state-stamp {
+      position: absolute;
+      right: 16px;
+      bottom: 14px;
+      z-index: 5;
+      padding: 5px 7px 4px;
+      color: var(--cream);
+      background: var(--coral);
+      font-size: var(--type-0);
+      font-weight: 700;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      transform: rotate(-2deg);
+    }
+
+    /* Wide mode deliberately reflows the tag; it never rotates horizontal art. */
+    .columns .hero {
+      justify-content: end;
+      padding: clamp(22px, 3vw, 42px) clamp(15px, 2vw, 28px);
+    }
+
+    .columns .hero::before {
+      top: 22px;
+      left: clamp(15px, 2vw, 28px);
+      width: 28px;
+    }
+
+    .columns .airline {
+      max-width: 100%;
+      font-size: clamp(var(--type-5), 3.8vw, var(--type-7));
+      overflow-wrap: anywhere;
+    }
+
+    .columns .flight-number {
+      margin-top: 11px;
+      font-size: clamp(var(--type-0), 1vw, var(--type-2));
+    }
+
+    .vertical-tag {
+      display: flex;
+      flex-direction: column;
+      padding: clamp(14px, 1.8vw, 24px) clamp(12px, 1.6vw, 21px);
+    }
+
+    .vertical-tag .tag-code-wrap {
+      display: block;
+      padding-bottom: 12px;
+      border-right: 0;
+      border-bottom: var(--hairline) solid currentColor;
+    }
+
+    .vertical-tag .tag-kicker { font-size: var(--type-0); }
+
+    .vertical-tag .tag-code {
+      margin-top: 4px;
+      font-size: clamp(var(--type-6), 5vw, var(--type-8));
+      letter-spacing: -.09em;
+    }
+
+    .vertical-tag .tag-fields {
+      flex: 1 1 auto;
+      grid-template-columns: 1fr;
+      align-content: stretch;
+      padding: 7px 0 0;
+    }
+
+    .vertical-tag .field {
+      display: grid;
+      grid-template-columns: 48px minmax(0, 1fr);
+      align-items: center;
+      gap: 5px;
+      padding: 4px 0;
+      border-bottom: 1px solid currentColor;
+    }
+
+    .vertical-tag .field:last-child { border-bottom: 0; }
+
+    .vertical-tag .field-label {
+      margin: 0;
+      font-size: var(--type-0);
+    }
+
+    .vertical-tag .field-value {
+      font-size: var(--type-0);
+      text-align: right;
+    }
+
+    .columns .settings-glyph {
+      top: 17px;
+      right: 17px;
+      width: 44px;
+      height: 44px;
+      color: var(--ink);
+      background: rgba(247, 240, 222, .7);
+    }
+
+    @keyframes settle {
+      from { opacity: 0; transform: translateY(9px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 860px) {
+      .review-grid { grid-template-columns: 1fr; }
+      .review-frame.wide { grid-column: auto; }
+      .device.wide { width: 100%; }
+    }
+
+    @media screen and (min-width: 620px) {
+      .columns .flight-panel {
+        min-width: 300px;
+      }
+
+      .device.wide {
+        overflow-x: scroll;
+      }
+    }
+
+    @media (max-width: 619px) {
+      .review-shell { width: min(100% - 20px, 1480px); padding-top: 26px; }
+      .review-header { display: block; }
+      .review-note { margin-top: 14px; text-align: left; }
+      .review-grid { gap: 38px; }
+
+      .device.wide {
+        width: min(100%, 387px);
+        min-height: 0;
+        aspect-ratio: 375 / 1000;
+        border-radius: 28px;
+      }
+
+      .device.wide .poster-wall.columns { flex-direction: column; }
+
+      .device.wide .columns .flight-panel {
+        flex-direction: column;
+        border-right: 0;
+        border-bottom: 3px solid var(--ink);
+      }
+
+      .device.wide .columns .flight-panel:last-child { border-bottom: 0; }
+
+      .device.wide .columns .hero {
+        justify-content: center;
+        padding: 8px 17px 7px;
+      }
+
+      .device.wide .columns .hero::before {
+        top: 10px;
+        left: 17px;
+        width: 20px;
+      }
+
+      .device.wide .columns .airline {
+        max-width: 95%;
+        font-size: clamp(var(--type-5), 8.3vw, var(--type-6));
+      }
+
+      .device.wide .columns .flight-number {
+        margin-top: 5px;
+        font-size: var(--type-1);
+      }
+
+      .device.wide .vertical-tag {
+        display: grid;
+        grid-template-columns: 1.04fr 1.96fr;
+        padding: 7px 14px 8px;
+      }
+
+      .device.wide .vertical-tag .tag-code-wrap {
+        display: flex;
+        padding-bottom: 0;
+        border-right: var(--hairline) solid currentColor;
+        border-bottom: 0;
+      }
+
+      .device.wide .vertical-tag .tag-code {
+        margin-top: 0;
+        font-size: clamp(var(--type-5), 9.2vw, var(--type-6));
+        letter-spacing: -.075em;
+      }
+
+      .device.wide .vertical-tag .tag-fields {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        align-content: center;
+        padding: 0 0 0 10px;
+      }
+
+      .device.wide .vertical-tag .field {
+        display: block;
+        padding: 3px 4px;
+        border-bottom: 0;
+      }
+
+      .device.wide .vertical-tag .field-value {
+        font-size: var(--type-0);
+        text-align: left;
+      }
+
+      .device.wide .columns .settings-glyph {
+        top: 13px;
+        right: 13px;
+        width: 38px;
+        height: 38px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .flight-panel,
+      .status-panel { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="review-shell">
+    <header class="review-header">
+      <div>
+        <p class="review-kicker">Airplane Frame · Canonical probe 01</p>
+        <h1 class="review-title">Poster wall</h1>
+      </div>
+      <p class="review-note">Visual reference only. Device frames, labels, demo strings, web fonts, and literal CSS are not ship truth.</p>
+    </header>
+
+    <div class="review-grid">
+      <section class="review-frame" aria-labelledby="mobile-populated-label">
+        <h2 class="frame-label" id="mobile-populated-label">Mobile · populated · row wall</h2>
+        <div class="device mobile">
+          <div class="poster-wall rows" aria-label="Four nearby flights shown as stacked poster rows">
+            <button class="settings-glyph" aria-label="Settings, decorative in mock" tabindex="-1">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M7 14v6"/>
+              </svg>
+            </button>
+            <article class="flight-panel ground-sun" style="--delay: 50ms">
+              <div class="hero">
+                <h3 class="airline">United</h3>
+                <span class="flight-number">UAL 1847</span>
+              </div>
+              <div class="tag horizontal-tag">
+                <div class="tag-code-wrap">
+                  <span class="tag-kicker">Destination</span>
+                  <strong class="tag-code">ORD</strong>
+                </div>
+                <div class="tag-fields">
+                  <span class="field"><b class="field-label">Route</b><span class="field-value">EWR → ORD</span></span>
+                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">Boeing 737-900</span></span>
+                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">32,000 ft</span></span>
+                  <span class="field"><b class="field-label">Distance</b><span class="field-value">8.4 nm</span></span>
+                </div>
+              </div>
+            </article>
+
+            <article class="flight-panel ground-navy" style="--delay: 110ms">
+              <div class="hero">
+                <h3 class="airline">Delta</h3>
+                <span class="flight-number">DAL 2339</span>
+              </div>
+              <div class="tag horizontal-tag">
+                <div class="tag-code-wrap">
+                  <span class="tag-kicker">Destination</span>
+                  <strong class="tag-code">ATL</strong>
+                </div>
+                <div class="tag-fields">
+                  <span class="field"><b class="field-label">Route</b><span class="field-value">LGA → ATL</span></span>
+                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">Airbus A321</span></span>
+                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">28,400 ft</span></span>
+                  <span class="field"><b class="field-label">Distance</b><span class="field-value">11.7 nm</span></span>
+                </div>
+              </div>
+            </article>
+
+            <article class="flight-panel ground-rose" style="--delay: 170ms">
+              <div class="hero">
+                <h3 class="airline">JetBlue</h3>
+                <span class="flight-number">JBU 619</span>
+              </div>
+              <div class="tag horizontal-tag">
+                <div class="tag-code-wrap">
+                  <span class="tag-kicker">Destination</span>
+                  <strong class="tag-code">LAX</strong>
+                </div>
+                <div class="tag-fields">
+                  <span class="field"><b class="field-label">Route</b><span class="field-value">JFK → LAX</span></span>
+                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">Airbus A321neo</span></span>
+                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">36,000 ft</span></span>
+                  <span class="field"><b class="field-label">Distance</b><span class="field-value">15.2 nm</span></span>
+                </div>
+              </div>
+            </article>
+
+            <article class="flight-panel ground-teal" style="--delay: 230ms">
+              <div class="hero">
+                <h3 class="airline">American</h3>
+                <span class="flight-number">AAL 1528</span>
+              </div>
+              <div class="tag horizontal-tag">
+                <div class="tag-code-wrap">
+                  <span class="tag-kicker">Destination</span>
+                  <strong class="tag-code">MIA</strong>
+                </div>
+                <div class="tag-fields">
+                  <span class="field"><b class="field-label">Route</b><span class="field-value">→ MIA</span></span>
+                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">Boeing 737-800</span></span>
+                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">24,600 ft</span></span>
+                  <span class="field"><b class="field-label">Distance</b><span class="field-value">18.9 nm</span></span>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="review-frame" aria-labelledby="mobile-status-label">
+        <h2 class="frame-label" id="mobile-status-label">Mobile · status · empty</h2>
+        <div class="device mobile">
+          <article class="status-panel" aria-label="Empty nearby flights state">
+            <button class="settings-glyph" aria-label="Settings, decorative in mock" tabindex="-1">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M7 14v6"/>
+              </svg>
+            </button>
+            <div class="status-hero">
+              <h2>Nearby<br>flights</h2>
+            </div>
+            <div class="status-tag">
+              <strong class="status-word">EMPTY</strong>
+              <div class="status-fields">
+                <div class="status-row">
+                  <b class="field-label">Status</b>
+                  <span class="field-value">The sky is quiet nearby.</span>
+                </div>
+                <div class="status-row">
+                  <b class="field-label">Detail</b>
+                  <!-- Goal: radius copy matches the configured radiusMi setting (default 25). -->
+                  <span class="field-value">No flights found inside your 25 mi frame.</span>
+                </div>
+                <div class="status-row action">
+                  <b class="field-label">Action</b>
+                  <span class="field-value">Adjust location or distance</span>
+                </div>
+                <div class="status-row">
+                  <b class="field-label">Updated</b>
+                  <span class="field-value">11:28 AM local</span>
+                </div>
+              </div>
+            </div>
+            <span class="state-stamp">Representative state</span>
+          </article>
+        </div>
+      </section>
+
+      <section class="review-frame" aria-labelledby="mobile-error-label">
+        <h2 class="frame-label" id="mobile-error-label">Mobile · status · error</h2>
+        <div class="device mobile">
+          <article class="status-panel error" aria-label="Nearby flights error state">
+            <button class="settings-glyph" aria-label="Settings, decorative in mock" tabindex="-1">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M7 14v6"/>
+              </svg>
+            </button>
+            <div class="status-hero">
+              <h2>Nearby<br>flights</h2>
+            </div>
+            <div class="status-tag">
+              <strong class="status-word">ERR</strong>
+              <div class="status-fields">
+                <div class="status-row">
+                  <b class="field-label">Status</b>
+                  <span class="field-value">Flight data is unavailable.</span>
+                </div>
+                <div class="status-row">
+                  <b class="field-label">Detail</b>
+                  <span class="field-value">The latest request could not be completed.</span>
+                </div>
+                <div class="status-row action">
+                  <b class="field-label">Action</b>
+                  <span class="field-value">Open settings or try again</span>
+                </div>
+                <div class="status-row">
+                  <b class="field-label">Updated</b>
+                  <span class="field-value">12:45 PM local</span>
+                </div>
+              </div>
+            </div>
+            <span class="state-stamp">Representative state</span>
+          </article>
+        </div>
+      </section>
+
+      <section class="review-frame wide" aria-labelledby="wide-populated-label">
+        <h2 class="frame-label" id="wide-populated-label">Wide · populated · column wall</h2>
+        <div class="device wide">
+          <div class="poster-wall columns" aria-label="Five nearby flights shown as poster columns">
+            <button class="settings-glyph" aria-label="Settings, decorative in mock" tabindex="-1">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M7 14v6"/>
+              </svg>
+            </button>
+            <article class="flight-panel ground-sun" style="--delay: 40ms">
+              <div class="hero">
+                <h3 class="airline">United</h3>
+                <span class="flight-number">UAL 1847</span>
+              </div>
+              <div class="tag vertical-tag">
+                <div class="tag-code-wrap"><span class="tag-kicker">Destination</span><strong class="tag-code">ORD</strong></div>
+                <div class="tag-fields">
+                  <span class="field"><b class="field-label">Route</b><span class="field-value">EWR → ORD</span></span>
+                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">737-900</span></span>
+                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">32,000 ft</span></span>
+                  <span class="field"><b class="field-label">Distance</b><span class="field-value">8.4 nm</span></span>
+                </div>
+              </div>
+            </article>
+
+            <article class="flight-panel ground-navy" style="--delay: 90ms">
+              <div class="hero">
+                <h3 class="airline">Delta</h3>
+                <span class="flight-number">DAL 2339</span>
+              </div>
+              <div class="tag vertical-tag">
+                <div class="tag-code-wrap"><span class="tag-kicker">Destination</span><strong class="tag-code">ATL</strong></div>
+                <div class="tag-fields">
+                  <span class="field"><b class="field-label">Route</b><span class="field-value">LGA → ATL</span></span>
+                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">Airbus A321</span></span>
+                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">28,400 ft</span></span>
+                  <span class="field"><b class="field-label">Distance</b><span class="field-value">11.7 nm</span></span>
+                </div>
+              </div>
+            </article>
+
+            <article class="flight-panel ground-rose" style="--delay: 140ms">
+              <div class="hero">
+                <h3 class="airline">JetBlue</h3>
+                <span class="flight-number">JBU 619</span>
+              </div>
+              <div class="tag vertical-tag">
+                <div class="tag-code-wrap"><span class="tag-kicker">Destination</span><strong class="tag-code">LAX</strong></div>
+                <div class="tag-fields">
+                  <span class="field"><b class="field-label">Route</b><span class="field-value">JFK → LAX</span></span>
+                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">A321neo</span></span>
+                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">36,000 ft</span></span>
+                  <span class="field"><b class="field-label">Distance</b><span class="field-value">15.2 nm</span></span>
+                </div>
+              </div>
+            </article>
+
+            <article class="flight-panel ground-teal" style="--delay: 190ms">
+              <div class="hero">
+                <h3 class="airline">American</h3>
+                <span class="flight-number">AAL 1528</span>
+              </div>
+              <div class="tag vertical-tag">
+                <div class="tag-code-wrap"><span class="tag-kicker">Destination</span><strong class="tag-code">MIA</strong></div>
+                <div class="tag-fields">
+                  <span class="field"><b class="field-label">Route</b><span class="field-value">→ MIA</span></span>
+                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">737-800</span></span>
+                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">24,600 ft</span></span>
+                  <span class="field"><b class="field-label">Distance</b><span class="field-value">18.9 nm</span></span>
+                </div>
+              </div>
+            </article>
+
+            <article class="flight-panel ground-coral" style="--delay: 240ms">
+              <div class="hero">
+                <h3 class="airline">Spirit</h3>
+                <span class="flight-number">NKS 311</span>
+              </div>
+              <div class="tag vertical-tag">
+                <div class="tag-code-wrap"><span class="tag-kicker">Destination</span><strong class="tag-code">FLL</strong></div>
+                <div class="tag-fields">
+                  <span class="field"><b class="field-label">Route</b><span class="field-value">BOS → FLL</span></span>
+                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">Airbus A320</span></span>
+                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">30,100 ft</span></span>
+                  <span class="field"><b class="field-label">Distance</b><span class="field-value">19.6 nm</span></span>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

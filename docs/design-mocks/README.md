@@ -8,4 +8,4 @@ See [design-mock-probe-pointer.md](../agents/design-mock-probe-pointer.md) and [
 
 | File | Surface | Status |
 |------|---------|--------|
-| *(none yet)* | Poster wall | Next: `poster-ad-wall.html` |
+| `poster-ad-wall.html` | Poster wall | Ready for browser review |

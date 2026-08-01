@@ -2,8 +2,8 @@
 
 **Goal:** Personal web app showing 3–5 nearby commercial flights (carrier, destination, plane type) around a saved location, starting with Jersey City, NJ.
 
-**Current phase:** Design path (post–Phase 5) — poster mock probes
-**Next action:** `design-mock-probe` lock pass for **poster wall** — read pointer + visual-direction; emit mock-handoff; build `docs/design-mocks/poster-ad-wall.html` (mobile primary + wide; populated + status/empty).
+**Current phase:** Design path (post–Phase 5) — poster mock probe in progress
+**Next action:** Review `docs/design-mocks/poster-ad-wall.html` in browser; refine provisional swatches/type/status copy; then update mock inventory.
 
 **Hard invariants:** Free/trial data sources only; destination + carrier + plane type are non-negotiable on every displayed flight; no API secrets in the GitHub Pages front end; personal shared-secret gate on the Worker.
 
@@ -30,6 +30,6 @@
 - spike/README.md - Phase 1 spike entry
 - .cursor/skills/airplane-frame-ops/SKILL.md - agent entry to runbooks
 
-**Open decisions:** Optional user-selectable N (3–5) deferred; tune min-altitude default after more real traffic; exact swatch hexes / typefaces / status copy (mock probe).
-**Open items:** Poster mock not started; settings period polish, geocoder polish, livery source deferred.
-**Last updated:** 2026-08-01 — Design interview locks written; next = mock probe
+**Open decisions:** Optional user-selectable N (3–5) deferred; tune min-altitude default after more real traffic; post-review tighten of mock-provisional tokens.
+**Open items:** Poster mock under review; settings tag-chip chrome explore later; settings period polish, geocoder polish, livery source deferred. Carrier inventory snapshot: [airlines-seen-2026-08-01.md](../../design-reference/airlines-seen-2026-08-01.md).
+**Last updated:** 2026-08-01 — Airline capture experiment ended; results in design-reference

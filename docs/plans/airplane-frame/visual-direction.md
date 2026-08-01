@@ -20,12 +20,16 @@ Compass for later poster UI work and for `design-mock-probe`. Not an implementat
 | Hero (flight panel) | Headline = **airline** (`carrier`); sub-hed = **flight number** (`flight`) |
 | Luggage tag (flight panel) | Dominant = **destination airport code**; fields: **route** `origin → destination`, **aircraft** make/model (`planeType`), **altitude** (`altitudeFt`), **distance** (`distanceNm`). `origin` may be null (show partial route) |
 | Tag orientation | **Horizontal** tag layout in **row** wall mode; **bespoke vertical** tag layout in **column** wall mode (reflowed stacking — **not** CSS-rotated horizontal art) |
-| Panel colors | Closed **swatch book**; rotate saturated solid fields across the pack (**sequential** cycle). Status panel uses a **reserved neutral** outside the bright set. Exact hexes refined in mocks |
-| Typography direction | Dual: display/condensed for hero; utilitarian (heavy code + small labels/values) for tag. Concrete faces/scales refined in mocks |
+| Panel colors | Closed **swatch book**; rotate saturated solid fields across the pack (**sequential** cycle). Status panel uses a **reserved neutral** outside the bright set |
+| Swatch book (mock-provisional) | **Mixed warm+cool** (5–6 grounds): e.g. sun yellow → navy → dusty rose → teal → coral → mint; sequential cycle. Exact hexes chosen in mock; refine after browser review |
+| Panel ink (mock-provisional) | **Dual ink:** near-black on light grounds; cream/off-white on dark grounds |
+| Typography (mock-provisional) | Condensed **display** for hero (airline + quieter flight#); **heavy grotesque** for tag (ultra-bold dest code + small labels/values). Web fonts OK in mocks; app equivalent TBD. Refine after review |
+| Panel split (mock-provisional) | Hero-led **~60/40** (hero above / tag below) on mobile/row base |
 | Motion | Quiet state updates (fade/crossfade; status fields without bounce) **plus** short staged panel settle on load/refresh. No continuous ambient. Honor `prefers-reduced-motion` |
 | Staged fidelity | Type/ephemera panels first; plane+livery illustrations later as assets exist |
-| Poster chrome | Minimal settings control always available |
+| Poster chrome (mock-provisional) | Minimal **corner glyph** (gear/sliders), top-trailing, quiet. Follow-up explore later: luggage-tag chip (`SET`/`CFG`) — not this canonical mock |
 | Status surface | **One luggage tag** (same visual language as flight tags); its fields carry stale / error / updating / empty copy — not a separate chrome chip |
+| Status tag fields (mock-provisional) | Dominant state word (`EMPTY` / `STALE` / `WAIT` / `ERR`); labeled rows: **status**, **detail**, **action**, **updated**. Exact sentences refined in mock |
 | Empty / error / updating (sticky on poster) | Single full-bleed panel: hero strip **“Nearby flights”** + status luggage tag; settings control remains (escape to settings on error) |
 | API field contract (display) | Use shipped Worker row fields as-is. Gaps acked: nullable `origin`; no city-name field; `flight` is callsign; distance is nm from pin (not remaining to dest) |
 
@@ -54,8 +58,8 @@ Confirmed 2026-08-01 from `docs/design-reference/`. Takeaways remain compass for
 
 ## Explicitly deferred
 
-- Exact swatch hexes and typeface choices (refine in mocks)
-- Exact status-tag field → copy mapping (refine in mocks)
+- Post-review tightening of swatch hexes, typefaces/scales, status copy (mock-provisional above)
+- Settings chrome fork: luggage-tag chip (explore after canonical corner-glyph mock)
 - Settings period polish (framing accents)
 - Illustration / livery asset source
 - Geocoder UX polish
@@ -63,9 +67,9 @@ Confirmed 2026-08-01 from `docs/design-reference/`. Takeaways remain compass for
 
 ## Mock inventory
 
-| Surface | Canonical mock (planned) | Frames | Status |
-|---------|--------------------------|--------|--------|
-| Poster wall | `docs/design-mocks/poster-ad-wall.html` | Mobile row + wide column; populated (3–5) + empty/status | Not started — next session |
+| Surface | Canonical mock | Frames | Status |
+|---------|----------------|--------|--------|
+| Poster wall | `docs/design-mocks/poster-ad-wall.html` | Mobile row + wide column; populated (3–5) + empty/status | In probe — lock pass 2026-08-01 |
 
 Pointer: [docs/agents/design-mock-probe-pointer.md](../../agents/design-mock-probe-pointer.md)
 
@@ -73,5 +77,5 @@ Pointer: [docs/agents/design-mock-probe-pointer.md](../../agents/design-mock-pro
 
 1. ~~Gather design inspiration / fill Reference intake~~ (DONE 2026-08-01).
 2. ~~Deeper design interview~~ (DONE 2026-08-01 — locks above).
-3. **`design-mock-probe`** — poster surface lock pass; refine swatches, type, status copy; mobile primary + wide frames.
+3. **`design-mock-probe`** — build/review `poster-ad-wall.html`; refine provisional tokens after browser review.
 4. Later (ask first): implement poster SPA against locked direction + mocks as reference only.
