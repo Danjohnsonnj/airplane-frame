@@ -10,11 +10,12 @@
   - Subdomain: `danjohnsonnj.workers.dev`
   - Auth: `Authorization: Bearer <APP_SHARED_SECRET>`
   - Pipeline: airplanes.live → AirLabs (hexdb fallback) → filter/pack → JSON
-  - Candidate cache: ~300s per lat/lon/radiusNm (`CACHE_TTL_SECONDS`); filters re-pack without re-enrich
+  - Candidate cache: Workers KV `FLIGHT_CACHE` ~300s fresh (`CACHE_TTL_SECONDS`); stale fallback up to `STALE_TTL_SECONDS` (1800); filters re-pack without re-enrich
   - Pack: `PACK_SIZE` default 5; diversity-first + airport-interest tie-break (`worker/src/pack.js`)
   - UI radius query param `radiusMi` (statute) → nm via `milesToNm` (~25 mi → 22 nm)
 - Phase 3 Pages UI: **DONE** — https://danjohnsonnj.github.io/airplane-frame/
 - Phase 4 pack + filters: **DONE** 2026-07-31 (UAT PASS)
+- Phase 4.5 KV/stale + local dev: **DONE** 2026-08-01 — KV cache, stale serve, `resolveWorkerBase`, `scripts/dev-*.sh`, local-dev runbook
 
 ## Locked data stack (Phase 1)
 
@@ -46,10 +47,10 @@
    v
 [Worker https://airplane-frame.danjohnsonnj.workers.dev]
    |  secrets: AIRLABS_API_KEY, APP_SHARED_SECRET
-   |  cache candidates ~5 min; airplanes.live → AirLabs → hexdb fallback
-   |  filter + diversity pack (≤ PACK_SIZE); require carrier + destination + planeType
+   |  cache candidates in KV ~5 min; airplanes.live → AirLabs → hexdb fallback
+   |  stale serve on upstream failure; filter + diversity pack (≤ PACK_SIZE)
    v
-[JSON: { pin, count, flights[], pack, cachedForSeconds }]
+[JSON: { pin, count, candidateCount, flights[], pack, stale, ageSeconds, cachedForSeconds }]
    → UI renders pack (completeness guard only)
 ```
 
@@ -60,12 +61,13 @@
 - Location: JC default; map click (Leaflet/OSM); place search (Open-Meteo); device geolocation
 - Functional UI only; no poster art
 - Unit tests: `node --test js/lib.test.js`
+- Local: `127.0.0.1:8080` → `resolveWorkerBase` → local Wrangler `:8788` (or `?worker=prod`)
 - Live: https://danjohnsonnj.github.io/airplane-frame/
 
 ### Worker (live)
 
 - `GET /health`, `GET /flights` (pack + optional filters — see deploy-worker runbook)
-- Shared-secret gate; candidate cache; `PACK_SIZE` default 5
+- Shared-secret gate; KV candidate cache + stale fallback; `PACK_SIZE` default 5
 
 ## Hard invariants
 

@@ -3,11 +3,13 @@ import { describe, it } from "node:test";
 import {
   buildFlightsUrl,
   filterFlights,
+  formatPackStatus,
   isCompleteFlight,
   parseStoredNumber,
   pickGeocodeResult,
   unauthorizedStatusMessage,
 } from "./lib.js";
+import { LOCAL_WORKER_BASE, PROD_WORKER_BASE, resolveWorkerBase } from "./config.js";
 
 describe("isCompleteFlight", () => {
   it("requires carrier, destination, and planeType", () => {
@@ -114,5 +116,63 @@ describe("unauthorizedStatusMessage", () => {
     assert.match(msg, /APP_SHARED_SECRET/);
     assert.match(msg, /AIRLABS_API_KEY/);
     assert.match(msg, /paused/i);
+  });
+});
+
+describe("formatPackStatus", () => {
+  it("includes pack size, max, candidate total, and updated time", () => {
+    assert.equal(
+      formatPackStatus({
+        shown: 5,
+        packMax: 5,
+        candidateCount: 50,
+        updatedLabel: "7:45:24 AM",
+      }),
+      "Pack 5 (max 5) · 50 total flights · updated 7:45:24 AM",
+    );
+  });
+
+  it("omits max and total when missing", () => {
+    assert.equal(
+      formatPackStatus({ shown: 3, updatedLabel: "8:00:00 AM" }),
+      "Pack 3 · updated 8:00:00 AM",
+    );
+  });
+
+  it("appends stale age label when stale", () => {
+    assert.equal(
+      formatPackStatus({
+        shown: 5,
+        packMax: 5,
+        candidateCount: 12,
+        stale: true,
+        ageSeconds: 420,
+        updatedLabel: "8:10:02 AM",
+      }),
+      "Pack 5 (max 5) · 12 total flights · data 7 min old · updated 8:10:02 AM",
+    );
+  });
+});
+
+describe("resolveWorkerBase", () => {
+  it("uses local Worker on 127.0.0.1", () => {
+    assert.equal(
+      resolveWorkerBase({ hostname: "127.0.0.1", search: "" }),
+      LOCAL_WORKER_BASE,
+    );
+  });
+
+  it("uses production on github.io", () => {
+    assert.equal(
+      resolveWorkerBase({ hostname: "danjohnsonnj.github.io", search: "" }),
+      PROD_WORKER_BASE,
+    );
+  });
+
+  it("?worker=prod forces production from localhost", () => {
+    assert.equal(
+      resolveWorkerBase({ hostname: "127.0.0.1", search: "?worker=prod" }),
+      PROD_WORKER_BASE,
+    );
   });
 });

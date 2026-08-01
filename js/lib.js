@@ -99,3 +99,33 @@ export function unauthorizedStatusMessage() {
     "(not AIRLABS_API_KEY). Auto-refresh paused."
   );
 }
+
+/**
+ * @param {{
+ *   shown: number,
+ *   packMax?: number | null,
+ *   candidateCount?: number | null,
+ *   updatedLabel: string,
+ *   stale?: boolean,
+ *   ageSeconds?: number | null,
+ * }} opts
+ */
+export function formatPackStatus(opts) {
+  const shown = Number(opts.shown) || 0;
+  const parts = [`Pack ${shown}`];
+  if (opts.packMax != null && Number.isFinite(Number(opts.packMax))) {
+    parts[0] += ` (max ${Number(opts.packMax)})`;
+  }
+  if (
+    opts.candidateCount != null &&
+    Number.isFinite(Number(opts.candidateCount))
+  ) {
+    parts.push(`${Number(opts.candidateCount)} total flights`);
+  }
+  if (opts.stale && Number.isFinite(Number(opts.ageSeconds))) {
+    const mins = Math.max(1, Math.floor(Number(opts.ageSeconds) / 60));
+    parts.push(`data ${mins} min old`);
+  }
+  parts.push(`updated ${opts.updatedLabel}`);
+  return parts.join(" · ");
+}

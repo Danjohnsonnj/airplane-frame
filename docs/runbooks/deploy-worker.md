@@ -30,7 +30,18 @@ Prerequisite: [cloudflare-signup.md](./cloudflare-signup.md), then [secrets.md](
 | `destGroupMode` | off | `prefer` (fill metro dests first) or `exclude` |
 | `unique` | `1` | `1` prefer distinct carrier+destination; `0` score-only |
 
-Response includes `pack: { size, unique, destGroup, destGroupMode }`. Enriched **candidates** are cached ~5 min by lat/lon/radius; filters re-pack without re-hitting AirLabs within TTL.
+Response includes `count` (pack length), `candidateCount` (enriched pool before pack), `stale` (boolean), `ageSeconds` (when stale), `cachedForSeconds` (always `CACHE_TTL_SECONDS`), and `pack: { size, unique, destGroup, destGroupMode }`. Enriched **candidates** are cached in **Workers KV** (`FLIGHT_CACHE`) ~5 min by lat/lon/radius; filters re-pack without re-hitting AirLabs within TTL. On upstream failure with a KV entry, returns **200** with `stale: true` and last good candidates.
+
+### KV namespace (one-time)
+
+```bash
+cd worker
+npx wrangler kv namespace create FLIGHT_CACHE
+npx wrangler kv namespace create FLIGHT_CACHE --preview
+# paste id + preview_id into wrangler.toml [[kv_namespaces]]
+```
+
+`STALE_TTL_SECONDS` (default 1800) controls KV entry expiry for stale fallback.
 
 Pass bar: no/wrong Bearer → **401**; valid Bearer + JC pin → **200** with ≤5 flights each having `carrier`, `destination`, `planeType`.
 

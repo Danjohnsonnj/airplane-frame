@@ -16,13 +16,21 @@ HTTPS only. The Worker already allows browser CORS (`Access-Control-Allow-Origin
 
 ## Local preview
 
+**Recommended:** two terminals — see [local-dev.md](./local-dev.md).
+
 ```bash
-# repo root
-python3 -m http.server 8080
-# http://127.0.0.1:8080/
+./scripts/dev-pages.sh    # http://127.0.0.1:8080/
+./scripts/dev-worker.sh   # http://127.0.0.1:8788/
 ```
 
-Or: `npx --yes serve -l 8080 .`
+On `127.0.0.1`, the UI auto-targets local Wrangler (your IP for airplanes.live). Add `?worker=prod` to hit production from localhost.
+
+Manual alternative:
+
+```bash
+python3 -m http.server 8080
+cd worker && npx wrangler dev --ip 127.0.0.1 --port 8788
+```
 
 ## Auth: APP_SHARED_SECRET only
 
@@ -52,7 +60,7 @@ Settings persisted in `localStorage` and sent as Worker query params:
 | Unique carriers & destinations | Default on                                                       |
 | Min altitude                   | Sent to Worker (`minAltitudeFt`); pack already altitude-filtered |
 
-Worker returns ≤5 flights (`PACK_SIZE`). Status line shows pack size.
+Worker returns ≤5 flights (`PACK_SIZE`). Status line shows pack size, candidate total, stale age (if any), and backend (`local Worker` vs `production Worker`).
 
 ## UAT checklist (Phase 4 pack + filters)
 

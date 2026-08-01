@@ -1,5 +1,9 @@
 /** Shared front-end defaults. No secrets here. */
-export const WORKER_BASE = "https://airplane-frame.danjohnsonnj.workers.dev";
+export const PROD_WORKER_BASE = "https://airplane-frame.danjohnsonnj.workers.dev";
+export const LOCAL_WORKER_BASE = "http://127.0.0.1:8788";
+
+/** @deprecated Use resolveWorkerBase — kept for imports during transition */
+export const WORKER_BASE = PROD_WORKER_BASE;
 
 export const JC_DEFAULT = { lat: 40.728, lon: -74.078 };
 
@@ -27,3 +31,26 @@ export const STORAGE_KEYS = {
   destGroupMode: "af_destGroupMode",
   unique: "af_unique",
 };
+
+/**
+ * Pick Worker base URL from page location.
+ * @param {{ hostname?: string, search?: string } | Location | URL} loc
+ */
+export function resolveWorkerBase(loc) {
+  const hostname = loc?.hostname || "";
+  const search = loc?.search || "";
+  const params = new URLSearchParams(search);
+  if (params.get("worker") === "prod") return PROD_WORKER_BASE;
+  if (hostname === "localhost" || hostname === "127.0.0.1") {
+    return LOCAL_WORKER_BASE;
+  }
+  return PROD_WORKER_BASE;
+}
+
+/** Human label for status line — local vs production backend. */
+export function workerBackendLabel(base) {
+  if (base === LOCAL_WORKER_BASE || String(base).includes("127.0.0.1:8788")) {
+    return "local Worker";
+  }
+  return "production Worker";
+}

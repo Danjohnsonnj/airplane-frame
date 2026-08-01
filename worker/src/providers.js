@@ -1,4 +1,9 @@
 const USER_AGENT = "airplane-frame-worker/0.1 (personal)";
+const RETRY_DELAY_MS = 1200;
+
+function isRetryableStatus(status) {
+  return status === 429 || (status >= 500 && status < 600);
+}
 
 export async function fetchJson(url, init = {}) {
   const headers = {
@@ -6,7 +11,8 @@ export async function fetchJson(url, init = {}) {
     Accept: "application/json",
     ...(init.headers || {}),
   };
-  const res = await fetch(url, { ...init, headers });
+  const fetchImpl = init.fetch || fetch;
+  const res = await fetchImpl(url, { ...init, headers });
   if (!res.ok) {
     const err = new Error(`HTTP ${res.status} for ${url}`);
     err.status = res.status;
@@ -17,10 +23,25 @@ export async function fetchJson(url, init = {}) {
   return JSON.parse(text);
 }
 
-export async function fetchAirplanesLive(lat, lon, radiusNm) {
+export async function fetchAirplanesLive(lat, lon, radiusNm, deps = {}) {
+  const fetchImpl = deps.fetch || fetch;
+  const retryDelayMs = deps.retryDelayMs ?? RETRY_DELAY_MS;
   const url = `https://api.airplanes.live/v2/point/${lat}/${lon}/${radiusNm}`;
-  const payload = await fetchJson(url);
-  return Array.isArray(payload?.ac) ? payload.ac : [];
+
+  async function attempt() {
+    const payload = await fetchJson(url, { fetch: fetchImpl });
+    return Array.isArray(payload?.ac) ? payload.ac : [];
+  }
+
+  try {
+    return await attempt();
+  } catch (err) {
+    if (isRetryableStatus(err.status)) {
+      await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
+      return await attempt();
+    }
+    throw err;
+  }
 }
 
 export async function enrichAirLabs(callsign, apiKey) {

@@ -1,6 +1,13 @@
-import { DEFAULTS, JC_DEFAULT, STORAGE_KEYS, WORKER_BASE } from "./config.js";
+import {
+  DEFAULTS,
+  JC_DEFAULT,
+  resolveWorkerBase,
+  STORAGE_KEYS,
+  workerBackendLabel,
+} from "./config.js";
 import {
   buildFlightsUrl,
+  formatPackStatus,
   guardFlights,
   parseStoredBool,
   parseStoredNumber,
@@ -37,6 +44,7 @@ let map;
 let marker;
 let refreshTimer = null;
 let lastUpdated = null;
+const workerBase = resolveWorkerBase(window.location);
 
 function destPresetFromParts(group, mode) {
   if (group === "nyc" && (mode === "prefer" || mode === "exclude")) {
@@ -236,7 +244,7 @@ async function fetchFlights() {
   }
   savePrefs(s);
   setStatus("Loading flights…");
-  const url = buildFlightsUrl(WORKER_BASE, {
+  const url = buildFlightsUrl(workerBase, {
     lat: s.lat,
     lon: s.lon,
     radiusMi: s.radiusMi,
@@ -275,7 +283,14 @@ async function fetchFlights() {
     const time = lastUpdated.toLocaleTimeString();
     const packSize = body.pack?.size;
     setStatus(
-      `Pack ${flights.length}${packSize != null ? ` (max ${packSize})` : ""} · updated ${time}`,
+      `${formatPackStatus({
+        shown: flights.length,
+        packMax: packSize,
+        candidateCount: body.candidateCount,
+        stale: body.stale,
+        ageSeconds: body.ageSeconds,
+        updatedLabel: time,
+      })} · ${workerBackendLabel(workerBase)}`,
       "ok",
     );
     renderFlights(flights);

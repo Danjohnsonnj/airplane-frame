@@ -4,9 +4,15 @@ compatibility_date = "2026-07-31"
 workers_dev = true
 preview_urls = true
 
+[[kv_namespaces]]
+binding = "FLIGHT_CACHE"
+id = "839aaf4924ca46bcae445a36cc8e08ca"
+preview_id = "0cbf3bba7d244f0a9eaec0da54cd5314"
+
 [vars]
 # Non-secret defaults (override in dashboard if needed)
 CACHE_TTL_SECONDS = "300"
+STALE_TTL_SECONDS = "1800"
 MAX_ENRICH = "12"
 MAX_RESULTS = "20"
 PACK_SIZE = "5"

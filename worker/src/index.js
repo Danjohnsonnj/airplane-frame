@@ -1,4 +1,8 @@
 import { authorize, parseFlightsQuery } from "./auth.js";
+import {
+  candidateCacheKey,
+  resolveCandidates,
+} from "./cache.js";
 import { selectPack } from "./pack.js";
 import { enrichAircraftList, fetchAirplanesLive } from "./providers.js";
 
@@ -28,7 +32,7 @@ function packEcho(parsed, packSize) {
   };
 }
 
-function packedResponse(parsed, candidates, packSize, cacheTtl) {
+function packedResponse(parsed, candidates, packSize, cacheTtl, meta = {}) {
   const flights = selectPack(candidates, {
     size: packSize,
     unique: parsed.unique,
@@ -46,10 +50,29 @@ function packedResponse(parsed, candidates, packSize, cacheTtl) {
       radiusNm: parsed.radiusNm,
     },
     count: flights.length,
+    candidateCount: Array.isArray(candidates) ? candidates.length : 0,
     flights,
     cachedForSeconds: cacheTtl,
+    stale: Boolean(meta.stale),
+    ageSeconds: meta.ageSeconds ?? 0,
     pack: packEcho(parsed, packSize),
   };
+}
+
+async function fetchFreshCandidates(parsed, env) {
+  const aircraft = await fetchAirplanesLive(
+    parsed.lat,
+    parsed.lon,
+    parsed.radiusNm,
+  );
+  const maxEnrich = Number(env.MAX_ENRICH || 12);
+  const maxResults = Number(env.MAX_RESULTS || 20);
+  return (
+    await enrichAircraftList(aircraft, {
+      airlabsKey: env.AIRLABS_API_KEY,
+      maxEnrich,
+    })
+  ).slice(0, maxResults);
 }
 
 export default {
@@ -75,52 +98,39 @@ export default {
     if (parsed.error) return json({ error: parsed.error }, 400);
 
     const cacheTtl = Number(env.CACHE_TTL_SECONDS || 300);
+    const staleTtl = Number(env.STALE_TTL_SECONDS || 1800);
     const packSize = Number(env.PACK_SIZE || 5);
-    const cacheKey = new Request(
-      `https://airplane-frame.cache/candidates?lat=${parsed.lat}&lon=${parsed.lon}&r=${parsed.radiusNm}`,
-      request,
-    );
-    const cache = caches.default;
+    const pin = {
+      lat: parsed.lat,
+      lon: parsed.lon,
+      radiusMi: parsed.radiusMi,
+      radiusNm: parsed.radiusNm,
+    };
+    const key = candidateCacheKey(parsed.lat, parsed.lon, parsed.radiusNm);
 
     try {
-      let candidates = null;
-      const cached = await cache.match(cacheKey);
-      if (cached) {
-        const body = await cached.json();
-        if (Array.isArray(body?.candidates)) candidates = body.candidates;
+      const kv = env.FLIGHT_CACHE;
+      if (!kv) {
+        return json({ error: "misconfigured", message: "FLIGHT_CACHE binding missing" }, 500);
       }
 
-      if (!candidates) {
-        const aircraft = await fetchAirplanesLive(
-          parsed.lat,
-          parsed.lon,
-          parsed.radiusNm,
-        );
-        const maxEnrich = Number(env.MAX_ENRICH || 12);
-        const maxResults = Number(env.MAX_RESULTS || 20);
-        candidates = (
-          await enrichAircraftList(aircraft, {
-            airlabsKey: env.AIRLABS_API_KEY,
-            maxEnrich,
-          })
-        ).slice(0, maxResults);
+      const resolved = await resolveCandidates({
+        kv,
+        key,
+        pin,
+        nowMs: Date.now(),
+        freshTtlSec: cacheTtl,
+        staleTtlSec: staleTtl,
+        fetchFresh: () => fetchFreshCandidates(parsed, env),
+      });
 
-        const candidatePayload = {
-          pin: {
-            lat: parsed.lat,
-            lon: parsed.lon,
-            radiusMi: parsed.radiusMi,
-            radiusNm: parsed.radiusNm,
-          },
-          candidates,
-        };
-        const toCache = json(candidatePayload, 200, {
-          "Cache-Control": `public, max-age=${cacheTtl}`,
-        });
-        ctx.waitUntil(cache.put(cacheKey, toCache.clone()));
-      }
-
-      const body = packedResponse(parsed, candidates, packSize, cacheTtl);
+      const body = packedResponse(
+        parsed,
+        resolved.candidates,
+        packSize,
+        cacheTtl,
+        { stale: resolved.stale, ageSeconds: resolved.ageSeconds },
+      );
       return json(body, 200, {
         "Cache-Control": "no-store",
       });

@@ -14,6 +14,7 @@ description: >-
 Do **not** duplicate long procedures here. Read and follow:
 
 - `docs/runbooks/README.md` — runbook index
+- `docs/runbooks/local-dev.md` — local Pages + Wrangler (own IP)
 - `docs/runbooks/cloudflare-signup.md`
 - `docs/runbooks/secrets.md`
 - `docs/runbooks/deploy-worker.md`
@@ -33,6 +34,7 @@ Do **not** duplicate long procedures here. Read and follow:
 ## Live endpoints
 
 - Production: `https://airplane-frame.danjohnsonnj.workers.dev`
+- Local Worker: `http://127.0.0.1:8788` (when `scripts/dev-worker.sh` is running)
 - `GET /health` (no auth)
 - `GET /flights?lat=&lon=&radiusMi=` with `Authorization: Bearer <APP_SHARED_SECRET>`
 
@@ -40,6 +42,8 @@ Do **not** duplicate long procedures here. Read and follow:
 
 ```bash
 cd worker && npm test
-cd worker && npx wrangler dev --ip 127.0.0.1 --port 8788
+node --test js/lib.test.js
+./scripts/dev-pages.sh    # terminal 1
+./scripts/dev-worker.sh   # terminal 2 — see local-dev.md
 # curls: see docs/runbooks/deploy-worker.md
 ```

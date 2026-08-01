@@ -1,6 +1,45 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { buildFlightRow } from "../src/providers.js";
+import { buildFlightRow, fetchAirplanesLive } from "../src/providers.js";
+
+describe("fetchAirplanesLive", () => {
+  it("retries once on 429 then succeeds", async () => {
+    let calls = 0;
+    const mockFetch = async (url) => {
+      calls += 1;
+      if (calls === 1) {
+        return { ok: false, status: 429, text: async () => "" };
+      }
+      return {
+        ok: true,
+        status: 200,
+        text: async () => JSON.stringify({ ac: [{ flight: "UAL1", desc: "B737", alt_baro: 5000 }] }),
+      };
+    };
+    const ac = await fetchAirplanesLive(40.728, -74.078, 22, {
+      fetch: mockFetch,
+      retryDelayMs: 1,
+    });
+    assert.equal(calls, 2);
+    assert.equal(ac.length, 1);
+  });
+
+  it("throws after retry still fails", async () => {
+    const mockFetch = async () => ({
+      ok: false,
+      status: 429,
+      text: async () => "",
+    });
+    await assert.rejects(
+      () =>
+        fetchAirplanesLive(40.728, -74.078, 22, {
+          fetch: mockFetch,
+          retryDelayMs: 1,
+        }),
+      /HTTP 429/,
+    );
+  });
+});
 
 describe("buildFlightRow", () => {
   const base = {

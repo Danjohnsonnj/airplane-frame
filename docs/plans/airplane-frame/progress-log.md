@@ -76,3 +76,17 @@
 - Verified: worker + front-end unit tests; local/prod pack ≤5; UAT PASS (user).
 - Learned: Cache candidates separately from packed response so filter toggles reuse enrich within TTL.
 - Overwrote: Phase 4 → DONE; HANDOFF → Phase 5; tech/product/phases/lessons/phase-4.plan/pages UAT checked.
+
+## 2026-08-01 - Session 6: Phase 4.5 KV/stale + local dev DONE
+
+- Happened: KV namespace `FLIGHT_CACHE`; `worker/src/cache.js` + `resolveCandidates`; provider 429 retry; `index.js` wired to KV/stale; deployed Worker. Front end `resolveWorkerBase`, stale `formatPackStatus`, backend hint in status. Added `scripts/dev-*.sh`, `docs/runbooks/local-dev.md`, updated README/runbooks/ops skill.
+- Verified: worker 34 tests + front-end 15 tests pass; prod curl 200×2 with `candidateCount`; KV binding in deploy output.
+- Learned: airplanes.live 429 on Cloudflare shared egress; local Wrangler uses own IP for testing.
+- Overwrote: Phase 4.5 → DONE; HANDOFF → Phase 5; tech-brief, lessons, phases, phase-4.5.plan.
+
+## 2026-08-01 - Phase 4.5 local UAT PASS
+
+- Happened: User cold-start from `docs/runbooks/local-dev.md`; double refresh stable; stop Wrangler → network error (no silent prod fallback).
+- Verified: local UAT checklist items 1–3 in phase-4.5.plan.md — PASS.
+- Deferred: GitHub Pages UAT (item 4) — unpushed local changes; re-run after commit/push to https://danjohnsonnj.github.io/airplane-frame/
+- Overwrote: HANDOFF open items; phase-4.5.plan UAT section.

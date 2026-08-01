@@ -68,4 +68,18 @@
 - Context: Phase 4 filters must change the pack without re-hitting AirLabs every toggle.
 - Lesson: Cache enriched candidates by lat/lon/radius only; apply altitude/carrier/dest filters and diversity pack on every authenticated request. Cache key must not include filter params.
 - Evidence: Local wrangler smoke 2026-07-31 — carrierDeny changed pack count without waiting for TTL.
-- Crystallize?: Yes — deploy-worker runbook + Worker `index.js`.
+- Crystallize?: Yes — deploy-worker runbook + Worker `cache.js`.
+
+## airplanes.live 429 on Cloudflare shared egress
+
+- Context: Production Worker gets HTTP 429 from airplanes.live; laptop curl succeeds.
+- Lesson: Free airplanes.live limits ~1 req/s **per IP**. Workers egress from shared Cloudflare addresses — other tenants burn the budget. Mitigations: KV cache (fresh 5 min), stale serve on failure, local Wrangler for testing (own IP). Do not rapid-refresh production during dev.
+- Evidence: 2026-08-01 — prod 429, local 200; KV + retry deployed Phase 4.5.
+- Crystallize?: Yes — local-dev runbook + lessons.
+
+## Local preview must run Wrangler for own IP
+
+- Context: `python3 -m http.server` alone still called production Worker.
+- Lesson: `resolveWorkerBase` routes `localhost`/`127.0.0.1` → `http://127.0.0.1:8788`. Run `scripts/dev-worker.sh` alongside `scripts/dev-pages.sh`. `?worker=prod` overrides to production.
+- Evidence: Phase 4.5 implementation 2026-08-01.
+- Crystallize?: Yes — local-dev.md, README, pages runbook.

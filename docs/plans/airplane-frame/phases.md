@@ -29,6 +29,13 @@
 - Verify: with noisy JC traffic, output is 3–5 varied flights; filters change the pack predictably.
 - **Status: DONE 2026-07-31** — Worker packs ≤5 (`PACK_SIZE`); candidate cache then filter/pack; UI filters in localStorage; UAT PASS (user).
 
+## Phase 4.5 - KV/stale + local testing mode
+
+- Workers KV candidate cache (`FLIGHT_CACHE`) replaces Cache API; stale serve on upstream failure; one retry on 429/5xx.
+- Local preview auto-routes to Wrangler `:8788` (own IP); `scripts/dev-*.sh` + `docs/runbooks/local-dev.md`.
+- Verify: unit tests pass; prod KV fresh hit; local status shows `local Worker`; UAT checklist in phase-4.5.plan.md.
+- **Status: DONE 2026-08-01** — deployed Worker with KV; front-end `resolveWorkerBase` + stale status line. Local UAT PASS 2026-08-01; Pages UAT deferred until push.
+
 ## Phase 5 - MVP location polish + direction note
 
 - Place-name search + device geolocation landed in Phase 3; this phase is mainly a short visual-direction note for future 1950s poster work (plus any geocoder UX polish).
