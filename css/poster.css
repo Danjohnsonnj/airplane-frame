@@ -29,6 +29,7 @@
 
 #view-poster {
   position: fixed;
+  overflow: scroll;
   inset: 0;
   z-index: 20;
   background: var(--ink);
@@ -88,6 +89,7 @@
   flex: 1 1 0;
   flex-direction: column;
   border-bottom: 3px solid var(--ink);
+  min-height: 30vh;
 }
 
 .rows .flight-panel:last-child {
@@ -97,6 +99,7 @@
 .columns .flight-panel {
   flex: 1 1 0;
   flex-direction: column;
+  min-width: 30vw;
   border-right: 4px solid var(--ink);
 }
 
