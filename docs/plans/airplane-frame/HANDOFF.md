@@ -22,10 +22,10 @@
 - process.md - how we work (read before committing)
 - progress-log.md - dated history of decisions/learnings/overwrites
 - lessons.md - curated, accreted toolkit (carried in Required reading)
-- phase-3.plan.md - Phase 3 implementation plan (done pending Pages UAT)
+- phase-3.plan.md - Phase 3 plan (DONE including Pages two-device UAT)
 - docs/runbooks/README.md - ops runbook index
 - spike/README.md - Phase 1 spike entry
 - .cursor/skills/airplane-frame-ops/SKILL.md - agent entry to runbooks
 
-**Open decisions:** Whether N is fixed or user-selectable 3–5; tune min-altitude default after real traffic; enable GitHub Pages + complete two-device UAT if not done.
-**Last updated:** 2026-07-31 by Phase 3 implementation
+**Open decisions:** Whether N is fixed or user-selectable 3–5; tune min-altitude default after real traffic.
+**Last updated:** 2026-07-31 by Phase 3 Pages UAT PASS

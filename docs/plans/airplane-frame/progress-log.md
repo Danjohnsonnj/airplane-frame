@@ -62,3 +62,10 @@
 - Verified: `node --test js/lib.test.js` (includes unauthorizedStatusMessage).
 - Learned: Two Worker secrets are easy to conflate; name the env var in the UI.
 - Overwrote: secrets.md, pages.md, README, deploy-worker, skill, lessons, tech-brief, CREDENTIALS, `.dev.vars.example`.
+
+## 2026-07-31 - Session 4c: Pages enable + two-device UAT PASS
+
+- Happened: Enabled GitHub Pages via `gh` (`main` / root); repo homepage set. User confirmed app works on two devices at https://danjohnsonnj.github.io/airplane-frame/.
+- Verified: Pages build `built`; site assets 200; Worker health 200; two-device UAT PASS (user).
+- Learned: Default branch is `main` (docs had stale `master`).
+- Overwrote: HANDOFF open decisions drop UAT; Phase 3 → DONE; pages/phases/tech-brief/phase-3.plan updated.

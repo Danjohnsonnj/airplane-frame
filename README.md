@@ -6,7 +6,7 @@ Personal web app: nearby commercial flights (carrier, destination, plane type) a
 
 | Piece | URL / path |
 |-------|------------|
-| Front end (GitHub Pages) | Enable Pages from `master` / root — see [docs/runbooks/pages.md](docs/runbooks/pages.md) |
+| Front end (GitHub Pages) | https://danjohnsonnj.github.io/airplane-frame/ — see [docs/runbooks/pages.md](docs/runbooks/pages.md) |
 | Worker BFF | https://airplane-frame.danjohnsonnj.workers.dev |
 
 ## Local preview

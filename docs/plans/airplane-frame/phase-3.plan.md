@@ -1,6 +1,6 @@
 # Phase 3 plan — Pages functional UI
 
-**Status:** implemented 2026-07-31 (GitHub Pages enable + two-device UAT may remain)  
+**Status:** DONE 2026-07-31 (Pages enabled + two-device UAT PASS)  
 **Entry:** [HANDOFF.md](./HANDOFF.md) → this file  
 **Prerequisites:** Worker live at `https://airplane-frame.danjohnsonnj.workers.dev`; you know `APP_SHARED_SECRET` (from Wrangler secrets / `worker/.dev.vars` — never commit it)
 
@@ -109,7 +109,7 @@ Interval from settings (default 300s). Changing interval resets timer. Manual Re
 
 ### 7. README + pages runbook + skill index
 
-Document Pages enable (Settings → Pages → Deploy from branch `master` / root), local preview, secret entry, UAT steps. Link from ops skill + runbooks README.
+Document Pages enable (Settings → Pages → Deploy from branch `main` / root), local preview, secret entry, UAT steps. Link from ops skill + runbooks README.
 
 **Verify:** links resolve; steps match repo layout.
 

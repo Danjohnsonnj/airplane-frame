@@ -20,7 +20,7 @@
 - Plain HTML/CSS/JS on GitHub Pages: saved pin (map/coords), JC default, adjustable radius + refresh interval, render 3–5 cards with MVP fields.
 - Wire to Worker; store secret in localStorage.
 - Verify: UAT smoke on primary device — set pin, see enriched cards, refresh respects interval; second device with same secret works.
-- **Status: IMPLEMENTED 2026-07-31** — Root site + Open-Meteo search + geolocation + map; shows all Worker candidates after client min-altitude filter (diversity pack still Phase 4). **Remaining:** enable GitHub Pages + two-device UAT per `docs/runbooks/pages.md`.
+- **Status: DONE 2026-07-31** — Root site + Open-Meteo search + geolocation + map; shows all Worker candidates after client min-altitude filter (diversity pack still Phase 4). Pages live at `https://danjohnsonnj.github.io/airplane-frame/` (`main` / root). Two-device UAT PASS.
 
 ## Phase 4 - Diversity pack + minimal filters
 
@@ -31,7 +31,7 @@
 ## Phase 5 - MVP location polish + direction note
 
 - Place-name search + device geolocation landed in Phase 3; this phase is mainly a short visual-direction note for future 1950s poster work (plus any geocoder UX polish).
-- Verify: direction note exists in repo; full MVP success criteria in product-brief met (including Pages two-device UAT if still open).
+- Verify: direction note exists in repo; full MVP success criteria in product-brief met.
 
 ## Later (out of current phase plan)
 

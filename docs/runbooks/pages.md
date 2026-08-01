@@ -4,13 +4,15 @@ The Phase 3 UI is static files at the **repo root**: `index.html`, `css/`, `js/`
 
 ## Enable Pages
 
-1. Push `master` with the root site files.
+1. Push `main` with the root site files.
 2. GitHub → **Settings** → **Pages**.
 3. **Build and deployment** → Source: **Deploy from a branch**.
-4. Branch: `master` / folder: `/ (root)` → Save.
-5. Wait for the site URL (typically `https://<user>.github.io/<repo>/` for a project site, or `https://<user>.github.io/` for a user site).
+4. Branch: `main` / folder: `/ (root)` → Save.
+5. Wait for the site URL: **https://danjohnsonnj.github.io/airplane-frame/** (project site).
 
 HTTPS only. The Worker already allows browser CORS (`Access-Control-Allow-Origin: *`).
+
+**Configured (2026-07-31 via `gh`):** source `main` / `/`, HTTPS enforced, status `built`. Repo homepage set to the Pages URL.
 
 ## Local preview
 
@@ -41,11 +43,13 @@ Never commit secrets. Never put `AIRLABS_API_KEY` in front-end source or the bro
 
 ## UAT checklist (two devices)
 
-- [ ] Pages URL serves `index.html` over HTTPS
-- [ ] Device A: set pin (search, map click, or geolocation), Refresh → cards show carrier, destination, plane type
-- [ ] Radius / min altitude / refresh interval behave as expected
-- [ ] Device B: same **APP_SHARED_SECRET** → flights load (pin may differ per device localStorage)
-- [ ] Wrong secret / AirLabs key → unauthorized message + auto-refresh paused (not a silent empty success)
+- [x] Pages URL serves `index.html` over HTTPS
+- [x] Device A: set pin (search, map click, or geolocation), Refresh → cards show carrier, destination, plane type
+- [x] Radius / min altitude / refresh interval behave as expected
+- [x] Device B: same **APP_SHARED_SECRET** → flights load (pin may differ per device localStorage)
+- [x] Wrong secret / AirLabs key → unauthorized message + auto-refresh paused (not a silent empty success)
+
+**Result:** PASS 2026-07-31 (user confirmed on two devices via https://danjohnsonnj.github.io/airplane-frame/).
 
 ## Front-end unit tests
 

@@ -12,7 +12,7 @@
   - Pipeline: airplanes.live → AirLabs (hexdb fallback) → JSON
   - Cache: ~300s per lat/lon/radiusNm bucket (`CACHE_TTL_SECONDS`)
   - UI radius query param `radiusMi` (statute) → nm via `milesToNm` (~25 mi → 22 nm)
-- Phase 3 Pages UI: **implemented** (root `index.html` + `css/` + `js/`); GitHub Pages enable + two-device UAT may still be pending — see `docs/runbooks/pages.md`
+- Phase 3 Pages UI: **DONE** — root site + https://danjohnsonnj.github.io/airplane-frame/ ; two-device UAT PASS 2026-07-31
 
 ## Locked data stack (Phase 1)
 
@@ -49,13 +49,14 @@
                                     → Phase 4: diversity pack down to 3–5
 ```
 
-### Front end (Phase 3 done; polish pending Pages UAT)
+### Front end (Phase 3 DONE)
 
 - Modern browsers (last ~1 year)
 - `localStorage`: home pin, radius, refresh interval, min altitude, **`APP_SHARED_SECRET` only** (never `AIRLABS_API_KEY`; 401 clears stored secret and pauses auto-refresh)
 - Location: JC default; map click (Leaflet/OSM); place search (Open-Meteo geocoder); device geolocation
 - Functional UI only; no poster art
 - Unit tests: `node --test js/lib.test.js`
+- Live: https://danjohnsonnj.github.io/airplane-frame/
 
 ### Worker (live)
 
