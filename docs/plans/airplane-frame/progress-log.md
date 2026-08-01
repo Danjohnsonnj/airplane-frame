@@ -187,3 +187,10 @@
 - Verified: `node --test js/lib.test.js`.
 - Learned: Prior “no duplicate background token” rule was too broad — two Delta INC rows must both brand, not fall back to sun/navy.
 - Overwrote: visual-direction unique-ground row; phase-6.plan, lessons, mock header comments.
+
+## 2026-08-01 - KV empty-aware cache hotfix (option A)
+
+- Happened: `resolveCandidates` empty-aware freshness — short `EMPTY_CACHE_TTL_SECONDS` (60) for empty records; prefer last-good pack when upstream returns `[]`; bumped `CACHE_TTL_SECONDS` to 600 and `STALE_TTL_SECONDS` to 3600. Extended `worker/test/cache.test.js` (40 tests). Updated lessons, tech-brief, secrets runbook.
+- Verified: `cd worker && npm test` pass (40); production deploy + smoke curl.
+- Learned: Empty upstream success poisoned fresh KV same as 429 — GitHub Pages EMPTY while local Wrangler worked; empty TTL + last-good serve mitigates without unique egress.
+- Overwrote: tech-brief cache TTL facts; lessons egress note; HANDOFF open items.

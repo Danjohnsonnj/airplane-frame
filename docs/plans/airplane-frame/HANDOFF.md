@@ -31,5 +31,5 @@
 - .cursor/skills/airplane-frame-ops/SKILL.md - agent entry to runbooks
 
 **Open decisions:** Optional user-selectable N (3–5) deferred; tune min-altitude default after more real traffic; settings tag-chip chrome explore later.  
-**Open items:** Settings period polish, geocoder polish, livery source deferred; Phase 6 UAT pending. Carrier inventory: [airlines-seen-2026-08-01.md](../../design-reference/airlines-seen-2026-08-01.md).  
-**Last updated:** 2026-08-01 — Phase 6 poster SPA + carrier aliases + swatch-only uniqueness; UAT pending
+**Open items:** Settings period polish, geocoder polish, livery source deferred; Phase 6 UAT pending. KV empty-aware cache hotfix deployed 2026-08-01 (see progress-log). Carrier inventory: [airlines-seen-2026-08-01.md](../../design-reference/airlines-seen-2026-08-01.md).  
+**Last updated:** 2026-08-01 — KV empty-aware cache hotfix deployed; Phase 6 UAT next

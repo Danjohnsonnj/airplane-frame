@@ -72,9 +72,9 @@
 
 ## airplanes.live 429 on Cloudflare shared egress
 
-- Context: Production Worker gets HTTP 429 from airplanes.live; laptop curl succeeds.
-- Lesson: Free airplanes.live limits ~1 req/s **per IP**. Workers egress from shared Cloudflare addresses — other tenants burn the budget. Mitigations: KV cache (fresh 5 min), stale serve on failure, local Wrangler for testing (own IP). Do not rapid-refresh production during dev.
-- Evidence: 2026-08-01 — prod 429, local 200; KV + retry deployed Phase 4.5.
+- Context: Production Worker gets HTTP 429 from airplanes.live; laptop curl succeeds. Empty `[]` upstream success can also poison the fresh KV window and surface GitHub Pages EMPTY.
+- Lesson: Free airplanes.live limits ~1 req/s **per IP**. Workers egress from shared Cloudflare addresses — other tenants burn the budget. Mitigations: KV cache (fresh 10 min for non-empty, 60s for empty), prefer last-good pack when upstream returns empty, stale serve on failure, local Wrangler for testing (own IP). Do not rapid-refresh production during dev.
+- Evidence: 2026-08-01 — prod 429/empty, local 200; KV + retry deployed Phase 4.5; empty-aware cache hotfix 2026-08-01.
 - Crystallize?: Yes — local-dev runbook + lessons.
 
 ## Local preview must run Wrangler for own IP

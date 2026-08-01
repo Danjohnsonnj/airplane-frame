@@ -21,6 +21,19 @@ export function ageSeconds(fetchedAt, nowMs) {
   return Math.max(0, Math.floor((nowMs - fetchedAt) / 1000));
 }
 
+function usableFreshTtlSec(candidates, freshTtlSec, emptyFreshTtlSec) {
+  return candidates.length > 0 ? freshTtlSec : emptyFreshTtlSec;
+}
+
+function hasNonEmptyCandidates(record) {
+  return (
+    record &&
+    Number.isFinite(record.fetchedAt) &&
+    Array.isArray(record.candidates) &&
+    record.candidates.length > 0
+  );
+}
+
 /**
  * @param {object} opts
  * @param {{ get: Function, put: Function }} opts.kv
@@ -29,6 +42,7 @@ export function ageSeconds(fetchedAt, nowMs) {
  * @param {object} opts.pin
  * @param {number} opts.nowMs
  * @param {number} opts.freshTtlSec
+ * @param {number} opts.emptyFreshTtlSec
  * @param {number} opts.staleTtlSec
  * @returns {Promise<{ candidates: object[], stale: boolean, ageSeconds: number, fetchedAt: number }>}
  */
@@ -40,6 +54,7 @@ export async function resolveCandidates(opts) {
     pin,
     nowMs,
     freshTtlSec,
+    emptyFreshTtlSec = 60,
     staleTtlSec,
   } = opts;
 
@@ -58,18 +73,35 @@ export async function resolveCandidates(opts) {
     Number.isFinite(record.fetchedAt) &&
     Array.isArray(record.candidates);
 
-  if (hasRecord && isFresh(record.fetchedAt, nowMs, freshTtlSec)) {
-    return {
-      candidates: record.candidates,
-      stale: false,
-      ageSeconds: ageSeconds(record.fetchedAt, nowMs),
-      fetchedAt: record.fetchedAt,
-    };
+  if (hasRecord) {
+    const ttl = usableFreshTtlSec(
+      record.candidates,
+      freshTtlSec,
+      emptyFreshTtlSec,
+    );
+    if (isFresh(record.fetchedAt, nowMs, ttl)) {
+      return {
+        candidates: record.candidates,
+        stale: false,
+        ageSeconds: ageSeconds(record.fetchedAt, nowMs),
+        fetchedAt: record.fetchedAt,
+      };
+    }
   }
 
   try {
     const candidates = await fetchFresh();
     const fetchedAt = nowMs;
+
+    if (candidates.length === 0 && hasNonEmptyCandidates(record)) {
+      return {
+        candidates: record.candidates,
+        stale: true,
+        ageSeconds: ageSeconds(record.fetchedAt, nowMs),
+        fetchedAt: record.fetchedAt,
+      };
+    }
+
     const payload = { fetchedAt, candidates, pin };
     await kv.put(key, JSON.stringify(payload), {
       expirationTtl: staleTtlSec,

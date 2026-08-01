@@ -97,8 +97,9 @@ export default {
     const parsed = parseFlightsQuery(url);
     if (parsed.error) return json({ error: parsed.error }, 400);
 
-    const cacheTtl = Number(env.CACHE_TTL_SECONDS || 300);
-    const staleTtl = Number(env.STALE_TTL_SECONDS || 1800);
+    const cacheTtl = Number(env.CACHE_TTL_SECONDS || 600);
+    const staleTtl = Number(env.STALE_TTL_SECONDS || 3600);
+    const emptyCacheTtl = Number(env.EMPTY_CACHE_TTL_SECONDS || 60);
     const packSize = Number(env.PACK_SIZE || 5);
     const pin = {
       lat: parsed.lat,
@@ -120,6 +121,7 @@ export default {
         pin,
         nowMs: Date.now(),
         freshTtlSec: cacheTtl,
+        emptyFreshTtlSec: emptyCacheTtl,
         staleTtlSec: staleTtl,
         fetchFresh: () => fetchFreshCandidates(parsed, env),
       });

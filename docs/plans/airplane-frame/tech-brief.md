@@ -10,7 +10,7 @@
   - Subdomain: `danjohnsonnj.workers.dev`
   - Auth: `Authorization: Bearer <APP_SHARED_SECRET>`
   - Pipeline: airplanes.live → AirLabs (hexdb fallback) → filter/pack → JSON
-  - Candidate cache: Workers KV `FLIGHT_CACHE` ~300s fresh (`CACHE_TTL_SECONDS`); stale fallback up to `STALE_TTL_SECONDS` (1800); filters re-pack without re-enrich
+  - Candidate cache: Workers KV `FLIGHT_CACHE` ~600s fresh for non-empty (`CACHE_TTL_SECONDS`); empty fresh window `EMPTY_CACHE_TTL_SECONDS` (60); stale fallback up to `STALE_TTL_SECONDS` (3600); prefer last-good pack when upstream returns empty; filters re-pack without re-enrich
   - Pack: `PACK_SIZE` default 5; diversity-first + airport-interest tie-break (`worker/src/pack.js`)
   - UI radius query param `radiusMi` (statute) → nm via `milesToNm` (~25 mi → 22 nm)
 - Phase 3 Pages UI: **DONE** — https://danjohnsonnj.github.io/airplane-frame/

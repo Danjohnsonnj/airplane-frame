@@ -11,8 +11,9 @@ preview_id = "0cbf3bba7d244f0a9eaec0da54cd5314"
 
 [vars]
 # Non-secret defaults (override in dashboard if needed)
-CACHE_TTL_SECONDS = "300"
-STALE_TTL_SECONDS = "1800"
+CACHE_TTL_SECONDS = "600"
+STALE_TTL_SECONDS = "3600"
+EMPTY_CACHE_TTL_SECONDS = "60"
 MAX_ENRICH = "12"
 MAX_RESULTS = "20"
 PACK_SIZE = "5"

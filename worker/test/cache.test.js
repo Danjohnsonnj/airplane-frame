@@ -45,7 +45,16 @@ describe("resolveCandidates", () => {
   const pin = { lat: 40.728, lon: -74.078, radiusMi: 25, radiusNm: 22 };
   const key = candidateCacheKey(pin.lat, pin.lon, pin.radiusNm);
   const freshTtlSec = 300;
+  const emptyFreshTtlSec = 60;
   const staleTtlSec = 1800;
+
+  const baseOpts = {
+    key,
+    pin,
+    freshTtlSec,
+    emptyFreshTtlSec,
+    staleTtlSec,
+  };
 
   it("miss: fetchFresh, put KV, return live", async () => {
     const store = {};
@@ -53,12 +62,9 @@ describe("resolveCandidates", () => {
     const candidates = [{ flight: "UAL1", carrier: "United", destination: "EWR", planeType: "B737" }];
     let fetchCount = 0;
     const result = await resolveCandidates({
+      ...baseOpts,
       kv,
-      key,
-      pin,
       nowMs: 10_000,
-      freshTtlSec,
-      staleTtlSec,
       fetchFresh: async () => {
         fetchCount += 1;
         return candidates;
@@ -70,7 +76,7 @@ describe("resolveCandidates", () => {
     assert.ok(store[key]);
   });
 
-  it("hit + fresh: no fetchFresh", async () => {
+  it("hit + fresh non-empty: no fetchFresh", async () => {
     const fetchedAt = 9000;
     const candidates = [{ flight: "DAL2" }];
     const store = {
@@ -79,12 +85,9 @@ describe("resolveCandidates", () => {
     const kv = mockKv(store);
     let fetchCount = 0;
     const result = await resolveCandidates({
+      ...baseOpts,
       kv,
-      key,
-      pin,
       nowMs: 10_000,
-      freshTtlSec,
-      staleTtlSec,
       fetchFresh: async () => {
         fetchCount += 1;
         return [];
@@ -96,6 +99,87 @@ describe("resolveCandidates", () => {
     assert.equal(result.ageSeconds, 1);
   });
 
+  it("hit + fresh empty within emptyFreshTtlSec: no fetchFresh", async () => {
+    const fetchedAt = 95_000;
+    const store = {
+      [key]: JSON.stringify({ fetchedAt, candidates: [], pin }),
+    };
+    const kv = mockKv(store);
+    let fetchCount = 0;
+    const result = await resolveCandidates({
+      ...baseOpts,
+      kv,
+      nowMs: 100_000,
+      fetchFresh: async () => {
+        fetchCount += 1;
+        return [{ flight: "UAL9" }];
+      },
+    });
+    assert.equal(fetchCount, 0);
+    assert.equal(result.stale, false);
+    assert.deepEqual(result.candidates, []);
+    assert.equal(result.ageSeconds, 5);
+  });
+
+  it("hit + empty past emptyFreshTtlSec: fetchFresh again", async () => {
+    const fetchedAt = 30_000;
+    const store = {
+      [key]: JSON.stringify({ fetchedAt, candidates: [], pin }),
+    };
+    const kv = mockKv(store);
+    const fresh = [{ flight: "UAL9" }];
+    let fetchCount = 0;
+    const result = await resolveCandidates({
+      ...baseOpts,
+      kv,
+      nowMs: 100_000,
+      fetchFresh: async () => {
+        fetchCount += 1;
+        return fresh;
+      },
+    });
+    assert.equal(fetchCount, 1);
+    assert.equal(result.stale, false);
+    assert.deepEqual(result.candidates, fresh);
+  });
+
+  it("fetch returns empty with prior non-empty: stale prior, KV unchanged", async () => {
+    const fetchedAt = 1000;
+    const prior = [{ flight: "AAL3" }];
+    const store = {
+      [key]: JSON.stringify({ fetchedAt, candidates: prior, pin }),
+    };
+    const kv = mockKv(store);
+    const before = store[key];
+    const result = await resolveCandidates({
+      ...baseOpts,
+      kv,
+      nowMs: 10_000,
+      freshTtlSec: 5,
+      fetchFresh: async () => [],
+    });
+    assert.equal(result.stale, true);
+    assert.deepEqual(result.candidates, prior);
+    assert.equal(result.ageSeconds, 9);
+    assert.equal(store[key], before);
+  });
+
+  it("fetch returns empty with no prior: put empty, stale false", async () => {
+    const store = {};
+    const kv = mockKv(store);
+    const result = await resolveCandidates({
+      ...baseOpts,
+      kv,
+      nowMs: 10_000,
+      fetchFresh: async () => [],
+    });
+    assert.equal(result.stale, false);
+    assert.deepEqual(result.candidates, []);
+    assert.ok(store[key]);
+    const saved = JSON.parse(store[key]);
+    assert.deepEqual(saved.candidates, []);
+  });
+
   it("hit + stale: fetchFresh fails → return cached stale", async () => {
     const fetchedAt = 1000;
     const candidates = [{ flight: "AAL3" }];
@@ -104,12 +188,10 @@ describe("resolveCandidates", () => {
     };
     const kv = mockKv(store);
     const result = await resolveCandidates({
+      ...baseOpts,
       kv,
-      key,
-      pin,
       nowMs: 10_000,
       freshTtlSec: 5,
-      staleTtlSec,
       fetchFresh: async () => {
         throw new Error("HTTP 429");
       },
@@ -124,12 +206,9 @@ describe("resolveCandidates", () => {
     await assert.rejects(
       () =>
         resolveCandidates({
+          ...baseOpts,
           kv,
-          key,
-          pin,
           nowMs: 10_000,
-          freshTtlSec,
-          staleTtlSec,
           fetchFresh: async () => {
             throw new Error("HTTP 429");
           },

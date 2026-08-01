@@ -30,7 +30,7 @@ Prerequisite: [cloudflare-signup.md](./cloudflare-signup.md), then [secrets.md](
 | `destGroupMode` | off | `prefer` (fill metro dests first) or `exclude` |
 | `unique` | `1` | `1` prefer distinct carrier+destination; `0` score-only |
 
-Response includes `count` (pack length), `candidateCount` (enriched pool before pack), `stale` (boolean), `ageSeconds` (when stale), `cachedForSeconds` (always `CACHE_TTL_SECONDS`), and `pack: { size, unique, destGroup, destGroupMode }`. Enriched **candidates** are cached in **Workers KV** (`FLIGHT_CACHE`) ~5 min by lat/lon/radius; filters re-pack without re-hitting AirLabs within TTL. On upstream failure with a KV entry, returns **200** with `stale: true` and last good candidates.
+Response includes `count` (pack length), `candidateCount` (enriched pool before pack), `stale` (boolean), `ageSeconds` (when stale), `cachedForSeconds` (always `CACHE_TTL_SECONDS`), and `pack: { size, unique, destGroup, destGroupMode }`. Enriched **candidates** are cached in **Workers KV** (`FLIGHT_CACHE`) ~10 min fresh for non-empty (`CACHE_TTL_SECONDS`); empty results use a shorter fresh window (`EMPTY_CACHE_TTL_SECONDS`, 60s); filters re-pack without re-hitting AirLabs within TTL. On upstream failure or empty with a prior non-empty KV entry, returns **200** with `stale: true` and last good candidates.
 
 ### KV namespace (one-time)
 
@@ -102,6 +102,6 @@ See lessons.md: “Fresh workers.dev may briefly fail TLS”.
 
 ## Why a Worker
 
-GitHub Pages cannot hold `AIRLABS_API_KEY`. Browser calls to many flight APIs also hit CORS. The Worker holds secrets, enriches server-side (airplanes.live + AirLabs, hexdb fallback), caches ~5 minutes per lat/lon/radius bucket, and returns slim JSON.
+GitHub Pages cannot hold `AIRLABS_API_KEY`. Browser calls to many flight APIs also hit CORS. The Worker holds secrets, enriches server-side (airplanes.live + AirLabs, hexdb fallback), caches per lat/lon/radius bucket (10 min non-empty fresh, 60s empty fresh), and returns slim JSON.
 
 Clients authenticate with **`APP_SHARED_SECRET`** only (see [secrets.md](./secrets.md)). Do not send the AirLabs key as the Bearer token.

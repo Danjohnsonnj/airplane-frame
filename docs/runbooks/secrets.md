@@ -25,7 +25,7 @@ They are unrelated values. Using the AirLabs key as the Bearer token always retu
 | `APP_SHARED_SECRET` | Personal access gate; clients send `Authorization: Bearer <this>` |
 | `AIRLABS_API_KEY` | AirLabs flight enrichment (Worker-only) |
 
-Non-secret config lives in `worker/wrangler.toml` (`CACHE_TTL_SECONDS`, `STALE_TTL_SECONDS`, `MAX_ENRICH`, `MAX_RESULTS`, `PACK_SIZE`).
+Non-secret config lives in `worker/wrangler.toml` (`CACHE_TTL_SECONDS`, `STALE_TTL_SECONDS`, `EMPTY_CACHE_TTL_SECONDS`, `MAX_ENRICH`, `MAX_RESULTS`, `PACK_SIZE`).
 
 Local `wrangler dev` reads the same `APP_SHARED_SECRET` as production unless you rotate them separately.
 
