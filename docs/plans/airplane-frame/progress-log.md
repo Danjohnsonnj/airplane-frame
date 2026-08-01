@@ -110,3 +110,10 @@
 - Verified: note has Purpose/Locked/Intake/Deferred/Next; HANDOFF links resolve; product-brief rationale no longer “gallery second.”
 - Learned: n/a.
 - Overwrote: Phase 5 → DONE; HANDOFF next action → design path; open decisions drop geocoder-vs-note-only.
+
+## 2026-08-01 - Design reference intake confirmed
+
+- Happened: User confirmed takeaways for eight files in `docs/design-reference/` (3 luggage tags + 5 posters). Wrote Reference intake + working inferences into `visual-direction.md`. Explicitly not palette/type locks — refine via design interview + `design-mock-probe`.
+- Verified: intake table cites paths; reject cluster includes people/figures/dense illustration; HANDOFF next action updated.
+- Learned: Stage-1 panels biased to solid fields + type/ephemera; Pan Am circles + TWA/LAX glance stack inform tag/status chips.
+- Overwrote: visual-direction Reference intake *(none yet)* → confirmed rows; Next path step 1 DONE.

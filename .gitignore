@@ -5,6 +5,9 @@ spike/out/
 .env
 credentials.json
 
+# macOS
+.DS_Store
+
 # Worker
 worker/node_modules/
 worker/.dev.vars

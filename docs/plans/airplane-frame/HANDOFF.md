@@ -3,7 +3,7 @@
 **Goal:** Personal web app showing 3–5 nearby commercial flights (carrier, destination, plane type) around a saved location, starting with Jersey City, NJ.
 
 **Current phase:** Phase 5 - MVP location polish + direction note - DONE (geocoder polish deferred)
-**Next action:** Design inspiration → deeper design interview → `design-mock-probe` (grill/lock before canonical mocks). See visual-direction.md.
+**Next action:** Deeper design interview (deferred items) → `design-mock-probe` (grill/lock; refine intake). See visual-direction.md.
 
 **Hard invariants:** Free/trial data sources only; destination + carrier + plane type are non-negotiable on every displayed flight; no API secrets in the GitHub Pages front end; personal shared-secret gate on the Worker.
 
@@ -34,4 +34,4 @@
 
 **Open decisions:** Optional user-selectable N (3–5) deferred; tune min-altitude default after more real traffic.
 **Open items:** None — Phase 5 direction note DONE; geocoder polish deferred.
-**Last updated:** 2026-08-01 — Phase 5 visual-direction note
+**Last updated:** 2026-08-01 — Reference intake confirmed (`docs/design-reference/`)
