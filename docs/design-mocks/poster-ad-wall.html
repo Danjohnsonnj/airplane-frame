@@ -6,6 +6,9 @@
     Teal #167D7A · Coral #E85D44 · Mint #A7D8C5
     Reserved status neutral #D8D0C1
   Ink: near-black #171A18 on light grounds · cream #F7F0DE on dark grounds.
+  Carrier brand tokens: kebab-case from docs/design-reference/airline-brand-colors.md.
+  Regenerate: cd docs/design-mocks && node gen-carrier-css.mjs
+  data-carrier must match display name exactly; unknown carriers use --panel-ink.
 -->
 <html lang="en">
 <head>
@@ -41,6 +44,58 @@
       --type-6: 40px;
       --type-7: 56px;
       --type-8: 72px;
+      /* BEGIN carrier-tokens — gen: node gen-carrier-css.mjs */
+      --united-airlines: #005DAA;
+      --delta-air-lines: #003366;
+      --american-airlines: #0078D2;
+      --jetblue-airways: #003876;
+      --spirit-airlines: #FECA0A;
+      --frontier-airlines: #248168;
+      --southwest-airlines: #304CB2;
+      --alaska-airlines: #01426A;
+      --air-canada: #D82F2E;
+      --british-airways: #075AAA;
+      --air-france: #002157;
+      --lufthansa: #0A1D3D;
+      --emirates: #D71921;
+      --virgin-atlantic: #EB143A;
+      --singapore-airlines: #1D4886;
+      --turkish-airlines: #C8102E;
+      --qatar-airways: #5C0632;
+      --etihad-airways: #B8860B;
+      --klm: #00A1E4;
+      --swiss-international-air-lines: #E60005;
+      --air-india: #DA0E29;
+      --avianca: #DA291C;
+      --aeromexico: #040C3E;
+      --latam-airlines: #1B0088;
+      --copa-airlines: #0060A9;
+      --all-nippon-airways-ana: #00467F;
+      --japan-airlines: #C90000;
+      --korean-air: #154D9E;
+      --asiana-airlines: #C8102E;
+      --cathay-pacific: #005F4E;
+      --eva-air: #006747;
+      --air-china: #ED1C24;
+      --qantas: #DD0000;
+      --air-new-zealand: #000000;
+      --sas: #000066;
+      --finnair: #002277;
+      --icelandair: #003366;
+      --aer-lingus: #008374;
+      --tap-air-portugal: #BFD730;
+      --iberia: #D7141A;
+      --ita-airways: #0171CF;
+      --austrian-airlines: #CC0000;
+      --brussels-airlines: #002855;
+      --lot-polish-airlines: #003399;
+      --el-al: #003399;
+      --egyptair: #002B5B;
+      --royal-air-maroc: #C41230;
+      --ethiopian-airlines: #00853F;
+      --porter-airlines: #112855;
+      --breeze-airways: #1F74DF;
+      /* END carrier-tokens */
     }
 
     * { box-sizing: border-box; }
@@ -228,6 +283,60 @@
       opacity: .58;
     }
 
+
+    /* BEGIN carrier-selectors — gen: node gen-carrier-css.mjs */
+    .airline[data-carrier="United Airlines"] { --carrier-color: var(--united-airlines); }
+    .airline[data-carrier="Delta Air Lines"] { --carrier-color: var(--delta-air-lines); }
+    .airline[data-carrier="American Airlines"] { --carrier-color: var(--american-airlines); }
+    .airline[data-carrier="Jetblue Airways"] { --carrier-color: var(--jetblue-airways); }
+    .airline[data-carrier="Spirit Airlines"] { --carrier-color: var(--spirit-airlines); }
+    .airline[data-carrier="Frontier Airlines"] { --carrier-color: var(--frontier-airlines); }
+    .airline[data-carrier="Southwest Airlines"] { --carrier-color: var(--southwest-airlines); }
+    .airline[data-carrier="Alaska Airlines"] { --carrier-color: var(--alaska-airlines); }
+    .airline[data-carrier="Air Canada"] { --carrier-color: var(--air-canada); }
+    .airline[data-carrier="British Airways"] { --carrier-color: var(--british-airways); }
+    .airline[data-carrier="Air France"] { --carrier-color: var(--air-france); }
+    .airline[data-carrier="Lufthansa"] { --carrier-color: var(--lufthansa); }
+    .airline[data-carrier="Emirates"] { --carrier-color: var(--emirates); }
+    .airline[data-carrier="Virgin Atlantic"] { --carrier-color: var(--virgin-atlantic); }
+    .airline[data-carrier="Singapore Airlines"] { --carrier-color: var(--singapore-airlines); }
+    .airline[data-carrier="Turkish Airlines"] { --carrier-color: var(--turkish-airlines); }
+    .airline[data-carrier="Qatar Airways"] { --carrier-color: var(--qatar-airways); }
+    .airline[data-carrier="Etihad Airways"] { --carrier-color: var(--etihad-airways); }
+    .airline[data-carrier="KLM"] { --carrier-color: var(--klm); }
+    .airline[data-carrier="Swiss International Air Lines"] { --carrier-color: var(--swiss-international-air-lines); }
+    .airline[data-carrier="Air India"] { --carrier-color: var(--air-india); }
+    .airline[data-carrier="Avianca"] { --carrier-color: var(--avianca); }
+    .airline[data-carrier="Aeroméxico"] { --carrier-color: var(--aeromexico); }
+    .airline[data-carrier="LATAM Airlines"] { --carrier-color: var(--latam-airlines); }
+    .airline[data-carrier="Copa Airlines"] { --carrier-color: var(--copa-airlines); }
+    .airline[data-carrier="All Nippon Airways (ANA)"] { --carrier-color: var(--all-nippon-airways-ana); }
+    .airline[data-carrier="Japan Airlines"] { --carrier-color: var(--japan-airlines); }
+    .airline[data-carrier="Korean Air"] { --carrier-color: var(--korean-air); }
+    .airline[data-carrier="Asiana Airlines"] { --carrier-color: var(--asiana-airlines); }
+    .airline[data-carrier="Cathay Pacific"] { --carrier-color: var(--cathay-pacific); }
+    .airline[data-carrier="EVA Air"] { --carrier-color: var(--eva-air); }
+    .airline[data-carrier="Air China"] { --carrier-color: var(--air-china); }
+    .airline[data-carrier="Qantas"] { --carrier-color: var(--qantas); }
+    .airline[data-carrier="Air New Zealand"] { --carrier-color: var(--air-new-zealand); }
+    .airline[data-carrier="SAS"] { --carrier-color: var(--sas); }
+    .airline[data-carrier="Finnair"] { --carrier-color: var(--finnair); }
+    .airline[data-carrier="Icelandair"] { --carrier-color: var(--icelandair); }
+    .airline[data-carrier="Aer Lingus"] { --carrier-color: var(--aer-lingus); }
+    .airline[data-carrier="TAP Air Portugal"] { --carrier-color: var(--tap-air-portugal); }
+    .airline[data-carrier="Iberia"] { --carrier-color: var(--iberia); }
+    .airline[data-carrier="ITA Airways"] { --carrier-color: var(--ita-airways); }
+    .airline[data-carrier="Austrian Airlines"] { --carrier-color: var(--austrian-airlines); }
+    .airline[data-carrier="Brussels Airlines"] { --carrier-color: var(--brussels-airlines); }
+    .airline[data-carrier="LOT Polish Airlines"] { --carrier-color: var(--lot-polish-airlines); }
+    .airline[data-carrier="El Al"] { --carrier-color: var(--el-al); }
+    .airline[data-carrier="Egyptair"] { --carrier-color: var(--egyptair); }
+    .airline[data-carrier="Royal Air Maroc"] { --carrier-color: var(--royal-air-maroc); }
+    .airline[data-carrier="Ethiopian Airlines"] { --carrier-color: var(--ethiopian-airlines); }
+    .airline[data-carrier="Porter Airlines"] { --carrier-color: var(--porter-airlines); }
+    .airline[data-carrier="Breeze Airways"] { --carrier-color: var(--breeze-airways); }
+    /* END carrier-selectors */
+
     .airline {
       max-width: 95%;
       margin: 0;
@@ -237,6 +346,19 @@
       line-height: .88;
       letter-spacing: -.035em;
       text-transform: uppercase;
+      color: var(--carrier-color, var(--panel-ink));
+      paint-order: stroke fill;
+      -webkit-text-stroke: 1px var(--panel-ink);
+    }
+
+    @supports (color: contrast-color(red)) {
+      .airline {
+        -webkit-text-stroke: 1px color-mix(
+          in srgb,
+          transparent,
+          contrast-color(var(--carrier-color, var(--panel-ink)))
+        );
+      }
     }
 
     .flight-number {
@@ -670,7 +792,7 @@
         <p class="review-kicker">Airplane Frame · Canonical probe 01</p>
         <h1 class="review-title">Poster wall</h1>
       </div>
-      <p class="review-note">Visual reference only. Device frames, labels, demo strings, web fonts, and literal CSS are not ship truth.</p>
+      <p class="review-note">Visual reference only. Device frames, labels, demo strings, web fonts, and literal CSS are not ship truth. Unknown carriers inherit panel ink for airline text.</p>
     </header>
 
     <div class="review-grid">
@@ -685,7 +807,7 @@
             </button>
             <article class="flight-panel ground-sun" style="--delay: 50ms">
               <div class="hero">
-                <h3 class="airline">United</h3>
+                <h3 class="airline" data-carrier="United Airlines">United Airlines</h3>
                 <span class="flight-number">UAL 1847</span>
               </div>
               <div class="tag horizontal-tag">
@@ -704,7 +826,7 @@
 
             <article class="flight-panel ground-navy" style="--delay: 110ms">
               <div class="hero">
-                <h3 class="airline">Delta</h3>
+                <h3 class="airline" data-carrier="Delta Air Lines">Delta Air Lines</h3>
                 <span class="flight-number">DAL 2339</span>
               </div>
               <div class="tag horizontal-tag">
@@ -723,7 +845,7 @@
 
             <article class="flight-panel ground-rose" style="--delay: 170ms">
               <div class="hero">
-                <h3 class="airline">JetBlue</h3>
+                <h3 class="airline" data-carrier="Jetblue Airways">Jetblue Airways</h3>
                 <span class="flight-number">JBU 619</span>
               </div>
               <div class="tag horizontal-tag">
@@ -742,7 +864,7 @@
 
             <article class="flight-panel ground-teal" style="--delay: 230ms">
               <div class="hero">
-                <h3 class="airline">American</h3>
+                <h3 class="airline" data-carrier="American Airlines">American Airlines</h3>
                 <span class="flight-number">AAL 1528</span>
               </div>
               <div class="tag horizontal-tag">
@@ -850,7 +972,7 @@
             </button>
             <article class="flight-panel ground-sun" style="--delay: 40ms">
               <div class="hero">
-                <h3 class="airline">United</h3>
+                <h3 class="airline" data-carrier="United Airlines">United Airlines</h3>
                 <span class="flight-number">UAL 1847</span>
               </div>
               <div class="tag vertical-tag">
@@ -866,7 +988,7 @@
 
             <article class="flight-panel ground-navy" style="--delay: 90ms">
               <div class="hero">
-                <h3 class="airline">Delta</h3>
+                <h3 class="airline" data-carrier="Delta Air Lines">Delta Air Lines</h3>
                 <span class="flight-number">DAL 2339</span>
               </div>
               <div class="tag vertical-tag">
@@ -882,7 +1004,7 @@
 
             <article class="flight-panel ground-rose" style="--delay: 140ms">
               <div class="hero">
-                <h3 class="airline">JetBlue</h3>
+                <h3 class="airline" data-carrier="Jetblue Airways">Jetblue Airways</h3>
                 <span class="flight-number">JBU 619</span>
               </div>
               <div class="tag vertical-tag">
@@ -898,7 +1020,7 @@
 
             <article class="flight-panel ground-teal" style="--delay: 190ms">
               <div class="hero">
-                <h3 class="airline">American</h3>
+                <h3 class="airline" data-carrier="American Airlines">American Airlines</h3>
                 <span class="flight-number">AAL 1528</span>
               </div>
               <div class="tag vertical-tag">
@@ -914,7 +1036,7 @@
 
             <article class="flight-panel ground-coral" style="--delay: 240ms">
               <div class="hero">
-                <h3 class="airline">Spirit</h3>
+                <h3 class="airline" data-carrier="Spirit Airlines">Spirit Airlines</h3>
                 <span class="flight-number">NKS 311</span>
               </div>
               <div class="tag vertical-tag">

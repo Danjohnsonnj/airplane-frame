@@ -145,3 +145,17 @@
 - Verified: `cd worker && npm test` after teardown.
 - Learned: AirLabs brand names coexist with ALL-CAPS INC and trustee/lessor `ownOp` strings — normalize for poster art.
 - Overwrote: HANDOFF open items; tech-brief TEMP note removed.
+
+## 2026-08-01 - Poster mock carrier brand colors + stroke
+
+- Happened: Added 50 airline tokens + `data-carrier` selectors to `poster-ad-wall.html`; `.airline` brand fill + `-webkit-text-stroke` (`--panel-ink` fallback; `contrast-color` + `color-mix` in `@supports`). Added `gen-carrier-css.mjs` with marker-based regen from `airline-brand-colors.md`. Fixed malformed `contrast-color()` parenthesis. Codified contract in visual-direction.
+- Verified: browser smoke — United fill #005DAA, semi-transparent white stroke via `color-mix`; tag/flight# stay panel ink; generator re-run succeeds.
+- Learned: Exact `carrier` string match required; stroke outline replaces offset lithograph shadow.
+- Overwrote: mock inventory; visual-direction carrier-color row; progress-log duplicate entries merged.
+
+## 2026-08-01 - Handoff for next design-probe session
+
+- Happened: Session wrap — carrier colors + stroke + gen-carrier-css.mjs landed; HANDOFF next action = continue browser review of brand-colored `.airline` text.
+- Verified: gen-carrier-css.mjs + browser smoke on mock.
+- Learned: n/a.
+- Overwrote: HANDOFF next action + required reading (airline-brand-colors.md).

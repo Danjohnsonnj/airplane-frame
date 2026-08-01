@@ -18,6 +18,7 @@ Compass for later poster UI work and for `design-mock-probe`. Not an implementat
 | Poster wall | Pack as panels; portrait/square = full-width **rows**; landscape = **columns**; sparse pack stretches (1 = full bleed; 2 = even split); no ghost slots |
 | Panel composition | Vertical split on mobile/row base: **hero above**, **luggage tag below**. Wide may keep row packing or column packing per wall rules — not a squeezed side-by-side *inside* a narrow panel |
 | Hero (flight panel) | Headline = **airline** (`carrier`); sub-hed = **flight number** (`flight`) |
+| Airline brand color (mock-provisional) | Source: [airline-brand-colors.md](../../design-reference/airline-brand-colors.md). Exact `data-carrier` on Worker `carrier`; unknown → `--panel-ink`. **`.airline` only** — brand fill + `-webkit-text-stroke` (panel-ink fallback; `contrast-color` + `color-mix` when supported). CSS in [`poster-ad-wall.html`](../../design-mocks/poster-ad-wall.html) (`:root` tokens + `[data-carrier]`); regen via [`gen-carrier-css.mjs`](../../design-mocks/gen-carrier-css.mjs). Ship deferred |
 | Luggage tag (flight panel) | Dominant = **destination airport code**; fields: **route** `origin → destination`, **aircraft** make/model (`planeType`), **altitude** (`altitudeFt`), **distance** (`distanceNm`). `origin` may be null (show partial route) |
 | Tag orientation | **Horizontal** tag layout in **row** wall mode; **bespoke vertical** tag layout in **column** wall mode (reflowed stacking — **not** CSS-rotated horizontal art) |
 | Panel colors | Closed **swatch book**; rotate saturated solid fields across the pack (**sequential** cycle). Status panel uses a **reserved neutral** outside the bright set |
@@ -59,6 +60,8 @@ Confirmed 2026-08-01 from `docs/design-reference/`. Takeaways remain compass for
 ## Explicitly deferred
 
 - Post-review tightening of swatch hexes, typefaces/scales, status copy (mock-provisional above)
+- Carrier alias map / ICAO normalization (exact `data-carrier` match only in mock today)
+- Build-time CSS generation for ship (mock uses `gen-carrier-css.mjs` for drift control only)
 - Settings chrome fork: luggage-tag chip (explore after canonical corner-glyph mock)
 - Settings period polish (framing accents)
 - Illustration / livery asset source
@@ -69,7 +72,7 @@ Confirmed 2026-08-01 from `docs/design-reference/`. Takeaways remain compass for
 
 | Surface | Canonical mock | Frames | Status |
 |---------|----------------|--------|--------|
-| Poster wall | `docs/design-mocks/poster-ad-wall.html` | Mobile row + wide column; populated (3–5) + empty/status | In probe — lock pass 2026-08-01 |
+| Poster wall | `docs/design-mocks/poster-ad-wall.html` | Mobile row + wide column; populated + empty/error status; carrier brand colors on `.airline` | In probe — brand-color pass 2026-08-01 |
 
 Pointer: [docs/agents/design-mock-probe-pointer.md](../../agents/design-mock-probe-pointer.md)
 
@@ -77,5 +80,5 @@ Pointer: [docs/agents/design-mock-probe-pointer.md](../../agents/design-mock-pro
 
 1. ~~Gather design inspiration / fill Reference intake~~ (DONE 2026-08-01).
 2. ~~Deeper design interview~~ (DONE 2026-08-01 — locks above).
-3. **`design-mock-probe`** — build/review `poster-ad-wall.html`; refine provisional tokens after browser review.
+3. **`design-mock-probe`** — review `poster-ad-wall.html` (incl. carrier brand colors on airline hero); refine provisional tokens after browser review.
 4. Later (ask first): implement poster SPA against locked direction + mocks as reference only.
