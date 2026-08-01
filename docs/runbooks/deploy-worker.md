@@ -16,10 +16,23 @@ Prerequisite: [cloudflare-signup.md](./cloudflare-signup.md), then [secrets.md](
 | Method | Path | Auth | Notes |
 |--------|------|------|-------|
 | `GET` | `/health` | none | `{ "ok": true }` |
-| `GET` | `/flights?lat=&lon=&radiusMi=` | `Authorization: Bearer <APP_SHARED_SECRET>` | Enriched flights; `radiusMi` is **statute miles** (converted to nm for airplanes.live) |
+| `GET` | `/flights?lat=&lon=&radiusMi=` | `Authorization: Bearer <APP_SHARED_SECRET>` | Diversity pack (≤`PACK_SIZE`, default 5). `radiusMi` is **statute miles** (converted to nm for airplanes.live). Optional filters below. |
 | `OPTIONS` | `*` | none | CORS preflight |
 
-Pass bar: no/wrong Bearer → **401**; valid Bearer + JC pin → **200** with ≥3 flights each having `carrier`, `destination`, `planeType`.
+#### `/flights` optional query params
+
+| Param | Default | Notes |
+|-------|---------|--------|
+| `minAltitudeFt` | `0` | Hard filter before pack; UI sends its saved min altitude |
+| `carrierAllow` | empty | Comma-separated name/ICAO substrings; if set, only matches |
+| `carrierDeny` | empty | Comma-separated; **deny wins** over allow |
+| `destGroup` | off | Only `nyc` (`EWR`,`LGA`,`JFK`); requires `destGroupMode` |
+| `destGroupMode` | off | `prefer` (fill metro dests first) or `exclude` |
+| `unique` | `1` | `1` prefer distinct carrier+destination; `0` score-only |
+
+Response includes `pack: { size, unique, destGroup, destGroupMode }`. Enriched **candidates** are cached ~5 min by lat/lon/radius; filters re-pack without re-hitting AirLabs within TTL.
+
+Pass bar: no/wrong Bearer → **401**; valid Bearer + JC pin → **200** with ≤5 flights each having `carrier`, `destination`, `planeType`.
 
 ## Local verify
 

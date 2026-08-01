@@ -41,15 +41,27 @@ Full table: [secrets.md](./secrets.md).
 
 Never commit secrets. Never put `AIRLABS_API_KEY` in front-end source or the browser field.
 
-## UAT checklist (two devices)
+## Filters (Phase 4)
 
-- [x] Pages URL serves `index.html` over HTTPS
-- [x] Device A: set pin (search, map click, or geolocation), Refresh → cards show carrier, destination, plane type
-- [x] Radius / min altitude / refresh interval behave as expected
-- [x] Device B: same **APP_SHARED_SECRET** → flights load (pin may differ per device localStorage)
-- [x] Wrong secret / AirLabs key → unauthorized message + auto-refresh paused (not a silent empty success)
+Settings persisted in `localStorage` and sent as Worker query params:
 
-**Result:** PASS 2026-07-31 (user confirmed on two devices via https://danjohnsonnj.github.io/airplane-frame/).
+| UI control | Behavior |
+|------------|----------|
+| Carrier allow / deny | Comma-separated; deny wins |
+| Destination group | Off / NYC prefer / NYC exclude |
+| Unique carriers & destinations | Default on |
+| Min altitude | Sent to Worker (`minAltitudeFt`); pack already altitude-filtered |
+
+Worker returns ≤5 flights (`PACK_SIZE`). Status line shows pack size.
+
+## UAT checklist (Phase 4 pack + filters)
+
+- [ ] JC pin + defaults → ≤5 varied flights (carrier/dest diversity when traffic allows)
+- [ ] Carrier deny removes that airline from the pack
+- [ ] Dest group exclude NYC removes EWR/LGA/JFK destinations
+- [ ] Unique on vs off changes the pack when duplicates would otherwise fill
+- [ ] Two devices: same secret, independent filter localStorage OK
+- [ ] High min altitude → fewer/empty without crash; wrong secret → 401
 
 ## Front-end unit tests
 

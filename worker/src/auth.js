@@ -26,6 +26,8 @@ export function milesToNm(radiusMi) {
   return Math.min(250, Math.max(1, Math.round(n * 0.868976)));
 }
 
+import { parseTokenList } from "./pack.js";
+
 export function parseFlightsQuery(url) {
   const lat = Number(url.searchParams.get("lat"));
   const lon = Number(url.searchParams.get("lon"));
@@ -36,5 +38,62 @@ export function parseFlightsQuery(url) {
   if (lat < -90 || lat > 90 || lon < -180 || lon > 180) {
     return { error: "lat/lon out of range" };
   }
-  return { lat, lon, radiusMi, radiusNm: milesToNm(radiusMi) };
+
+  const minAltitudeRaw = url.searchParams.get("minAltitudeFt");
+  let minAltitudeFt = 0;
+  if (minAltitudeRaw != null && minAltitudeRaw !== "") {
+    minAltitudeFt = Number(minAltitudeRaw);
+    if (!Number.isFinite(minAltitudeFt) || minAltitudeFt < 0) {
+      return { error: "minAltitudeFt must be a non-negative number" };
+    }
+  }
+
+  const carrierAllow = parseTokenList(url.searchParams.get("carrierAllow"));
+  const carrierDeny = parseTokenList(url.searchParams.get("carrierDeny"));
+
+  const destGroupRaw = (url.searchParams.get("destGroup") || "").trim().toLowerCase();
+  const destGroupModeRaw = (url.searchParams.get("destGroupMode") || "")
+    .trim()
+    .toLowerCase();
+  let destGroup = null;
+  let destGroupMode = null;
+  if (destGroupRaw || destGroupModeRaw) {
+    if (!destGroupRaw) {
+      return { error: "destGroup is required when destGroupMode is set" };
+    }
+    if (!destGroupModeRaw) {
+      return { error: "destGroupMode is required when destGroup is set" };
+    }
+    if (destGroupRaw !== "nyc") {
+      return { error: "unknown destGroup (supported: nyc)" };
+    }
+    if (destGroupModeRaw !== "prefer" && destGroupModeRaw !== "exclude") {
+      return { error: "destGroupMode must be prefer or exclude" };
+    }
+    destGroup = destGroupRaw;
+    destGroupMode = destGroupModeRaw;
+  }
+
+  const uniqueRaw = url.searchParams.get("unique");
+  const unique = uniqueRaw == null || uniqueRaw === "" || uniqueRaw === "1"
+    ? true
+    : uniqueRaw === "0"
+      ? false
+      : null;
+  if (unique === null) {
+    return { error: "unique must be 0 or 1" };
+  }
+
+  return {
+    lat,
+    lon,
+    radiusMi,
+    radiusNm: milesToNm(radiusMi),
+    minAltitudeFt,
+    carrierAllow,
+    carrierDeny,
+    destGroup,
+    destGroupMode,
+    unique,
+  };
 }

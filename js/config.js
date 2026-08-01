@@ -7,6 +7,11 @@ export const DEFAULTS = {
   radiusMi: 25,
   refreshSeconds: 300,
   minAltitudeFt: 5000,
+  carrierAllow: "",
+  carrierDeny: "",
+  destGroup: "",
+  destGroupMode: "",
+  unique: true,
 };
 
 export const STORAGE_KEYS = {
@@ -16,4 +21,9 @@ export const STORAGE_KEYS = {
   radiusMi: "af_radiusMi",
   refreshSeconds: "af_refreshSeconds",
   minAltitudeFt: "af_minAltitudeFt",
+  carrierAllow: "af_carrierAllow",
+  carrierDeny: "af_carrierDeny",
+  destGroup: "af_destGroup",
+  destGroupMode: "af_destGroupMode",
+  unique: "af_unique",
 };

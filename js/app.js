@@ -1,7 +1,8 @@
 import { DEFAULTS, JC_DEFAULT, STORAGE_KEYS, WORKER_BASE } from "./config.js";
 import {
   buildFlightsUrl,
-  filterFlights,
+  guardFlights,
+  parseStoredBool,
   parseStoredNumber,
   pickGeocodeResult,
   unauthorizedStatusMessage,
@@ -15,6 +16,10 @@ const els = {
   radiusMi: document.getElementById("radiusMi"),
   refreshSeconds: document.getElementById("refreshSeconds"),
   minAltitudeFt: document.getElementById("minAltitudeFt"),
+  carrierAllow: document.getElementById("carrierAllow"),
+  carrierDeny: document.getElementById("carrierDeny"),
+  destGroupPreset: document.getElementById("destGroupPreset"),
+  unique: document.getElementById("unique"),
   refreshBtn: document.getElementById("refresh-btn"),
   searchForm: document.getElementById("search-form"),
   placeQuery: document.getElementById("place-query"),
@@ -33,9 +38,25 @@ let marker;
 let refreshTimer = null;
 let lastUpdated = null;
 
+function destPresetFromParts(group, mode) {
+  if (group === "nyc" && (mode === "prefer" || mode === "exclude")) {
+    return `nyc:${mode}`;
+  }
+  return "";
+}
+
+function partsFromDestPreset(preset) {
+  if (preset === "nyc:prefer") return { destGroup: "nyc", destGroupMode: "prefer" };
+  if (preset === "nyc:exclude") return { destGroup: "nyc", destGroupMode: "exclude" };
+  return { destGroup: "", destGroupMode: "" };
+}
+
 function loadSettings() {
   const lat = parseStoredNumber(localStorage.getItem(STORAGE_KEYS.lat), JC_DEFAULT.lat);
   const lon = parseStoredNumber(localStorage.getItem(STORAGE_KEYS.lon), JC_DEFAULT.lon);
+  const destGroup = localStorage.getItem(STORAGE_KEYS.destGroup) || DEFAULTS.destGroup;
+  const destGroupMode =
+    localStorage.getItem(STORAGE_KEYS.destGroupMode) || DEFAULTS.destGroupMode;
   return {
     secret: localStorage.getItem(STORAGE_KEYS.secret) || "",
     lat,
@@ -52,16 +73,26 @@ function loadSettings() {
       localStorage.getItem(STORAGE_KEYS.minAltitudeFt),
       DEFAULTS.minAltitudeFt,
     ),
+    carrierAllow: localStorage.getItem(STORAGE_KEYS.carrierAllow) ?? DEFAULTS.carrierAllow,
+    carrierDeny: localStorage.getItem(STORAGE_KEYS.carrierDeny) ?? DEFAULTS.carrierDeny,
+    destGroup,
+    destGroupMode,
+    unique: parseStoredBool(localStorage.getItem(STORAGE_KEYS.unique), DEFAULTS.unique),
   };
 }
 
-/** Persist pin / radius / refresh / min-alt — not a rejected Bearer. */
+/** Persist pin / radius / refresh / filters — not a rejected Bearer. */
 function savePrefs(s) {
   localStorage.setItem(STORAGE_KEYS.lat, String(s.lat));
   localStorage.setItem(STORAGE_KEYS.lon, String(s.lon));
   localStorage.setItem(STORAGE_KEYS.radiusMi, String(s.radiusMi));
   localStorage.setItem(STORAGE_KEYS.refreshSeconds, String(s.refreshSeconds));
   localStorage.setItem(STORAGE_KEYS.minAltitudeFt, String(s.minAltitudeFt));
+  localStorage.setItem(STORAGE_KEYS.carrierAllow, s.carrierAllow || "");
+  localStorage.setItem(STORAGE_KEYS.carrierDeny, s.carrierDeny || "");
+  localStorage.setItem(STORAGE_KEYS.destGroup, s.destGroup || "");
+  localStorage.setItem(STORAGE_KEYS.destGroupMode, s.destGroupMode || "");
+  localStorage.setItem(STORAGE_KEYS.unique, s.unique ? "1" : "0");
 }
 
 function saveSecret(secret) {
@@ -79,6 +110,7 @@ function saveAll(s) {
 }
 
 function readFormSettings() {
+  const { destGroup, destGroupMode } = partsFromDestPreset(els.destGroupPreset.value);
   return {
     secret: els.secret.value.trim(),
     lat: parseStoredNumber(els.lat.value, JC_DEFAULT.lat),
@@ -86,6 +118,11 @@ function readFormSettings() {
     radiusMi: parseStoredNumber(els.radiusMi.value, DEFAULTS.radiusMi),
     refreshSeconds: parseStoredNumber(els.refreshSeconds.value, DEFAULTS.refreshSeconds),
     minAltitudeFt: parseStoredNumber(els.minAltitudeFt.value, DEFAULTS.minAltitudeFt),
+    carrierAllow: els.carrierAllow.value.trim(),
+    carrierDeny: els.carrierDeny.value.trim(),
+    destGroup,
+    destGroupMode,
+    unique: els.unique.checked,
   };
 }
 
@@ -94,6 +131,10 @@ function fillForm(s) {
   els.radiusMi.value = String(s.radiusMi);
   els.refreshSeconds.value = String(s.refreshSeconds);
   els.minAltitudeFt.value = String(s.minAltitudeFt);
+  els.carrierAllow.value = s.carrierAllow || "";
+  els.carrierDeny.value = s.carrierDeny || "";
+  els.destGroupPreset.value = destPresetFromParts(s.destGroup, s.destGroupMode);
+  els.unique.checked = Boolean(s.unique);
   els.lat.value = String(s.lat);
   els.lon.value = String(s.lon);
 }
@@ -140,7 +181,7 @@ function renderFlights(flights) {
   if (!flights.length) {
     const p = document.createElement("p");
     p.className = "empty";
-    p.textContent = "No flights match the current pin, radius, and min altitude.";
+    p.textContent = "No flights match the current pin, radius, and filters.";
     els.list.append(p);
     return;
   }
@@ -199,6 +240,12 @@ async function fetchFlights() {
     lat: s.lat,
     lon: s.lon,
     radiusMi: s.radiusMi,
+    minAltitudeFt: s.minAltitudeFt,
+    carrierAllow: s.carrierAllow,
+    carrierDeny: s.carrierDeny,
+    destGroup: s.destGroup,
+    destGroupMode: s.destGroupMode,
+    unique: s.unique,
   });
 
   try {
@@ -223,14 +270,15 @@ async function fetchFlights() {
     }
     saveSecret(s.secret);
     const body = await res.json();
-    const filtered = filterFlights(body.flights || [], s.minAltitudeFt);
+    const flights = guardFlights(body.flights || []);
     lastUpdated = new Date();
     const time = lastUpdated.toLocaleTimeString();
+    const packSize = body.pack?.size;
     setStatus(
-      `Showing ${filtered.length} of ${body.count ?? (body.flights || []).length} enriched · updated ${time}`,
+      `Pack ${flights.length}${packSize != null ? ` (max ${packSize})` : ""} · updated ${time}`,
       "ok",
     );
-    renderFlights(filtered);
+    renderFlights(flights);
   } catch (err) {
     setStatus(`Network error: ${err?.message || err}`, "error");
     renderFlights([]);

@@ -44,4 +44,38 @@ describe("milesToNm / parseFlightsQuery", () => {
     const url = new URL("https://x/flights?lat=nope&lon=-74");
     assert.equal(parseFlightsQuery(url).error != null, true);
   });
+  it("parses pack filter defaults", () => {
+    const url = new URL("https://x/flights?lat=40.728&lon=-74.078&radiusMi=25");
+    const q = parseFlightsQuery(url);
+    assert.equal(q.minAltitudeFt, 0);
+    assert.deepEqual(q.carrierAllow, []);
+    assert.deepEqual(q.carrierDeny, []);
+    assert.equal(q.destGroup, null);
+    assert.equal(q.destGroupMode, null);
+    assert.equal(q.unique, true);
+  });
+  it("parses filter query params", () => {
+    const url = new URL(
+      "https://x/flights?lat=40.7&lon=-74&minAltitudeFt=5000" +
+        "&carrierAllow=United,Delta&carrierDeny=Spirit" +
+        "&destGroup=nyc&destGroupMode=prefer&unique=0",
+    );
+    const q = parseFlightsQuery(url);
+    assert.equal(q.minAltitudeFt, 5000);
+    assert.deepEqual(q.carrierAllow, ["United", "Delta"]);
+    assert.deepEqual(q.carrierDeny, ["Spirit"]);
+    assert.equal(q.destGroup, "nyc");
+    assert.equal(q.destGroupMode, "prefer");
+    assert.equal(q.unique, false);
+  });
+  it("errors when destGroup set without destGroupMode", () => {
+    const url = new URL("https://x/flights?lat=40.7&lon=-74&destGroup=nyc");
+    assert.match(parseFlightsQuery(url).error || "", /destGroupMode/);
+  });
+  it("errors on unknown destGroup", () => {
+    const url = new URL(
+      "https://x/flights?lat=40.7&lon=-74&destGroup=bos&destGroupMode=exclude",
+    );
+    assert.match(parseFlightsQuery(url).error || "", /destGroup/);
+  });
 });

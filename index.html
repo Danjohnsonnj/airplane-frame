@@ -65,6 +65,38 @@
               step="500"
             />
           </label>
+          <label class="span-2">
+            Carrier allow (comma-separated)
+            <input
+              id="carrierAllow"
+              name="carrierAllow"
+              type="text"
+              autocomplete="off"
+              placeholder="e.g. United, Delta — empty = any"
+            />
+          </label>
+          <label class="span-2">
+            Carrier deny (comma-separated)
+            <input
+              id="carrierDeny"
+              name="carrierDeny"
+              type="text"
+              autocomplete="off"
+              placeholder="e.g. Spirit — deny wins over allow"
+            />
+          </label>
+          <label>
+            Destination group
+            <select id="destGroupPreset" name="destGroupPreset">
+              <option value="">Off</option>
+              <option value="nyc:prefer">NYC metro — prefer</option>
+              <option value="nyc:exclude">NYC metro — exclude</option>
+            </select>
+          </label>
+          <label class="checkbox-field">
+            <span>Prefer unique carriers &amp; destinations</span>
+            <input id="unique" name="unique" type="checkbox" />
+          </label>
           <div class="form-actions">
             <button type="submit">Save settings</button>
             <button type="button" id="refresh-btn">Refresh flights</button>

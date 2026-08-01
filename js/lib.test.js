@@ -69,6 +69,27 @@ describe("buildFlightsUrl", () => {
       "https://example.workers.dev/flights?lat=40.728&lon=-74.078&radiusMi=25",
     );
   });
+
+  it("includes pack filter params", () => {
+    const url = buildFlightsUrl("https://example.workers.dev", {
+      lat: 40.728,
+      lon: -74.078,
+      radiusMi: 25,
+      minAltitudeFt: 5000,
+      carrierAllow: "United",
+      carrierDeny: "Spirit",
+      destGroup: "nyc",
+      destGroupMode: "exclude",
+      unique: false,
+    });
+    const u = new URL(url);
+    assert.equal(u.searchParams.get("minAltitudeFt"), "5000");
+    assert.equal(u.searchParams.get("carrierAllow"), "United");
+    assert.equal(u.searchParams.get("carrierDeny"), "Spirit");
+    assert.equal(u.searchParams.get("destGroup"), "nyc");
+    assert.equal(u.searchParams.get("destGroupMode"), "exclude");
+    assert.equal(u.searchParams.get("unique"), "0");
+  });
 });
 
 describe("pickGeocodeResult", () => {

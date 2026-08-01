@@ -9,3 +9,4 @@ preview_urls = true
 CACHE_TTL_SECONDS = "300"
 MAX_ENRICH = "12"
 MAX_RESULTS = "20"
+PACK_SIZE = "5"

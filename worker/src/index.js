@@ -1,4 +1,5 @@
 import { authorize, parseFlightsQuery } from "./auth.js";
+import { selectPack } from "./pack.js";
 import { enrichAircraftList, fetchAirplanesLive } from "./providers.js";
 
 const corsHeaders = {
@@ -16,6 +17,39 @@ function json(data, status = 200, extraHeaders = {}) {
       ...extraHeaders,
     },
   });
+}
+
+function packEcho(parsed, packSize) {
+  return {
+    size: packSize,
+    unique: parsed.unique,
+    destGroup: parsed.destGroup,
+    destGroupMode: parsed.destGroupMode,
+  };
+}
+
+function packedResponse(parsed, candidates, packSize, cacheTtl) {
+  const flights = selectPack(candidates, {
+    size: packSize,
+    unique: parsed.unique,
+    minAltitudeFt: parsed.minAltitudeFt,
+    carrierAllow: parsed.carrierAllow,
+    carrierDeny: parsed.carrierDeny,
+    destGroup: parsed.destGroup,
+    destGroupMode: parsed.destGroupMode,
+  });
+  return {
+    pin: {
+      lat: parsed.lat,
+      lon: parsed.lon,
+      radiusMi: parsed.radiusMi,
+      radiusNm: parsed.radiusNm,
+    },
+    count: flights.length,
+    flights,
+    cachedForSeconds: cacheTtl,
+    pack: packEcho(parsed, packSize),
+  };
 }
 
 export default {
@@ -41,43 +75,60 @@ export default {
     if (parsed.error) return json({ error: parsed.error }, 400);
 
     const cacheTtl = Number(env.CACHE_TTL_SECONDS || 300);
+    const packSize = Number(env.PACK_SIZE || 5);
     const cacheKey = new Request(
-      `https://airplane-frame.cache/flights?lat=${parsed.lat}&lon=${parsed.lon}&r=${parsed.radiusNm}`,
+      `https://airplane-frame.cache/candidates?lat=${parsed.lat}&lon=${parsed.lon}&r=${parsed.radiusNm}`,
       request,
     );
     const cache = caches.default;
-    const cached = await cache.match(cacheKey);
-    if (cached) return cached;
 
     try {
-      const aircraft = await fetchAirplanesLive(parsed.lat, parsed.lon, parsed.radiusNm);
-      const maxEnrich = Number(env.MAX_ENRICH || 12);
-      const maxResults = Number(env.MAX_RESULTS || 20);
-      const flights = (
-        await enrichAircraftList(aircraft, {
-          airlabsKey: env.AIRLABS_API_KEY,
-          maxEnrich,
-        })
-      ).slice(0, maxResults);
+      let candidates = null;
+      const cached = await cache.match(cacheKey);
+      if (cached) {
+        const body = await cached.json();
+        if (Array.isArray(body?.candidates)) candidates = body.candidates;
+      }
 
-      const body = {
-        pin: {
-          lat: parsed.lat,
-          lon: parsed.lon,
-          radiusMi: parsed.radiusMi,
-          radiusNm: parsed.radiusNm,
-        },
-        count: flights.length,
-        flights,
-        cachedForSeconds: cacheTtl,
-      };
-      const response = json(body, 200, {
-        "Cache-Control": `public, max-age=${cacheTtl}`,
+      if (!candidates) {
+        const aircraft = await fetchAirplanesLive(
+          parsed.lat,
+          parsed.lon,
+          parsed.radiusNm,
+        );
+        const maxEnrich = Number(env.MAX_ENRICH || 12);
+        const maxResults = Number(env.MAX_RESULTS || 20);
+        candidates = (
+          await enrichAircraftList(aircraft, {
+            airlabsKey: env.AIRLABS_API_KEY,
+            maxEnrich,
+          })
+        ).slice(0, maxResults);
+
+        const candidatePayload = {
+          pin: {
+            lat: parsed.lat,
+            lon: parsed.lon,
+            radiusMi: parsed.radiusMi,
+            radiusNm: parsed.radiusNm,
+          },
+          candidates,
+        };
+        const toCache = json(candidatePayload, 200, {
+          "Cache-Control": `public, max-age=${cacheTtl}`,
+        });
+        ctx.waitUntil(cache.put(cacheKey, toCache.clone()));
+      }
+
+      const body = packedResponse(parsed, candidates, packSize, cacheTtl);
+      return json(body, 200, {
+        "Cache-Control": "no-store",
       });
-      ctx.waitUntil(cache.put(cacheKey, response.clone()));
-      return response;
     } catch (err) {
-      return json({ error: "upstream_failed", message: String(err?.message || err) }, 502);
+      return json(
+        { error: "upstream_failed", message: String(err?.message || err) },
+        502,
+      );
     }
   },
 };
