@@ -36,16 +36,16 @@ Personal sky-watching tool first; eventual poster gallery second. Hybrid model (
 | Location (dev / Phase 3) | Saved pin: map click, place search, device geolocation; Jersey City default |
 | Location (MVP leftover) | Phase 5 shrinks to visual-direction note (+ any geocoder polish) |
 | Radius | ~25 miles default, user-adjustable |
-| Filters | After pipeline works: carrier allow/deny, destination group, uniqueness |
-| Selection | Diversity-first pack; light interest score as tie-break only |
+| Filters | Carrier allow/deny, destination group (`nyc` prefer/exclude), uniqueness — Phase 4 DONE |
+| Selection | Diversity-first pack ≤5 (`PACK_SIZE`); light interest score as tie-break; N slider deferred |
 | UI | Functional MVP first; short visual-direction note for later poster phase |
 | Maintenance | `docs/runbooks/` + Cursor skill pointing at them |
 | Data vendors | Spike-driven; no brand lock until success criteria met |
 
 ## Success criteria
 
-- For a Jersey City pin, the Worker returns enriched flights each with carrier, destination, and human-readable plane type on free/trial tiers at ≤5-minute polling (deployed: `https://airplane-frame.danjohnsonnj.workers.dev`; Phase 4 narrows to curated 3–5)
-- Front end loads from GitHub Pages, sends shared secret + location/radius, renders the pack
+- For a Jersey City pin, the Worker returns a curated pack (≤5) of enriched flights each with carrier, destination, and human-readable plane type on free/trial tiers at ≤5-minute polling (deployed: `https://airplane-frame.danjohnsonnj.workers.dev`)
+- Front end loads from GitHub Pages, sends shared secret + location/radius/filters, renders the pack
 - Location pin persists across sessions in that browser (localStorage); MVP includes place search
 - Runbooks exist for deploy, secrets, and Cloudflare setup (`docs/runbooks/`); skill `.cursor/skills/airplane-frame-ops` routes agents to them
-- UAT smoke: open Pages URL on two devices with the shared key; both see enriched flights within one refresh cycle
+- UAT smoke: open Pages URL on two devices with the shared key; both see enriched flights within one refresh cycle (Phase 3 + Phase 4 filter UAT PASS 2026-07-31)

@@ -62,3 +62,10 @@
 - Lesson: Two Worker secrets. `APP_SHARED_SECRET` is the personal access gate for `Authorization: Bearer`. `AIRLABS_API_KEY` never leaves the Worker. Label the UI field with the env var name; on 401 clear stored secret and pause auto-refresh.
 - Evidence: User report 2026-07-31; fixed copy in UI + secrets/pages runbooks.
 - Crystallize?: Yes — secrets.md “which secret goes where” + pages.md auth section.
+
+## Cache candidates, then pack per request
+
+- Context: Phase 4 filters must change the pack without re-hitting AirLabs every toggle.
+- Lesson: Cache enriched candidates by lat/lon/radius only; apply altitude/carrier/dest filters and diversity pack on every authenticated request. Cache key must not include filter params.
+- Evidence: Local wrangler smoke 2026-07-31 — carrierDeny changed pack count without waiting for TTL.
+- Crystallize?: Yes — deploy-worker runbook + Worker `index.js`.

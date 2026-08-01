@@ -9,10 +9,12 @@
   - URL: **https://airplane-frame.danjohnsonnj.workers.dev**
   - Subdomain: `danjohnsonnj.workers.dev`
   - Auth: `Authorization: Bearer <APP_SHARED_SECRET>`
-  - Pipeline: airplanes.live → AirLabs (hexdb fallback) → JSON
-  - Cache: ~300s per lat/lon/radiusNm bucket (`CACHE_TTL_SECONDS`)
+  - Pipeline: airplanes.live → AirLabs (hexdb fallback) → filter/pack → JSON
+  - Candidate cache: ~300s per lat/lon/radiusNm (`CACHE_TTL_SECONDS`); filters re-pack without re-enrich
+  - Pack: `PACK_SIZE` default 5; diversity-first + airport-interest tie-break (`worker/src/pack.js`)
   - UI radius query param `radiusMi` (statute) → nm via `milesToNm` (~25 mi → 22 nm)
-- Phase 3 Pages UI: **DONE** — root site + https://danjohnsonnj.github.io/airplane-frame/ ; two-device UAT PASS 2026-07-31
+- Phase 3 Pages UI: **DONE** — https://danjohnsonnj.github.io/airplane-frame/
+- Phase 4 pack + filters: **DONE** 2026-07-31 (UAT PASS)
 
 ## Locked data stack (Phase 1)
 
@@ -28,41 +30,42 @@
 
 1. Worker required for AirLabs key + CORS-safe front end — **done**.
 2. Keys only in `spike/.env` / `worker/.dev.vars` / Wrangler secrets — never `*.example`.
-3. Diversity pack + filters still Phase 4; Worker currently returns up to `MAX_RESULTS` (20) enriched candidates.
+3. Diversity pack + filters — **done** (Phase 4).
 4. Statute↔nm conversion implemented in Worker (`auth.js` / query parsing).
 5. Fresh workers.dev TLS can fail briefly until subdomain + `workers_dev = true` settle — see deploy runbook / lessons.
+6. Cache enriched **candidates**, then apply filters/pack per request — filter changes do not burn AirLabs within TTL.
 
 ## Architecture
 
 ```
 [Browser: plain HTML/CSS/JS — repo root; GitHub Pages]
    |  Authorization: Bearer APP_SHARED_SECRET (localStorage)
-   |  Query: lat, lon, radiusMi; client min-altitude filter
+   |  Query: lat, lon, radiusMi, minAltitudeFt, carrierAllow/Deny,
+   |         destGroup(+Mode), unique
    |  Location: JC default, map click, Open-Meteo place search, device geolocation
    v
 [Worker https://airplane-frame.danjohnsonnj.workers.dev]
    |  secrets: AIRLABS_API_KEY, APP_SHARED_SECRET
-   |  cache ~5 min; airplanes.live → AirLabs → hexdb fallback
-   |  require carrier + destination + planeType
+   |  cache candidates ~5 min; airplanes.live → AirLabs → hexdb fallback
+   |  filter + diversity pack (≤ PACK_SIZE); require carrier + destination + planeType
    v
-[JSON: { pin, count, flights[] }]  → UI shows all after minAltitudeFt filter
-                                    → Phase 4: diversity pack down to 3–5
+[JSON: { pin, count, flights[], pack, cachedForSeconds }]
+   → UI renders pack (completeness guard only)
 ```
 
-### Front end (Phase 3 DONE)
+### Front end (Phase 3–4 DONE)
 
 - Modern browsers (last ~1 year)
-- `localStorage`: home pin, radius, refresh interval, min altitude, **`APP_SHARED_SECRET` only** (never `AIRLABS_API_KEY`; 401 clears stored secret and pauses auto-refresh)
-- Location: JC default; map click (Leaflet/OSM); place search (Open-Meteo geocoder); device geolocation
+- `localStorage`: home pin, radius, refresh, min altitude, filters, **`APP_SHARED_SECRET` only**
+- Location: JC default; map click (Leaflet/OSM); place search (Open-Meteo); device geolocation
 - Functional UI only; no poster art
 - Unit tests: `node --test js/lib.test.js`
 - Live: https://danjohnsonnj.github.io/airplane-frame/
 
 ### Worker (live)
 
-- `GET /health`, `GET /flights`
-- Shared-secret gate + ~5 min cache
-- Phase 4: diversity pack down to 3–5
+- `GET /health`, `GET /flights` (pack + optional filters — see deploy-worker runbook)
+- Shared-secret gate; candidate cache; `PACK_SIZE` default 5
 
 ## Hard invariants
 

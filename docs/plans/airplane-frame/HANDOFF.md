@@ -2,17 +2,17 @@
 
 **Goal:** Personal web app showing 3–5 nearby commercial flights (carrier, destination, plane type) around a saved location, starting with Jersey City, NJ.
 
-**Current phase:** Phase 4 - Diversity pack + minimal filters - not started
-**Next action:** Implement airport-bias + diversity-first selection to pack 3–5 flights; add saved filters (carrier allow/deny, destination group, uniqueness). Front end already shows all Worker candidates after min-altitude filter.
+**Current phase:** Phase 5 - MVP location polish + direction note - not started
+**Next action:** Write a short visual-direction note for future 1950s poster/livery work; optional geocoder UX polish if anything still hurts.
 
 **Hard invariants:** Free/trial data sources only; destination + carrier + plane type are non-negotiable on every displayed flight; no API secrets in the GitHub Pages front end; personal shared-secret gate on the Worker.
 
 **Required reading (this phase):**
 
 - docs/plans/airplane-frame/lessons.md - reusable toolkit; reuse before re-deriving
-- docs/plans/airplane-frame/product-brief.md - selection + filter locks
-- docs/plans/airplane-frame/tech-brief.md - Worker response shape, front-end localStorage
-- docs/plans/airplane-frame/phase-3.plan.md - Phase 3 shipped surface (candidates UI)
+- docs/plans/airplane-frame/product-brief.md - MVP success criteria + visual direction non-goals
+- docs/plans/airplane-frame/tech-brief.md - shipped Pages + Worker pack/filter contract
+- docs/plans/airplane-frame/phases.md - Phase 5 verify bar
 
 **Index (load on demand):**
 
@@ -22,10 +22,11 @@
 - process.md - how we work (read before committing)
 - progress-log.md - dated history of decisions/learnings/overwrites
 - lessons.md - curated, accreted toolkit (carried in Required reading)
-- phase-3.plan.md - Phase 3 plan (DONE including Pages two-device UAT)
+- phase-3.plan.md - Phase 3 plan (DONE)
+- phase-4.plan.md - Phase 4 plan (DONE including UAT)
 - docs/runbooks/README.md - ops runbook index
 - spike/README.md - Phase 1 spike entry
 - .cursor/skills/airplane-frame-ops/SKILL.md - agent entry to runbooks
 
-**Open decisions:** Whether N is fixed or user-selectable 3–5; tune min-altitude default after real traffic.
-**Last updated:** 2026-07-31 by Phase 3 Pages UAT PASS
+**Open decisions:** Optional user-selectable N (3–5) deferred; tune min-altitude default after more real traffic; Phase 5 geocoder polish vs note-only.
+**Last updated:** 2026-07-31 by Phase 4 UAT PASS

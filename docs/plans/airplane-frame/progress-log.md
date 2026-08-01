@@ -69,3 +69,10 @@
 - Verified: Pages build `built`; site assets 200; Worker health 200; two-device UAT PASS (user).
 - Learned: Default branch is `main` (docs had stale `master`).
 - Overwrote: HANDOFF open decisions drop UAT; Phase 3 → DONE; pages/phases/tech-brief/phase-3.plan updated.
+
+## 2026-07-31 - Session 5: Phase 4 pack + filters DONE (UAT PASS)
+
+- Happened: Implemented Worker diversity pack (`PACK_SIZE` 5), candidate cache then filter/pack, query filters (carrier allow/deny, nyc dest group prefer/exclude, unique, minAltitudeFt); Pages UI persists filters; deployed Worker; commit `ad75ffe`. User completed Phase 4 UAT checklist.
+- Verified: worker + front-end unit tests; local/prod pack ≤5; UAT PASS (user).
+- Learned: Cache candidates separately from packed response so filter toggles reuse enrich within TTL.
+- Overwrote: Phase 4 → DONE; HANDOFF → Phase 5; tech/product/phases/lessons/phase-4.plan/pages UAT checked.

@@ -8,11 +8,11 @@ The Phase 3 UI is static files at the **repo root**: `index.html`, `css/`, `js/`
 2. GitHub → **Settings** → **Pages**.
 3. **Build and deployment** → Source: **Deploy from a branch**.
 4. Branch: `main` / folder: `/ (root)` → Save.
-5. Wait for the site URL: **https://danjohnsonnj.github.io/airplane-frame/** (project site).
+5. Wait for the site URL: **[https://danjohnsonnj.github.io/airplane-frame/](https://danjohnsonnj.github.io/airplane-frame/)** (project site).
 
 HTTPS only. The Worker already allows browser CORS (`Access-Control-Allow-Origin: *`).
 
-**Configured (2026-07-31 via `gh`):** source `main` / `/`, HTTPS enforced, status `built`. Repo homepage set to the Pages URL.
+**Configured (2026-07-31 via** `gh`**):** source `main` / `/`, HTTPS enforced, status `built`. Repo homepage set to the Pages URL.
 
 ## Local preview
 
@@ -28,8 +28,8 @@ Or: `npx --yes serve -l 8080 .`
 
 The UI field **APP_SHARED_SECRET** must match the Worker’s `APP_SHARED_SECRET` (`worker/.dev.vars` / Wrangler).
 
-| Paste this | Do not paste this |
-|------------|-------------------|
+| Paste this          | Do not paste this                               |
+| ------------------- | ----------------------------------------------- |
 | `APP_SHARED_SECRET` | `AIRLABS_API_KEY` (Worker-only; causes **401**) |
 
 Full table: [secrets.md](./secrets.md).
@@ -45,23 +45,25 @@ Never commit secrets. Never put `AIRLABS_API_KEY` in front-end source or the bro
 
 Settings persisted in `localStorage` and sent as Worker query params:
 
-| UI control | Behavior |
-|------------|----------|
-| Carrier allow / deny | Comma-separated; deny wins |
-| Destination group | Off / NYC prefer / NYC exclude |
-| Unique carriers & destinations | Default on |
-| Min altitude | Sent to Worker (`minAltitudeFt`); pack already altitude-filtered |
+| UI control                     | Behavior                                                         |
+| ------------------------------ | ---------------------------------------------------------------- |
+| Carrier allow / deny           | Comma-separated; deny wins                                       |
+| Destination group              | Off / NYC prefer / NYC exclude                                   |
+| Unique carriers & destinations | Default on                                                       |
+| Min altitude                   | Sent to Worker (`minAltitudeFt`); pack already altitude-filtered |
 
 Worker returns ≤5 flights (`PACK_SIZE`). Status line shows pack size.
 
 ## UAT checklist (Phase 4 pack + filters)
 
-- [ ] JC pin + defaults → ≤5 varied flights (carrier/dest diversity when traffic allows)
-- [ ] Carrier deny removes that airline from the pack
-- [ ] Dest group exclude NYC removes EWR/LGA/JFK destinations
-- [ ] Unique on vs off changes the pack when duplicates would otherwise fill
-- [ ] Two devices: same secret, independent filter localStorage OK
-- [ ] High min altitude → fewer/empty without crash; wrong secret → 401
+- [x] JC pin + defaults → ≤5 varied flights (carrier/dest diversity when traffic allows)
+- [x] Carrier deny removes that airline from the pack
+- [x] Dest group exclude NYC removes EWR/LGA/JFK destinations
+- [x] Unique on vs off changes the pack when duplicates would otherwise fill
+- [x] Two devices: same secret, independent filter localStorage OK
+- [x] High min altitude → fewer/empty without crash; wrong secret → 401
+
+**Result:** PASS 2026-07-31 (user confirmed Phase 4 UAT).
 
 ## Front-end unit tests
 

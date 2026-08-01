@@ -27,6 +27,7 @@
 - Implement airport-bias + diversity-first selection (light interest score as tie-break).
 - Add saved filters: carrier allow/deny, destination grouping, uniqueness aligned with pack.
 - Verify: with noisy JC traffic, output is 3–5 varied flights; filters change the pack predictably.
+- **Status: DONE 2026-07-31** — Worker packs ≤5 (`PACK_SIZE`); candidate cache then filter/pack; UI filters in localStorage; UAT PASS (user).
 
 ## Phase 5 - MVP location polish + direction note
 

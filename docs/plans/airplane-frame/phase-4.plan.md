@@ -1,6 +1,6 @@
 # Phase 4 plan — Diversity pack + minimal filters
 
-**Status:** implemented pending UAT (code + runbooks; deploy when user asks)  
+**Status:** DONE 2026-07-31 (Worker deployed + Phase 4 UAT PASS)  
 **Entry:** [HANDOFF.md](./HANDOFF.md) → this file  
 **Prerequisites:** Phase 3 DONE (Pages UI + Worker live). Local: `worker/.dev.vars` with `APP_SHARED_SECRET` + `AIRLABS_API_KEY`. Production Worker already deployed. Branch: `main` (or feature branch off `main`).
 
