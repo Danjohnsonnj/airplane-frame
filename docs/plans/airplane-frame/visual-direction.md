@@ -17,13 +17,15 @@ Compass for later poster UI work and for `design-mock-probe`. Not an implementat
 | Sticky override | `?view=poster` / `?view=settings` and manual view toggle override default; do not auto-bounce while sticky |
 | Poster wall | Pack as panels; portrait/square = full-width **rows**; landscape = **columns**; sparse pack stretches (1 = full bleed; 2 = even split); no ghost slots |
 | Panel composition | Vertical split on mobile/row base: **hero above**, **luggage tag below**. Wide may keep row packing or column packing per wall rules — not a squeezed side-by-side *inside* a narrow panel |
-| Hero (flight panel) | Headline = **airline** (`carrier`); sub-hed = **flight number** (`flight`) |
-| Airline brand color (mock-provisional) | Source: [airline-brand-colors.md](../../design-reference/airline-brand-colors.md). Exact `data-carrier` on Worker `carrier`; unknown → `--panel-ink`. **`.airline` only** — brand fill + `-webkit-text-stroke` (panel-ink fallback; `contrast-color` + `color-mix` when supported). CSS in [`poster-ad-wall.html`](../../design-mocks/poster-ad-wall.html) (`:root` tokens + `[data-carrier]`); regen via [`gen-carrier-css.mjs`](../../design-mocks/gen-carrier-css.mjs). Ship deferred |
+| Hero (flight panel) | Headline = **airline** (`carrier`); sub-hed = **flight number** (`flight`). Hero accent hairline uses `currentColor` (same ink as tag) |
+| Panel ground | **Full-panel solid field.** Matched carrier: `data-carrier` on `article.flight-panel` → `--carrier-color` from [airline-brand-colors.md](../../design-reference/airline-brand-colors.md) (regen via [`gen-carrier-css.mjs`](../../design-mocks/gen-carrier-css.mjs)). Unknown carrier: assign next **unique** swatch from sequential book via `ground-*` class (`--panel-ground`). Resolved as `--panel-color` = `var(--carrier-color, var(--panel-ground, var(--sun)))` |
+| Unique ground per pack | Within one wall pack, **no two flight panels** may share the same background token (branded `--carrier-color` hex or fallback `--panel-ground` such as `--sun`, `--rose`). Assign swatches in pack order when brand is unknown |
+| Panel ink (hero + tag) | **One ink** for hero and luggage-tag zones (airline, flight#, tag code, labels, hairlines, rivet dots). When OKLCH relative color + `color-mix` + `contrast-color` supported: `--tag-ink` = OKLCH complement of `--panel-color` (hue **+180°**, lightness `clamp(0.1, (1−L)+(0.5−L)×0.25, 0.9)`, chroma unchanged) mixed **52%** complement / **48%** `contrast-color(--panel-color)`. Fallback: `--panel-ink` from `ground-*` dual-ink or `contrast-color`. Reference CSS in [`poster-ad-wall.html`](../../design-mocks/poster-ad-wall.html) |
 | Luggage tag (flight panel) | Dominant = **destination airport code**; fields: **route** `origin → destination`, **aircraft** make/model (`planeType`), **altitude** (`altitudeFt`), **distance** (`distanceNm`). `origin` may be null (show partial route) |
 | Tag orientation | **Horizontal** tag layout in **row** wall mode; **bespoke vertical** tag layout in **column** wall mode (reflowed stacking — **not** CSS-rotated horizontal art) |
-| Panel colors | Closed **swatch book**; rotate saturated solid fields across the pack (**sequential** cycle). Status panel uses a **reserved neutral** outside the bright set |
-| Swatch book (mock-provisional) | **Mixed warm+cool** (5–6 grounds): e.g. sun yellow → navy → dusty rose → teal → coral → mint; sequential cycle. Exact hexes chosen in mock; refine after browser review |
-| Panel ink (mock-provisional) | **Dual ink:** near-black on light grounds; cream/off-white on dark grounds |
+| Panel colors | Closed **swatch book** for unknown carriers; rotate saturated solid fields across the pack (**sequential** cycle: sun → navy → rose → teal → coral → mint). **Unique ground per panel** (see above). Status panel uses **reserved neutral** (`--neutral`) outside the bright set |
+| Swatch book | **Mixed warm+cool** (6 grounds): sun `#F2C84B` · navy `#17324D` · rose `#D98C8C` · teal `#167D7A` · coral `#E85D44` · mint `#A7D8C5`. Status neutral `#D8D0C1`. Ink: `#171A18` on light grounds · `#F7F0DE` on dark |
+| Panel ink (fallback) | **Dual ink** on swatch-only panels without advanced color functions: near-black on light grounds; cream on dark (`ground-*` sets `--panel-ink`) |
 | Typography (mock-provisional) | Condensed **display** for hero (airline + quieter flight#); **heavy grotesque** for tag (ultra-bold dest code + small labels/values). Web fonts OK in mocks; app equivalent TBD. Refine after review |
 | Panel split (mock-provisional) | Hero-led **~60/40** (hero above / tag below) on mobile/row base |
 | Motion | Quiet state updates (fade/crossfade; status fields without bounce) **plus** short staged panel settle on load/refresh. No continuous ambient. Honor `prefers-reduced-motion` |
@@ -59,10 +61,9 @@ Confirmed 2026-08-01 from `docs/design-reference/`. Takeaways remain compass for
 
 ## Explicitly deferred
 
-- Post-review tightening of swatch hexes, typefaces/scales, status copy (mock-provisional above)
-- Carrier alias map / ICAO normalization (exact `data-carrier` match only in mock today)
-- Build-time CSS generation for ship (mock uses `gen-carrier-css.mjs` for drift control only)
-- Settings chrome fork: luggage-tag chip (explore after canonical corner-glyph mock)
+- Carrier alias map / ICAO normalization (exact `data-carrier` / Worker `carrier` string match only today)
+- Build-time CSS generation for ship (mock uses `gen-carrier-css.mjs` for drift control; port pattern to app build when needed)
+- Settings chrome fork: luggage-tag chip (explore after corner-glyph mock)
 - Settings period polish (framing accents)
 - Illustration / livery asset source
 - Geocoder UX polish
@@ -72,7 +73,7 @@ Confirmed 2026-08-01 from `docs/design-reference/`. Takeaways remain compass for
 
 | Surface | Canonical mock | Frames | Status |
 |---------|----------------|--------|--------|
-| Poster wall | `docs/design-mocks/poster-ad-wall.html` | Mobile row + wide column; populated + empty/error status; carrier brand colors on `.airline` | In probe — brand-color pass 2026-08-01 |
+| Poster wall | `docs/design-mocks/poster-ad-wall.html` | Mobile row + wide column; populated + empty/error status; carrier/swatch grounds + complementary hero/tag ink | **LOCKED** 2026-08-01 — ship reference |
 
 Pointer: [docs/agents/design-mock-probe-pointer.md](../../agents/design-mock-probe-pointer.md)
 
@@ -80,5 +81,5 @@ Pointer: [docs/agents/design-mock-probe-pointer.md](../../agents/design-mock-pro
 
 1. ~~Gather design inspiration / fill Reference intake~~ (DONE 2026-08-01).
 2. ~~Deeper design interview~~ (DONE 2026-08-01 — locks above).
-3. **`design-mock-probe`** — review `poster-ad-wall.html` (incl. carrier brand colors on airline hero); refine provisional tokens after browser review.
-4. Later (ask first): implement poster SPA against locked direction + mocks as reference only.
+3. ~~**design-mock-probe** — poster wall~~ (DONE 2026-08-01 — carrier ground, complementary ink, unique swatch per pack).
+4. **Implement poster SPA** in `index.html` / `css/` / `js/` per locks above; mocks as visual reference only (do not port literal DOM).

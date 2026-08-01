@@ -42,10 +42,17 @@
 - Verify: direction note exists in repo; full MVP success criteria in product-brief met.
 - **Status: DONE 2026-08-01** — [visual-direction.md](./visual-direction.md) locked (poster-main SPA IA); geocoder polish deferred.
 
+## Phase 6 - Poster SPA (design → ship)
+
+- Implement poster wall per [visual-direction.md](./visual-direction.md): carrier/swatch panel grounds, complementary hero+tag ink, row/column responsive wall, status panel, settings glyph.
+- Carrier colors from [airline-brand-colors.md](../../design-reference/airline-brand-colors.md); unknown carriers get unique sequential swatch per pack.
+- Reference mock: [poster-ad-wall.html](../../design-mocks/poster-ad-wall.html) — visual only, not literal DOM port.
+- Verify: local stack shows poster view with live Worker pack; mobile rows + wide columns; empty/error/stale states; unique grounds in pack; readable complementary ink.
+- **Status: NOT STARTED** — design probe locked 2026-08-01.
+
 ## Later (out of current phase plan)
 
-- **Design path (active):** `design-mock-probe` for poster wall — locks in [visual-direction.md](./visual-direction.md); pointer [docs/agents/design-mock-probe-pointer.md](../../agents/design-mock-probe-pointer.md); output under `docs/design-mocks/`
-- Implement poster SPA per visual-direction + mocks as reference only (ask first); plane/livery illustration source decision
+- Plane/livery illustration source decision
 - Live browser geolocation
 - Optional widen of sky-watcher filters (min altitude, widebody bias strength)
-- Deferred: settings period polish; geocoder UX polish
+- Deferred: settings period polish; geocoder UX polish; settings tag-chip chrome fork

@@ -159,3 +159,10 @@
 - Verified: gen-carrier-css.mjs + browser smoke on mock.
 - Learned: n/a.
 - Overwrote: HANDOFF next action + required reading (airline-brand-colors.md).
+
+## 2026-08-01 - Poster mock probe LOCKED → Phase 6
+
+- Happened: Completed poster wall design probe in `poster-ad-wall.html`: carrier brand as full panel ground (`data-carrier` on article); unknown carriers get unique sequential swatch (`ground-*`); hero + tag share complementary `--tag-ink` (OKLCH hue +180°, lightness push, 52/48 mix with contrast-color); unique ground per pack rule. Updated visual-direction locks, HANDOFF → Phase 6 poster SPA, phases.md, mock inventory.
+- Verified: browser review on prevalence-based carrier mix (Endeavor, Southwest, Jetblue, Frontier, Porter); gen-carrier-css.mjs emits `.flight-panel[data-carrier]` selectors.
+- Learned: Complementary ink on hero (not just tag) reads as one luggage-tag zone; lightness bias + higher contrast-color share improves legibility without losing hue opposition.
+- Overwrote: visual-direction panel ground/ink rows; mock-provisional → locked for color system; design-mock-probe-pointer green-light; HANDOFF phase + next action.

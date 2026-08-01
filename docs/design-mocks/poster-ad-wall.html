@@ -6,9 +6,16 @@
     Teal #167D7A · Coral #E85D44 · Mint #A7D8C5
     Reserved status neutral #D8D0C1
   Ink: near-black #171A18 on light grounds · cream #F7F0DE on dark grounds.
-  Carrier brand tokens: kebab-case from docs/design-reference/airline-brand-colors.md.
+  LOCKED in visual-direction.md (2026-08-01):
+    panel ground via --carrier-color or unique ground-* swatch per pack;
+    hero + tag ink via --tag-ink: OKLCH complement (hue +180, L pushed for separation)
+    mixed 52% complement / 48% contrast-color for legibility;
+    fallback ink via --panel-ink from ground-* or contrast-color.
+  Carrier tokens: kebab-case from docs/design-reference/airline-brand-colors.md.
   Regenerate: cd docs/design-mocks && node gen-carrier-css.mjs
-  data-carrier must match display name exactly; unknown carriers use --panel-ink.
+  data-carrier on flight-panel must match display name exactly.
+  Fallback without brand match: assign a unique swatch via ground-* class (--panel-ground);
+    no duplicate ground token within one pack (see visual-direction Panel colors).
 -->
 <html lang="en">
 <head>
@@ -227,6 +234,10 @@
       flex-direction: row;
     }
 
+    .flight-panel {
+      --panel-color: var(--carrier-color, var(--panel-ground, var(--sun)));
+    }
+
     .flight-panel,
     .status-panel {
       position: relative;
@@ -235,10 +246,24 @@
       min-height: 0;
       overflow: hidden;
       color: var(--panel-ink, var(--ink));
-      background: var(--panel-ground, var(--sun));
       animation: settle .48s cubic-bezier(.2, .8, .25, 1) both;
       animation-delay: var(--delay, 0ms);
     }
+
+    .flight-panel {
+      background: var(--panel-color);
+    }
+
+    .status-panel {
+      background: var(--neutral);
+    }
+
+    .ground-sun { --panel-ground: var(--sun); --panel-ink: var(--ink); }
+    .ground-navy { --panel-ground: var(--navy); --panel-ink: var(--cream); }
+    .ground-rose { --panel-ground: var(--rose); --panel-ink: var(--ink); }
+    .ground-teal { --panel-ground: var(--teal); --panel-ink: var(--cream); }
+    .ground-coral { --panel-ground: var(--coral); --panel-ink: var(--ink); }
+    .ground-mint { --panel-ground: var(--mint); --panel-ink: var(--ink); }
 
     .rows .flight-panel {
       flex: 1 1 0;
@@ -255,13 +280,6 @@
     }
 
     .columns .flight-panel:last-child { border-right: 0; }
-
-    .ground-sun { --panel-ground: var(--sun); --panel-ink: var(--ink); }
-    .ground-navy { --panel-ground: var(--navy); --panel-ink: var(--cream); }
-    .ground-rose { --panel-ground: var(--rose); --panel-ink: var(--ink); }
-    .ground-teal { --panel-ground: var(--teal); --panel-ink: var(--cream); }
-    .ground-coral { --panel-ground: var(--coral); --panel-ink: var(--ink); }
-    .ground-mint { --panel-ground: var(--mint); --panel-ink: var(--ink); }
 
     .hero {
       position: relative;
@@ -285,57 +303,91 @@
 
 
     /* BEGIN carrier-selectors — gen: node gen-carrier-css.mjs */
-    .airline[data-carrier="United Airlines"] { --carrier-color: var(--united-airlines); }
-    .airline[data-carrier="Delta Air Lines"] { --carrier-color: var(--delta-air-lines); }
-    .airline[data-carrier="American Airlines"] { --carrier-color: var(--american-airlines); }
-    .airline[data-carrier="Jetblue Airways"] { --carrier-color: var(--jetblue-airways); }
-    .airline[data-carrier="Spirit Airlines"] { --carrier-color: var(--spirit-airlines); }
-    .airline[data-carrier="Frontier Airlines"] { --carrier-color: var(--frontier-airlines); }
-    .airline[data-carrier="Southwest Airlines"] { --carrier-color: var(--southwest-airlines); }
-    .airline[data-carrier="Alaska Airlines"] { --carrier-color: var(--alaska-airlines); }
-    .airline[data-carrier="Air Canada"] { --carrier-color: var(--air-canada); }
-    .airline[data-carrier="British Airways"] { --carrier-color: var(--british-airways); }
-    .airline[data-carrier="Air France"] { --carrier-color: var(--air-france); }
-    .airline[data-carrier="Lufthansa"] { --carrier-color: var(--lufthansa); }
-    .airline[data-carrier="Emirates"] { --carrier-color: var(--emirates); }
-    .airline[data-carrier="Virgin Atlantic"] { --carrier-color: var(--virgin-atlantic); }
-    .airline[data-carrier="Singapore Airlines"] { --carrier-color: var(--singapore-airlines); }
-    .airline[data-carrier="Turkish Airlines"] { --carrier-color: var(--turkish-airlines); }
-    .airline[data-carrier="Qatar Airways"] { --carrier-color: var(--qatar-airways); }
-    .airline[data-carrier="Etihad Airways"] { --carrier-color: var(--etihad-airways); }
-    .airline[data-carrier="KLM"] { --carrier-color: var(--klm); }
-    .airline[data-carrier="Swiss International Air Lines"] { --carrier-color: var(--swiss-international-air-lines); }
-    .airline[data-carrier="Air India"] { --carrier-color: var(--air-india); }
-    .airline[data-carrier="Avianca"] { --carrier-color: var(--avianca); }
-    .airline[data-carrier="Aeroméxico"] { --carrier-color: var(--aeromexico); }
-    .airline[data-carrier="LATAM Airlines"] { --carrier-color: var(--latam-airlines); }
-    .airline[data-carrier="Copa Airlines"] { --carrier-color: var(--copa-airlines); }
-    .airline[data-carrier="All Nippon Airways (ANA)"] { --carrier-color: var(--all-nippon-airways-ana); }
-    .airline[data-carrier="Japan Airlines"] { --carrier-color: var(--japan-airlines); }
-    .airline[data-carrier="Korean Air"] { --carrier-color: var(--korean-air); }
-    .airline[data-carrier="Asiana Airlines"] { --carrier-color: var(--asiana-airlines); }
-    .airline[data-carrier="Cathay Pacific"] { --carrier-color: var(--cathay-pacific); }
-    .airline[data-carrier="EVA Air"] { --carrier-color: var(--eva-air); }
-    .airline[data-carrier="Air China"] { --carrier-color: var(--air-china); }
-    .airline[data-carrier="Qantas"] { --carrier-color: var(--qantas); }
-    .airline[data-carrier="Air New Zealand"] { --carrier-color: var(--air-new-zealand); }
-    .airline[data-carrier="SAS"] { --carrier-color: var(--sas); }
-    .airline[data-carrier="Finnair"] { --carrier-color: var(--finnair); }
-    .airline[data-carrier="Icelandair"] { --carrier-color: var(--icelandair); }
-    .airline[data-carrier="Aer Lingus"] { --carrier-color: var(--aer-lingus); }
-    .airline[data-carrier="TAP Air Portugal"] { --carrier-color: var(--tap-air-portugal); }
-    .airline[data-carrier="Iberia"] { --carrier-color: var(--iberia); }
-    .airline[data-carrier="ITA Airways"] { --carrier-color: var(--ita-airways); }
-    .airline[data-carrier="Austrian Airlines"] { --carrier-color: var(--austrian-airlines); }
-    .airline[data-carrier="Brussels Airlines"] { --carrier-color: var(--brussels-airlines); }
-    .airline[data-carrier="LOT Polish Airlines"] { --carrier-color: var(--lot-polish-airlines); }
-    .airline[data-carrier="El Al"] { --carrier-color: var(--el-al); }
-    .airline[data-carrier="Egyptair"] { --carrier-color: var(--egyptair); }
-    .airline[data-carrier="Royal Air Maroc"] { --carrier-color: var(--royal-air-maroc); }
-    .airline[data-carrier="Ethiopian Airlines"] { --carrier-color: var(--ethiopian-airlines); }
-    .airline[data-carrier="Porter Airlines"] { --carrier-color: var(--porter-airlines); }
-    .airline[data-carrier="Breeze Airways"] { --carrier-color: var(--breeze-airways); }
+    .flight-panel[data-carrier="United Airlines"] { --carrier-color: var(--united-airlines); }
+    .flight-panel[data-carrier="Delta Air Lines"] { --carrier-color: var(--delta-air-lines); }
+    .flight-panel[data-carrier="American Airlines"] { --carrier-color: var(--american-airlines); }
+    .flight-panel[data-carrier="Jetblue Airways"] { --carrier-color: var(--jetblue-airways); }
+    .flight-panel[data-carrier="Spirit Airlines"] { --carrier-color: var(--spirit-airlines); }
+    .flight-panel[data-carrier="Frontier Airlines"] { --carrier-color: var(--frontier-airlines); }
+    .flight-panel[data-carrier="Southwest Airlines"] { --carrier-color: var(--southwest-airlines); }
+    .flight-panel[data-carrier="Alaska Airlines"] { --carrier-color: var(--alaska-airlines); }
+    .flight-panel[data-carrier="Air Canada"] { --carrier-color: var(--air-canada); }
+    .flight-panel[data-carrier="British Airways"] { --carrier-color: var(--british-airways); }
+    .flight-panel[data-carrier="Air France"] { --carrier-color: var(--air-france); }
+    .flight-panel[data-carrier="Lufthansa"] { --carrier-color: var(--lufthansa); }
+    .flight-panel[data-carrier="Emirates"] { --carrier-color: var(--emirates); }
+    .flight-panel[data-carrier="Virgin Atlantic"] { --carrier-color: var(--virgin-atlantic); }
+    .flight-panel[data-carrier="Singapore Airlines"] { --carrier-color: var(--singapore-airlines); }
+    .flight-panel[data-carrier="Turkish Airlines"] { --carrier-color: var(--turkish-airlines); }
+    .flight-panel[data-carrier="Qatar Airways"] { --carrier-color: var(--qatar-airways); }
+    .flight-panel[data-carrier="Etihad Airways"] { --carrier-color: var(--etihad-airways); }
+    .flight-panel[data-carrier="KLM"] { --carrier-color: var(--klm); }
+    .flight-panel[data-carrier="Swiss International Air Lines"] { --carrier-color: var(--swiss-international-air-lines); }
+    .flight-panel[data-carrier="Air India"] { --carrier-color: var(--air-india); }
+    .flight-panel[data-carrier="Avianca"] { --carrier-color: var(--avianca); }
+    .flight-panel[data-carrier="Aeroméxico"] { --carrier-color: var(--aeromexico); }
+    .flight-panel[data-carrier="LATAM Airlines"] { --carrier-color: var(--latam-airlines); }
+    .flight-panel[data-carrier="Copa Airlines"] { --carrier-color: var(--copa-airlines); }
+    .flight-panel[data-carrier="All Nippon Airways (ANA)"] { --carrier-color: var(--all-nippon-airways-ana); }
+    .flight-panel[data-carrier="Japan Airlines"] { --carrier-color: var(--japan-airlines); }
+    .flight-panel[data-carrier="Korean Air"] { --carrier-color: var(--korean-air); }
+    .flight-panel[data-carrier="Asiana Airlines"] { --carrier-color: var(--asiana-airlines); }
+    .flight-panel[data-carrier="Cathay Pacific"] { --carrier-color: var(--cathay-pacific); }
+    .flight-panel[data-carrier="EVA Air"] { --carrier-color: var(--eva-air); }
+    .flight-panel[data-carrier="Air China"] { --carrier-color: var(--air-china); }
+    .flight-panel[data-carrier="Qantas"] { --carrier-color: var(--qantas); }
+    .flight-panel[data-carrier="Air New Zealand"] { --carrier-color: var(--air-new-zealand); }
+    .flight-panel[data-carrier="SAS"] { --carrier-color: var(--sas); }
+    .flight-panel[data-carrier="Finnair"] { --carrier-color: var(--finnair); }
+    .flight-panel[data-carrier="Icelandair"] { --carrier-color: var(--icelandair); }
+    .flight-panel[data-carrier="Aer Lingus"] { --carrier-color: var(--aer-lingus); }
+    .flight-panel[data-carrier="TAP Air Portugal"] { --carrier-color: var(--tap-air-portugal); }
+    .flight-panel[data-carrier="Iberia"] { --carrier-color: var(--iberia); }
+    .flight-panel[data-carrier="ITA Airways"] { --carrier-color: var(--ita-airways); }
+    .flight-panel[data-carrier="Austrian Airlines"] { --carrier-color: var(--austrian-airlines); }
+    .flight-panel[data-carrier="Brussels Airlines"] { --carrier-color: var(--brussels-airlines); }
+    .flight-panel[data-carrier="LOT Polish Airlines"] { --carrier-color: var(--lot-polish-airlines); }
+    .flight-panel[data-carrier="El Al"] { --carrier-color: var(--el-al); }
+    .flight-panel[data-carrier="Egyptair"] { --carrier-color: var(--egyptair); }
+    .flight-panel[data-carrier="Royal Air Maroc"] { --carrier-color: var(--royal-air-maroc); }
+    .flight-panel[data-carrier="Ethiopian Airlines"] { --carrier-color: var(--ethiopian-airlines); }
+    .flight-panel[data-carrier="Porter Airlines"] { --carrier-color: var(--porter-airlines); }
+    .flight-panel[data-carrier="Breeze Airways"] { --carrier-color: var(--breeze-airways); }
     /* END carrier-selectors */
+
+    @supports (color: contrast-color(red)) {
+      .flight-panel[data-carrier] {
+        --panel-ink: contrast-color(var(--panel-color));
+      }
+    }
+
+    .flight-panel .hero,
+    .flight-panel .tag {
+      color: var(--panel-ink);
+    }
+
+    @supports (color: oklch(from red l c calc(h + 180)))
+      and (color: color-mix(in oklch, red 52%, black 48%))
+      and (color: contrast-color(red)) {
+      .flight-panel[data-carrier] {
+        --tag-complement: oklch(
+          from var(--panel-color)
+          clamp(0.1, calc((1 - l) + (0.5 - l) * 0.25), 0.9)
+          c
+          calc(h + 180)
+        );
+        --tag-ink: color-mix(
+          in oklch,
+          var(--tag-complement) 52%,
+          contrast-color(var(--panel-color)) 48%
+        );
+      }
+
+      .flight-panel[data-carrier] .hero,
+      .flight-panel[data-carrier] .tag {
+        color: var(--tag-ink);
+      }
+    }
 
     .airline {
       max-width: 95%;
@@ -346,19 +398,7 @@
       line-height: .88;
       letter-spacing: -.035em;
       text-transform: uppercase;
-      color: var(--carrier-color, var(--panel-ink));
-      paint-order: stroke fill;
-      -webkit-text-stroke: 1px var(--panel-ink);
-    }
-
-    @supports (color: contrast-color(red)) {
-      .airline {
-        -webkit-text-stroke: 1px color-mix(
-          in srgb,
-          transparent,
-          contrast-color(var(--carrier-color, var(--panel-ink)))
-        );
-      }
+      color: inherit;
     }
 
     .flight-number {
@@ -376,7 +416,6 @@
       display: grid;
       flex: 2 1 40%;
       min-height: 0;
-      color: var(--panel-ink);
       border-top: var(--hairline) solid currentColor;
     }
 
@@ -491,7 +530,6 @@
       height: 100%;
       flex-direction: column;
       color: var(--ink);
-      background: var(--neutral);
     }
 
     .status-hero {
@@ -792,7 +830,7 @@
         <p class="review-kicker">Airplane Frame · Canonical probe 01</p>
         <h1 class="review-title">Poster wall</h1>
       </div>
-      <p class="review-note">Visual reference only. Device frames, labels, demo strings, web fonts, and literal CSS are not ship truth. Unknown carriers inherit panel ink for airline text.</p>
+      <p class="review-note">Visual reference only. Device frames, labels, demo strings, web fonts, and literal CSS are not ship truth. Unknown carriers fall back to sun ground and ink text.</p>
     </header>
 
     <div class="review-grid">
@@ -805,78 +843,78 @@
                 <path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M7 14v6"/>
               </svg>
             </button>
-            <article class="flight-panel ground-sun" style="--delay: 50ms">
+            <article class="flight-panel ground-sun" data-carrier="Endeavor Air" style="--delay: 50ms">
               <div class="hero">
-                <h3 class="airline" data-carrier="United Airlines">United Airlines</h3>
-                <span class="flight-number">UAL 1847</span>
+                <h3 class="airline">Endeavor Air</h3>
+                <span class="flight-number">EDV 5128</span>
               </div>
               <div class="tag horizontal-tag">
                 <div class="tag-code-wrap">
                   <span class="tag-kicker">Destination</span>
-                  <strong class="tag-code">ORD</strong>
+                  <strong class="tag-code">CVG</strong>
                 </div>
                 <div class="tag-fields">
-                  <span class="field"><b class="field-label">Route</b><span class="field-value">EWR → ORD</span></span>
-                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">Boeing 737-900</span></span>
-                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">32,000 ft</span></span>
-                  <span class="field"><b class="field-label">Distance</b><span class="field-value">8.4 nm</span></span>
+                  <span class="field"><b class="field-label">Route</b><span class="field-value">LGA → CVG</span></span>
+                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">Embraer E175</span></span>
+                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">21,600 ft</span></span>
+                  <span class="field"><b class="field-label">Distance</b><span class="field-value">7.8 nm</span></span>
                 </div>
               </div>
             </article>
 
-            <article class="flight-panel ground-navy" style="--delay: 110ms">
+            <article class="flight-panel" data-carrier="Southwest Airlines" style="--delay: 110ms">
               <div class="hero">
-                <h3 class="airline" data-carrier="Delta Air Lines">Delta Air Lines</h3>
-                <span class="flight-number">DAL 2339</span>
+                <h3 class="airline">Southwest Airlines</h3>
+                <span class="flight-number">SWA 1892</span>
               </div>
               <div class="tag horizontal-tag">
                 <div class="tag-code-wrap">
                   <span class="tag-kicker">Destination</span>
-                  <strong class="tag-code">ATL</strong>
+                  <strong class="tag-code">MDW</strong>
                 </div>
                 <div class="tag-fields">
-                  <span class="field"><b class="field-label">Route</b><span class="field-value">LGA → ATL</span></span>
-                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">Airbus A321</span></span>
-                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">28,400 ft</span></span>
-                  <span class="field"><b class="field-label">Distance</b><span class="field-value">11.7 nm</span></span>
-                </div>
-              </div>
-            </article>
-
-            <article class="flight-panel ground-rose" style="--delay: 170ms">
-              <div class="hero">
-                <h3 class="airline" data-carrier="Jetblue Airways">Jetblue Airways</h3>
-                <span class="flight-number">JBU 619</span>
-              </div>
-              <div class="tag horizontal-tag">
-                <div class="tag-code-wrap">
-                  <span class="tag-kicker">Destination</span>
-                  <strong class="tag-code">LAX</strong>
-                </div>
-                <div class="tag-fields">
-                  <span class="field"><b class="field-label">Route</b><span class="field-value">JFK → LAX</span></span>
-                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">Airbus A321neo</span></span>
-                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">36,000 ft</span></span>
-                  <span class="field"><b class="field-label">Distance</b><span class="field-value">15.2 nm</span></span>
-                </div>
-              </div>
-            </article>
-
-            <article class="flight-panel ground-teal" style="--delay: 230ms">
-              <div class="hero">
-                <h3 class="airline" data-carrier="American Airlines">American Airlines</h3>
-                <span class="flight-number">AAL 1528</span>
-              </div>
-              <div class="tag horizontal-tag">
-                <div class="tag-code-wrap">
-                  <span class="tag-kicker">Destination</span>
-                  <strong class="tag-code">MIA</strong>
-                </div>
-                <div class="tag-fields">
-                  <span class="field"><b class="field-label">Route</b><span class="field-value">→ MIA</span></span>
+                  <span class="field"><b class="field-label">Route</b><span class="field-value">BWI → MDW</span></span>
                   <span class="field"><b class="field-label">Aircraft</b><span class="field-value">Boeing 737-800</span></span>
-                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">24,600 ft</span></span>
-                  <span class="field"><b class="field-label">Distance</b><span class="field-value">18.9 nm</span></span>
+                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">29,500 ft</span></span>
+                  <span class="field"><b class="field-label">Distance</b><span class="field-value">10.4 nm</span></span>
+                </div>
+              </div>
+            </article>
+
+            <article class="flight-panel" data-carrier="Jetblue Airways" style="--delay: 170ms">
+              <div class="hero">
+                <h3 class="airline">Jetblue Airways</h3>
+                <span class="flight-number">JBU 423</span>
+              </div>
+              <div class="tag horizontal-tag">
+                <div class="tag-code-wrap">
+                  <span class="tag-kicker">Destination</span>
+                  <strong class="tag-code">FLL</strong>
+                </div>
+                <div class="tag-fields">
+                  <span class="field"><b class="field-label">Route</b><span class="field-value">JFK → FLL</span></span>
+                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">Airbus A320</span></span>
+                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">31,200 ft</span></span>
+                  <span class="field"><b class="field-label">Distance</b><span class="field-value">12.9 nm</span></span>
+                </div>
+              </div>
+            </article>
+
+            <article class="flight-panel" data-carrier="Frontier Airlines" style="--delay: 230ms">
+              <div class="hero">
+                <h3 class="airline">Frontier Airlines</h3>
+                <span class="flight-number">FFT 982</span>
+              </div>
+              <div class="tag horizontal-tag">
+                <div class="tag-code-wrap">
+                  <span class="tag-kicker">Destination</span>
+                  <strong class="tag-code">DEN</strong>
+                </div>
+                <div class="tag-fields">
+                  <span class="field"><b class="field-label">Route</b><span class="field-value">EWR → DEN</span></span>
+                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">Airbus A320neo</span></span>
+                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">35,800 ft</span></span>
+                  <span class="field"><b class="field-label">Distance</b><span class="field-value">15.6 nm</span></span>
                 </div>
               </div>
             </article>
@@ -970,82 +1008,82 @@
                 <path d="M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M7 14v6"/>
               </svg>
             </button>
-            <article class="flight-panel ground-sun" style="--delay: 40ms">
+            <article class="flight-panel ground-sun" data-carrier="Endeavor Air" style="--delay: 40ms">
               <div class="hero">
-                <h3 class="airline" data-carrier="United Airlines">United Airlines</h3>
-                <span class="flight-number">UAL 1847</span>
+                <h3 class="airline">Endeavor Air</h3>
+                <span class="flight-number">EDV 5128</span>
               </div>
               <div class="tag vertical-tag">
-                <div class="tag-code-wrap"><span class="tag-kicker">Destination</span><strong class="tag-code">ORD</strong></div>
+                <div class="tag-code-wrap"><span class="tag-kicker">Destination</span><strong class="tag-code">CVG</strong></div>
                 <div class="tag-fields">
-                  <span class="field"><b class="field-label">Route</b><span class="field-value">EWR → ORD</span></span>
-                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">737-900</span></span>
-                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">32,000 ft</span></span>
-                  <span class="field"><b class="field-label">Distance</b><span class="field-value">8.4 nm</span></span>
+                  <span class="field"><b class="field-label">Route</b><span class="field-value">LGA → CVG</span></span>
+                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">E175</span></span>
+                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">21,600 ft</span></span>
+                  <span class="field"><b class="field-label">Distance</b><span class="field-value">7.8 nm</span></span>
                 </div>
               </div>
             </article>
 
-            <article class="flight-panel ground-navy" style="--delay: 90ms">
+            <article class="flight-panel" data-carrier="Southwest Airlines" style="--delay: 90ms">
               <div class="hero">
-                <h3 class="airline" data-carrier="Delta Air Lines">Delta Air Lines</h3>
-                <span class="flight-number">DAL 2339</span>
+                <h3 class="airline">Southwest Airlines</h3>
+                <span class="flight-number">SWA 1892</span>
               </div>
               <div class="tag vertical-tag">
-                <div class="tag-code-wrap"><span class="tag-kicker">Destination</span><strong class="tag-code">ATL</strong></div>
+                <div class="tag-code-wrap"><span class="tag-kicker">Destination</span><strong class="tag-code">MDW</strong></div>
                 <div class="tag-fields">
-                  <span class="field"><b class="field-label">Route</b><span class="field-value">LGA → ATL</span></span>
-                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">Airbus A321</span></span>
-                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">28,400 ft</span></span>
-                  <span class="field"><b class="field-label">Distance</b><span class="field-value">11.7 nm</span></span>
-                </div>
-              </div>
-            </article>
-
-            <article class="flight-panel ground-rose" style="--delay: 140ms">
-              <div class="hero">
-                <h3 class="airline" data-carrier="Jetblue Airways">Jetblue Airways</h3>
-                <span class="flight-number">JBU 619</span>
-              </div>
-              <div class="tag vertical-tag">
-                <div class="tag-code-wrap"><span class="tag-kicker">Destination</span><strong class="tag-code">LAX</strong></div>
-                <div class="tag-fields">
-                  <span class="field"><b class="field-label">Route</b><span class="field-value">JFK → LAX</span></span>
-                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">A321neo</span></span>
-                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">36,000 ft</span></span>
-                  <span class="field"><b class="field-label">Distance</b><span class="field-value">15.2 nm</span></span>
-                </div>
-              </div>
-            </article>
-
-            <article class="flight-panel ground-teal" style="--delay: 190ms">
-              <div class="hero">
-                <h3 class="airline" data-carrier="American Airlines">American Airlines</h3>
-                <span class="flight-number">AAL 1528</span>
-              </div>
-              <div class="tag vertical-tag">
-                <div class="tag-code-wrap"><span class="tag-kicker">Destination</span><strong class="tag-code">MIA</strong></div>
-                <div class="tag-fields">
-                  <span class="field"><b class="field-label">Route</b><span class="field-value">→ MIA</span></span>
+                  <span class="field"><b class="field-label">Route</b><span class="field-value">BWI → MDW</span></span>
                   <span class="field"><b class="field-label">Aircraft</b><span class="field-value">737-800</span></span>
-                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">24,600 ft</span></span>
-                  <span class="field"><b class="field-label">Distance</b><span class="field-value">18.9 nm</span></span>
+                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">29,500 ft</span></span>
+                  <span class="field"><b class="field-label">Distance</b><span class="field-value">10.4 nm</span></span>
                 </div>
               </div>
             </article>
 
-            <article class="flight-panel ground-coral" style="--delay: 240ms">
+            <article class="flight-panel" data-carrier="Jetblue Airways" style="--delay: 140ms">
               <div class="hero">
-                <h3 class="airline" data-carrier="Spirit Airlines">Spirit Airlines</h3>
-                <span class="flight-number">NKS 311</span>
+                <h3 class="airline">Jetblue Airways</h3>
+                <span class="flight-number">JBU 423</span>
               </div>
               <div class="tag vertical-tag">
                 <div class="tag-code-wrap"><span class="tag-kicker">Destination</span><strong class="tag-code">FLL</strong></div>
                 <div class="tag-fields">
-                  <span class="field"><b class="field-label">Route</b><span class="field-value">BOS → FLL</span></span>
-                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">Airbus A320</span></span>
-                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">30,100 ft</span></span>
-                  <span class="field"><b class="field-label">Distance</b><span class="field-value">19.6 nm</span></span>
+                  <span class="field"><b class="field-label">Route</b><span class="field-value">JFK → FLL</span></span>
+                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">A320</span></span>
+                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">31,200 ft</span></span>
+                  <span class="field"><b class="field-label">Distance</b><span class="field-value">12.9 nm</span></span>
+                </div>
+              </div>
+            </article>
+
+            <article class="flight-panel" data-carrier="Frontier Airlines" style="--delay: 190ms">
+              <div class="hero">
+                <h3 class="airline">Frontier Airlines</h3>
+                <span class="flight-number">FFT 982</span>
+              </div>
+              <div class="tag vertical-tag">
+                <div class="tag-code-wrap"><span class="tag-kicker">Destination</span><strong class="tag-code">DEN</strong></div>
+                <div class="tag-fields">
+                  <span class="field"><b class="field-label">Route</b><span class="field-value">EWR → DEN</span></span>
+                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">A320neo</span></span>
+                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">35,800 ft</span></span>
+                  <span class="field"><b class="field-label">Distance</b><span class="field-value">15.6 nm</span></span>
+                </div>
+              </div>
+            </article>
+
+            <article class="flight-panel" data-carrier="Porter Airlines" style="--delay: 240ms">
+              <div class="hero">
+                <h3 class="airline">Porter Airlines</h3>
+                <span class="flight-number">POE 245</span>
+              </div>
+              <div class="tag vertical-tag">
+                <div class="tag-code-wrap"><span class="tag-kicker">Destination</span><strong class="tag-code">YTZ</strong></div>
+                <div class="tag-fields">
+                  <span class="field"><b class="field-label">Route</b><span class="field-value">EWR → YTZ</span></span>
+                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">Dash 8-Q400</span></span>
+                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">17,400 ft</span></span>
+                  <span class="field"><b class="field-label">Distance</b><span class="field-value">18.2 nm</span></span>
                 </div>
               </div>
             </article>

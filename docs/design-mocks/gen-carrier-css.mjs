@@ -59,7 +59,7 @@ const tokenLines = rows
 const selectorLines = rows
   .map(
     (r) =>
-      `    .airline[data-carrier="${r.name}"] { --carrier-color: var(--${r.token}); }`,
+      `    .flight-panel[data-carrier="${r.name}"] { --carrier-color: var(--${r.token}); }`,
   )
   .join("\n");
 

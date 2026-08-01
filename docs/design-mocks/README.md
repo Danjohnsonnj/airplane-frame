@@ -10,4 +10,4 @@ See [design-mock-probe-pointer.md](../agents/design-mock-probe-pointer.md) and [
 
 | File | Surface | Status |
 |------|---------|--------|
-| `poster-ad-wall.html` | Poster wall | Ready for browser review — 50-carrier tokens; `.airline` brand fill + `-webkit-text-stroke` (panel-ink fallback; `contrast-color` + `color-mix` when supported) |
+| `poster-ad-wall.html` | Poster wall | **LOCKED** — carrier/swatch grounds, complementary hero+tag ink, unique ground per pack; ship reference |
