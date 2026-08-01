@@ -78,6 +78,23 @@ describe("buildFlightRow", () => {
     assert.equal(row.carrier, "UMB BANK NA TRUSTEE");
   });
 
+  it("normalizes UNITED AIRLINES INC ownOp to brand book name on hexdb path", () => {
+    const trusteeBase = { ...base, ownOp: "UNITED AIRLINES INC" };
+    const row = buildFlightRow(trusteeBase, null, { route: "KBOS-KEWR" });
+    assert.equal(row.carrier, "United Airlines");
+    assert.equal(row.enrichmentSource, "hexdb");
+  });
+
+  it("keeps AirLabs airline_name over ownOp normalization", () => {
+    const row = buildFlightRow(
+      { ...base, ownOp: "UNITED AIRLINES INC" },
+      { airline_name: "United Airlines", dep_iata: "BOS", arr_iata: "EWR" },
+      null,
+    );
+    assert.equal(row.carrier, "United Airlines");
+    assert.equal(row.enrichmentSource, "airlabs");
+  });
+
   it("returns null without destination", () => {
     assert.equal(buildFlightRow(base, null, null), null);
   });

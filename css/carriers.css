@@ -1,0 +1,108 @@
+/* Generated from docs/design-reference/airline-brand-colors.md */
+:root {
+/* BEGIN carrier-tokens — gen: node gen-carrier-css.mjs */
+  --united-airlines: #005DAA;
+  --delta-air-lines: #003366;
+  --american-airlines: #0078D2;
+  --jetblue-airways: #003876;
+  --spirit-airlines: #FECA0A;
+  --frontier-airlines: #248168;
+  --southwest-airlines: #304CB2;
+  --alaska-airlines: #01426A;
+  --air-canada: #D82F2E;
+  --british-airways: #075AAA;
+  --air-france: #002157;
+  --lufthansa: #0A1D3D;
+  --emirates: #D71921;
+  --virgin-atlantic: #EB143A;
+  --singapore-airlines: #1D4886;
+  --turkish-airlines: #C8102E;
+  --qatar-airways: #5C0632;
+  --etihad-airways: #B8860B;
+  --klm: #00A1E4;
+  --swiss-international-air-lines: #E60005;
+  --air-india: #DA0E29;
+  --avianca: #DA291C;
+  --aeromexico: #040C3E;
+  --latam-airlines: #1B0088;
+  --copa-airlines: #0060A9;
+  --all-nippon-airways-ana: #00467F;
+  --japan-airlines: #C90000;
+  --korean-air: #154D9E;
+  --asiana-airlines: #C8102E;
+  --cathay-pacific: #005F4E;
+  --eva-air: #006747;
+  --air-china: #ED1C24;
+  --qantas: #DD0000;
+  --air-new-zealand: #000000;
+  --sas: #000066;
+  --finnair: #002277;
+  --icelandair: #003366;
+  --aer-lingus: #008374;
+  --tap-air-portugal: #BFD730;
+  --iberia: #D7141A;
+  --ita-airways: #0171CF;
+  --austrian-airlines: #CC0000;
+  --brussels-airlines: #002855;
+  --lot-polish-airlines: #003399;
+  --el-al: #003399;
+  --egyptair: #002B5B;
+  --royal-air-maroc: #C41230;
+  --ethiopian-airlines: #00853F;
+  --porter-airlines: #112855;
+  --breeze-airways: #1F74DF;
+/* END carrier-tokens */
+}
+
+/* BEGIN carrier-selectors — gen: node gen-carrier-css.mjs */
+.flight-panel[data-carrier="United Airlines"] { --carrier-color: var(--united-airlines); }
+.flight-panel[data-carrier="Delta Air Lines"] { --carrier-color: var(--delta-air-lines); }
+.flight-panel[data-carrier="American Airlines"] { --carrier-color: var(--american-airlines); }
+.flight-panel[data-carrier="Jetblue Airways"] { --carrier-color: var(--jetblue-airways); }
+.flight-panel[data-carrier="Spirit Airlines"] { --carrier-color: var(--spirit-airlines); }
+.flight-panel[data-carrier="Frontier Airlines"] { --carrier-color: var(--frontier-airlines); }
+.flight-panel[data-carrier="Southwest Airlines"] { --carrier-color: var(--southwest-airlines); }
+.flight-panel[data-carrier="Alaska Airlines"] { --carrier-color: var(--alaska-airlines); }
+.flight-panel[data-carrier="Air Canada"] { --carrier-color: var(--air-canada); }
+.flight-panel[data-carrier="British Airways"] { --carrier-color: var(--british-airways); }
+.flight-panel[data-carrier="Air France"] { --carrier-color: var(--air-france); }
+.flight-panel[data-carrier="Lufthansa"] { --carrier-color: var(--lufthansa); }
+.flight-panel[data-carrier="Emirates"] { --carrier-color: var(--emirates); }
+.flight-panel[data-carrier="Virgin Atlantic"] { --carrier-color: var(--virgin-atlantic); }
+.flight-panel[data-carrier="Singapore Airlines"] { --carrier-color: var(--singapore-airlines); }
+.flight-panel[data-carrier="Turkish Airlines"] { --carrier-color: var(--turkish-airlines); }
+.flight-panel[data-carrier="Qatar Airways"] { --carrier-color: var(--qatar-airways); }
+.flight-panel[data-carrier="Etihad Airways"] { --carrier-color: var(--etihad-airways); }
+.flight-panel[data-carrier="KLM"] { --carrier-color: var(--klm); }
+.flight-panel[data-carrier="Swiss International Air Lines"] { --carrier-color: var(--swiss-international-air-lines); }
+.flight-panel[data-carrier="Air India"] { --carrier-color: var(--air-india); }
+.flight-panel[data-carrier="Avianca"] { --carrier-color: var(--avianca); }
+.flight-panel[data-carrier="Aeroméxico"] { --carrier-color: var(--aeromexico); }
+.flight-panel[data-carrier="LATAM Airlines"] { --carrier-color: var(--latam-airlines); }
+.flight-panel[data-carrier="Copa Airlines"] { --carrier-color: var(--copa-airlines); }
+.flight-panel[data-carrier="All Nippon Airways (ANA)"] { --carrier-color: var(--all-nippon-airways-ana); }
+.flight-panel[data-carrier="Japan Airlines"] { --carrier-color: var(--japan-airlines); }
+.flight-panel[data-carrier="Korean Air"] { --carrier-color: var(--korean-air); }
+.flight-panel[data-carrier="Asiana Airlines"] { --carrier-color: var(--asiana-airlines); }
+.flight-panel[data-carrier="Cathay Pacific"] { --carrier-color: var(--cathay-pacific); }
+.flight-panel[data-carrier="EVA Air"] { --carrier-color: var(--eva-air); }
+.flight-panel[data-carrier="Air China"] { --carrier-color: var(--air-china); }
+.flight-panel[data-carrier="Qantas"] { --carrier-color: var(--qantas); }
+.flight-panel[data-carrier="Air New Zealand"] { --carrier-color: var(--air-new-zealand); }
+.flight-panel[data-carrier="SAS"] { --carrier-color: var(--sas); }
+.flight-panel[data-carrier="Finnair"] { --carrier-color: var(--finnair); }
+.flight-panel[data-carrier="Icelandair"] { --carrier-color: var(--icelandair); }
+.flight-panel[data-carrier="Aer Lingus"] { --carrier-color: var(--aer-lingus); }
+.flight-panel[data-carrier="TAP Air Portugal"] { --carrier-color: var(--tap-air-portugal); }
+.flight-panel[data-carrier="Iberia"] { --carrier-color: var(--iberia); }
+.flight-panel[data-carrier="ITA Airways"] { --carrier-color: var(--ita-airways); }
+.flight-panel[data-carrier="Austrian Airlines"] { --carrier-color: var(--austrian-airlines); }
+.flight-panel[data-carrier="Brussels Airlines"] { --carrier-color: var(--brussels-airlines); }
+.flight-panel[data-carrier="LOT Polish Airlines"] { --carrier-color: var(--lot-polish-airlines); }
+.flight-panel[data-carrier="El Al"] { --carrier-color: var(--el-al); }
+.flight-panel[data-carrier="Egyptair"] { --carrier-color: var(--egyptair); }
+.flight-panel[data-carrier="Royal Air Maroc"] { --carrier-color: var(--royal-air-maroc); }
+.flight-panel[data-carrier="Ethiopian Airlines"] { --carrier-color: var(--ethiopian-airlines); }
+.flight-panel[data-carrier="Porter Airlines"] { --carrier-color: var(--porter-airlines); }
+.flight-panel[data-carrier="Breeze Airways"] { --carrier-color: var(--breeze-airways); }
+/* END carrier-selectors */

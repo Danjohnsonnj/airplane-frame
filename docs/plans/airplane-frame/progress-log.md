@@ -166,3 +166,24 @@
 - Verified: browser review on prevalence-based carrier mix (Endeavor, Southwest, Jetblue, Frontier, Porter); gen-carrier-css.mjs emits `.flight-panel[data-carrier]` selectors.
 - Learned: Complementary ink on hero (not just tag) reads as one luggage-tag zone; lightness bias + higher contrast-color share improves legibility without losing hue opposition.
 - Overwrote: visual-direction panel ground/ink rows; mock-provisional → locked for color system; design-mock-probe-pointer green-light; HANDOFF phase + next action.
+
+## 2026-08-01 - Phase 6 poster SPA implemented
+
+- Happened: Shipped poster/settings SPA views with sticky `?view=` routing; `css/poster.css` + `css/carriers.css`; extended `gen-carrier-css.mjs` → `js/carrier-brands.js`; poster wall render (flight panels + status luggage tag); `assignPanelGrounds`, wall mode, status helpers + tests; `phase-6.plan.md`.
+- Verified: `node --test js/lib.test.js` and `cd worker && npm test` pass; gen script idempotent.
+- Learned: Default-route poster switch waits for successful boot fetch while settings stay visible; duplicate carrier in pack initially fell back to unique swatch (revised — duplicates share brand color).
+- Overwrote: HANDOFF (UAT next), phases.md Phase 6 status, design-mocks README (gen outputs).
+
+## 2026-08-01 - Carrier brand aliases (Phase 6 follow-up)
+
+- Happened: `resolveCarrierBrand` + `CARRIER_ALIASES` in `js/lib.js`; `worker/src/carrier-aliases.js` normalizes ownOp INC strings in `buildFlightRow`; expanded FE + Worker tests; `carrier-brand-alias.plan.md`; UAT notes for brand-colored INC rows.
+- Verified: `node --test js/lib.test.js` (33); `cd worker && npm test` (36).
+- Learned: Hexdb `ownOp` legal names (`UNITED AIRLINES INC`) poisoned exact `data-carrier` match — minimal alias map + Worker normalize required for brand CSS to apply; regionals/trustees still swatch-only (not in 50-color book).
+- Overwrote: visual-direction deferred alias row; HANDOFF UAT focus; phase-6 UAT checklist.
+
+## 2026-08-01 - Unique swatch rule scoped to non-brand grounds
+
+- Happened: `assignPanelGrounds` always applies brand `data-carrier` for book carriers (duplicates share color); `ground-*` uniqueness only for unknown carriers.
+- Verified: `node --test js/lib.test.js`.
+- Learned: Prior “no duplicate background token” rule was too broad — two Delta INC rows must both brand, not fall back to sun/navy.
+- Overwrote: visual-direction unique-ground row; phase-6.plan, lessons, mock header comments.

@@ -90,3 +90,17 @@
 - Lesson: Lock IA in `visual-direction.md` via interview; refine hexes/type/status copy in `design-mock-probe` HTML under `docs/design-mocks/`. Mocks are reference only — never port DOM/CSS into Pages until user green-lights poster implementation. Pointer: `docs/agents/design-mock-probe-pointer.md`.
 - Evidence: Design interview 2026-08-01; HANDOFF next = poster mock probe.
 - Crystallize?: Yes — HANDOFF required reading + pointer.
+
+## Phase 6 poster SPA: gen-carrier-css also writes shipped CSS/JS
+
+- Context: Carrier brand colors must match mock and app without a Pages build step.
+- Lesson: `node docs/design-mocks/gen-carrier-css.mjs` refreshes mock HTML, `css/carriers.css`, and `js/carrier-brands.js` from `airline-brand-colors.md`. Brand-book carriers always get `data-carrier` (duplicates share color); unknown carriers get unique sequential `ground-*` swatches.
+- Evidence: Phase 6 implementation 2026-08-01.
+- Crystallize?: Yes — design-mocks README + phase-6.plan.md.
+
+## Carrier brand: ownOp INC strings need alias map before brand CSS applies
+
+- Context: Live `/flights` rows from hexdb often carry legal `ownOp` strings (`UNITED AIRLINES INC`) while `css/carriers.css` keys exact book names (`United Airlines`).
+- Lesson: Ship minimal alias map in both FE (`resolveCarrierBrand`) and Worker (`normalizeCarrierName`); keep maps in sync. Trustee/lessor and regionals not in brand book stay on `ground-*` swatches. `data-carrier` must be the resolved book string, never raw carrier.
+- Evidence: Phase 6 code review + carrier-brand-alias implementation 2026-08-01.
+- Crystallize?: Yes — carrier-brand-alias.plan.md, airlines-seen alias table.

@@ -1,3 +1,5 @@
+import { normalizeCarrierName } from "./carrier-aliases.js";
+
 const USER_AGENT = "airplane-frame-worker/0.1 (personal)";
 const RETRY_DELAY_MS = 1200;
 
@@ -98,6 +100,8 @@ export function buildFlightRow(aircraft, airlabs, hexdb) {
   }
 
   if (!destination || !carrier || !planeType) return null;
+
+  carrier = normalizeCarrierName(carrier);
 
   return {
     flight,

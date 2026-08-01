@@ -45,10 +45,10 @@
 ## Phase 6 - Poster SPA (design → ship)
 
 - Implement poster wall per [visual-direction.md](./visual-direction.md): carrier/swatch panel grounds, complementary hero+tag ink, row/column responsive wall, status panel, settings glyph.
-- Carrier colors from [airline-brand-colors.md](../../design-reference/airline-brand-colors.md); unknown carriers get unique sequential swatch per pack.
+- Carrier colors from [airline-brand-colors.md](../../design-reference/airline-brand-colors.md); unknown carriers get unique sequential swatches; duplicate book carriers share brand color.
 - Reference mock: [poster-ad-wall.html](../../design-mocks/poster-ad-wall.html) — visual only, not literal DOM port.
-- Verify: local stack shows poster view with live Worker pack; mobile rows + wide columns; empty/error/stale states; unique grounds in pack; readable complementary ink.
-- **Status: NOT STARTED** — design probe locked 2026-08-01.
+- Verify: local stack shows poster view with live Worker pack; mobile rows + wide columns; empty/error/stale states; unique swatches for unknowns; duplicate brand carriers share color; readable complementary ink.
+- **Status: IMPLEMENTATION COMPLETE — UAT pending** — poster/settings views, `css/poster.css`, carrier gen pipeline, status panel; see [phase-6.plan.md](./phase-6.plan.md).
 
 ## Later (out of current phase plan)
 

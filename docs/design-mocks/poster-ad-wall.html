@@ -7,7 +7,7 @@
     Reserved status neutral #D8D0C1
   Ink: near-black #171A18 on light grounds · cream #F7F0DE on dark grounds.
   LOCKED in visual-direction.md (2026-08-01):
-    panel ground via --carrier-color or unique ground-* swatch per pack;
+    panel ground via --carrier-color (duplicates share brand color) or unique ground-* swatch per unknown;
     hero + tag ink via --tag-ink: OKLCH complement (hue +180, L pushed for separation)
     mixed 52% complement / 48% contrast-color for legibility;
     fallback ink via --panel-ink from ground-* or contrast-color.
@@ -15,7 +15,7 @@
   Regenerate: cd docs/design-mocks && node gen-carrier-css.mjs
   data-carrier on flight-panel must match display name exactly.
   Fallback without brand match: assign a unique swatch via ground-* class (--panel-ground);
-    no duplicate ground token within one pack (see visual-direction Panel colors).
+    no duplicate swatch token within one pack (see visual-direction Panel colors).
 -->
 <html lang="en">
 <head>

@@ -1,12 +1,20 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  assignPanelGrounds,
   buildFlightsUrl,
+  buildPosterStatusCopy,
   filterFlights,
+  friendlyFetchErrorMessage,
+  formatDistanceNm,
   formatPackStatus,
+  formatRoute,
   isCompleteFlight,
   parseStoredNumber,
   pickGeocodeResult,
+  posterStatusKind,
+  resolveCarrierBrand,
+  resolveWallMode,
   unauthorizedStatusMessage,
 } from "./lib.js";
 import { LOCAL_WORKER_BASE, PROD_WORKER_BASE, resolveWorkerBase } from "./config.js";
@@ -151,6 +159,139 @@ describe("formatPackStatus", () => {
       }),
       "Pack 5 (max 5) · 12 total flights · data 7 min old · updated 8:10:02 AM",
     );
+  });
+});
+
+describe("assignPanelGrounds", () => {
+  const brands = new Set(["United Airlines", "Delta Air Lines"]);
+
+  it("uses brand color for duplicate same carrier", () => {
+    const flights = [
+      { carrier: "United Airlines" },
+      { carrier: "United Airlines" },
+      { carrier: "Unknown Regional" },
+    ];
+    const out = assignPanelGrounds(flights, brands);
+    assert.equal(out[0].dataCarrier, "United Airlines");
+    assert.equal(out[0].groundClass, undefined);
+    assert.equal(out[1].dataCarrier, "United Airlines");
+    assert.equal(out[1].groundClass, undefined);
+    assert.equal(out[2].groundClass, "ground-sun");
+  });
+
+  it("assigns unique swatches for unknown carriers", () => {
+    const flights = [{ carrier: "Foo" }, { carrier: "Bar" }];
+    const out = assignPanelGrounds(flights, brands);
+    assert.equal(out[0].groundClass, "ground-sun");
+    assert.equal(out[1].groundClass, "ground-navy");
+  });
+
+  it("resolves UNITED AIRLINES INC to United Airlines brand", () => {
+    const out = assignPanelGrounds([{ carrier: "UNITED AIRLINES INC" }], brands);
+    assert.equal(out[0].dataCarrier, "United Airlines");
+    assert.equal(out[0].groundClass, undefined);
+  });
+
+  it("second United in pack also gets brand when INC already used brand", () => {
+    const flights = [
+      { carrier: "UNITED AIRLINES INC" },
+      { carrier: "United Airlines" },
+    ];
+    const out = assignPanelGrounds(flights, brands);
+    assert.equal(out[0].dataCarrier, "United Airlines");
+    assert.equal(out[1].dataCarrier, "United Airlines");
+    assert.equal(out[1].groundClass, undefined);
+  });
+
+  it("duplicate DELTA AIR LINES INC both get Delta brand color", () => {
+    const flights = [
+      { carrier: "DELTA AIR LINES INC" },
+      { carrier: "DELTA AIR LINES INC" },
+    ];
+    const out = assignPanelGrounds(flights, brands);
+    assert.equal(out[0].dataCarrier, "Delta Air Lines");
+    assert.equal(out[1].dataCarrier, "Delta Air Lines");
+  });
+
+  it("trustee ownOp gets swatch not brand", () => {
+    const out = assignPanelGrounds([{ carrier: "BANK OF UTAH TRUSTEE" }], brands);
+    assert.equal(out[0].groundClass, "ground-sun");
+    assert.equal(out[0].dataCarrier, undefined);
+  });
+});
+
+describe("resolveCarrierBrand", () => {
+  const brands = new Set(["United Airlines", "Delta Air Lines"]);
+
+  it("maps INC legal name to book string", () => {
+    assert.equal(resolveCarrierBrand("UNITED AIRLINES INC", brands), "United Airlines");
+  });
+
+  it("case-folds exact brand match", () => {
+    assert.equal(resolveCarrierBrand("united airlines", brands), "United Airlines");
+  });
+
+  it("returns null for trustee strings", () => {
+    assert.equal(resolveCarrierBrand("BANK OF UTAH TRUSTEE", brands), null);
+  });
+});
+
+describe("friendlyFetchErrorMessage", () => {
+  it("hints to start dev-worker when fetch fails", () => {
+    const msg = friendlyFetchErrorMessage(
+      new Error("Failed to fetch"),
+      "http://127.0.0.1:8788",
+    );
+    assert.match(msg, /dev-worker/i);
+  });
+});
+
+describe("resolveWallMode", () => {
+  it("uses columns in landscape", () => {
+    assert.equal(resolveWallMode({ orientation: "landscape", width: 900 }), "columns");
+  });
+
+  it("uses rows in portrait", () => {
+    assert.equal(resolveWallMode({ orientation: "portrait", width: 375 }), "rows");
+  });
+});
+
+describe("posterStatusKind", () => {
+  it("returns wait while loading", () => {
+    assert.equal(posterStatusKind({ flightsLength: 0, loading: true }), "wait");
+  });
+
+  it("returns ok when flights present", () => {
+    assert.equal(posterStatusKind({ flightsLength: 3, stale: true }), "ok");
+  });
+
+  it("returns stale when empty and stale", () => {
+    assert.equal(posterStatusKind({ flightsLength: 0, stale: true }), "stale");
+  });
+
+  it("returns err on network failure", () => {
+    assert.equal(posterStatusKind({ flightsLength: 0, networkError: true }), "err");
+  });
+});
+
+describe("formatDistanceNm", () => {
+  it("formats nautical miles", () => {
+    assert.equal(formatDistanceNm(12.34), "12.3 nm");
+    assert.equal(formatDistanceNm(null), "—");
+  });
+});
+
+describe("buildPosterStatusCopy", () => {
+  it("includes radius in empty detail", () => {
+    const copy = buildPosterStatusCopy("empty", { radiusMi: 40, updatedLabel: "8:00 AM" });
+    assert.match(copy.detail, /40 mi/);
+    assert.equal(copy.word, "EMPTY");
+  });
+
+  it("covers stale empty state", () => {
+    const copy = buildPosterStatusCopy("stale", { updatedLabel: "8:05 AM" });
+    assert.equal(copy.word, "STALE");
+    assert.match(copy.detail, /unavailable/i);
   });
 });
 

@@ -3,21 +3,36 @@ import {
   JC_DEFAULT,
   resolveWorkerBase,
   STORAGE_KEYS,
+  SWATCH_ORDER,
   workerBackendLabel,
 } from "./config.js";
+import { CARRIER_BRAND_NAMES } from "./carrier-brands.js";
 import {
+  assignPanelGrounds,
   buildFlightsUrl,
+  buildPosterStatusCopy,
+  friendlyFetchErrorMessage,
+  formatDistanceNm,
   formatPackStatus,
+  formatRoute,
   guardFlights,
   parseStoredBool,
   parseStoredNumber,
   pickGeocodeResult,
+  posterStatusKind,
+  resolveWallMode,
   unauthorizedStatusMessage,
 } from "./lib.js";
 
 const GEOCODE_URL = "https://geocoding-api.open-meteo.com/v1/search";
+const LANDSCAPE_MQ = window.matchMedia("(orientation: landscape)");
 
 const els = {
+  viewPoster: document.getElementById("view-poster"),
+  viewSettings: document.getElementById("view-settings"),
+  posterWall: document.getElementById("poster-wall"),
+  posterSettingsBtn: document.getElementById("poster-settings-btn"),
+  posterReturnBtn: document.getElementById("poster-return-btn"),
   form: document.getElementById("settings-form"),
   secret: document.getElementById("secret"),
   radiusMi: document.getElementById("radiusMi"),
@@ -44,6 +59,10 @@ let map;
 let marker;
 let refreshTimer = null;
 let lastUpdated = null;
+let bootFetchSucceeded = false;
+let allowDefaultRouteToPoster = false;
+let lastPosterFlights = [];
+let lastPosterMeta = {};
 const workerBase = resolveWorkerBase(window.location);
 
 function destPresetFromParts(group, mode) {
@@ -89,7 +108,6 @@ function loadSettings() {
   };
 }
 
-/** Persist pin / radius / refresh / filters — not a rejected Bearer. */
 function savePrefs(s) {
   localStorage.setItem(STORAGE_KEYS.lat, String(s.lat));
   localStorage.setItem(STORAGE_KEYS.lon, String(s.lon));
@@ -153,6 +171,59 @@ function setStatus(message, kind = "") {
   els.status.classList.toggle("is-ok", kind === "ok");
 }
 
+function getStickyView() {
+  const raw = localStorage.getItem(STORAGE_KEYS.viewSticky);
+  if (raw === "poster" || raw === "settings") return raw;
+  return "";
+}
+
+function setStickyView(view) {
+  if (view === "poster" || view === "settings") {
+    localStorage.setItem(STORAGE_KEYS.viewSticky, view);
+  } else {
+    localStorage.removeItem(STORAGE_KEYS.viewSticky);
+  }
+}
+
+function parseViewQuery() {
+  const v = new URLSearchParams(window.location.search).get("view");
+  if (v === "poster" || v === "settings") return v;
+  return "";
+}
+
+function showView(view) {
+  const isPoster = view === "poster";
+  els.viewPoster.hidden = !isPoster;
+  els.viewSettings.hidden = isPoster;
+  document.body.classList.toggle("view-poster-active", isPoster);
+  if (isPoster) syncWallMode();
+}
+
+function navigateToPoster({ sticky = true } = {}) {
+  if (sticky) setStickyView("poster");
+  showView("poster");
+}
+
+function navigateToSettings({ sticky = true } = {}) {
+  if (sticky) setStickyView("settings");
+  showView("settings");
+}
+
+function maybeDefaultRouteToPoster() {
+  if (!allowDefaultRouteToPoster) return;
+  if (getStickyView() || parseViewQuery()) return;
+  if (bootFetchSucceeded) navigateToPoster({ sticky: false });
+}
+
+function syncWallMode() {
+  const mode = resolveWallMode({
+    orientation: LANDSCAPE_MQ.matches ? "landscape" : "portrait",
+    width: window.innerWidth,
+  });
+  els.posterWall.classList.toggle("rows", mode === "rows");
+  els.posterWall.classList.toggle("columns", mode === "columns");
+}
+
 function setPin(lat, lon, { label = "", save = true } = {}) {
   const s = readFormSettings();
   s.lat = lat;
@@ -178,13 +249,13 @@ function initMap(lat, lon) {
   });
 }
 
-function formatDistance(nm) {
+function formatDistanceMi(nm) {
   if (nm == null || !Number.isFinite(Number(nm))) return "—";
   const mi = Number(nm) * 1.15078;
   return `${mi.toFixed(1)} mi`;
 }
 
-function renderFlights(flights) {
+function renderSettingsFlights(flights) {
   els.list.replaceChildren();
   if (!flights.length) {
     const p = document.createElement("p");
@@ -197,8 +268,7 @@ function renderFlights(flights) {
   for (const f of flights) {
     const li = document.createElement("li");
     li.className = "flight-card";
-    const route =
-      f.origin && f.destination ? `${f.origin} → ${f.destination}` : `→ ${f.destination}`;
+    const route = formatRoute(f.origin, f.destination);
     li.innerHTML = `
       <div class="title">
         <span class="carrier"></span>
@@ -216,9 +286,150 @@ function renderFlights(flights) {
     li.querySelector(".route").textContent = route;
     li.querySelector(".plane").textContent = f.planeType;
     li.querySelector(".alt").textContent = `${Number(f.altitudeFt).toLocaleString()} ft`;
-    li.querySelector(".dist").textContent = formatDistance(f.distanceNm);
+    li.querySelector(".dist").textContent = formatDistanceMi(f.distanceNm);
     els.list.append(li);
   }
+}
+
+function createField(label, value) {
+  const field = document.createElement("span");
+  field.className = "field";
+  const lbl = document.createElement("b");
+  lbl.className = "field-label";
+  lbl.textContent = label;
+  const val = document.createElement("span");
+  val.className = "field-value";
+  val.textContent = value;
+  field.append(lbl, val);
+  return field;
+}
+
+function createFlightPanel(f, ground, index, wallMode) {
+  const article = document.createElement("article");
+  article.className = "flight-panel";
+  if (ground.dataCarrier) article.dataset.carrier = ground.dataCarrier;
+  if (ground.groundClass) article.classList.add(ground.groundClass);
+  article.style.setProperty("--delay", `${40 + index * 60}ms`);
+
+  const hero = document.createElement("div");
+  hero.className = "hero";
+  const airline = document.createElement("h3");
+  airline.className = "airline";
+  airline.textContent = f.carrier;
+  const flightNo = document.createElement("span");
+  flightNo.className = "flight-number";
+  flightNo.textContent = f.flight || "";
+  hero.append(airline, flightNo);
+
+  const tag = document.createElement("div");
+  tag.className = wallMode === "columns" ? "tag vertical-tag" : "tag horizontal-tag";
+
+  const codeWrap = document.createElement("div");
+  codeWrap.className = "tag-code-wrap";
+  const kicker = document.createElement("span");
+  kicker.className = "tag-kicker";
+  kicker.textContent = "Destination";
+  const code = document.createElement("strong");
+  code.className = "tag-code";
+  code.textContent = f.destination;
+  codeWrap.append(kicker, code);
+
+  const fields = document.createElement("div");
+  fields.className = "tag-fields";
+  fields.append(
+    createField("Route", formatRoute(f.origin, f.destination)),
+    createField("Aircraft", f.planeType),
+    createField("Altitude", `${Number(f.altitudeFt).toLocaleString()} ft`),
+    createField("Distance", formatDistanceNm(f.distanceNm)),
+  );
+
+  tag.append(codeWrap, fields);
+  article.append(hero, tag);
+  return article;
+}
+
+function createStatusPanel(copy, { error = false } = {}) {
+  const article = document.createElement("article");
+  article.className = "status-panel";
+  if (error) article.classList.add("error");
+  article.setAttribute("aria-label", `Flight status: ${copy.word}`);
+
+  const hero = document.createElement("div");
+  hero.className = "status-hero";
+  const title = document.createElement("h2");
+  title.innerHTML = "Nearby<br>flights";
+  hero.append(title);
+
+  const tag = document.createElement("div");
+  tag.className = "status-tag";
+  const word = document.createElement("strong");
+  word.className = "status-word";
+  word.textContent = copy.word;
+
+  const fieldsWrap = document.createElement("div");
+  fieldsWrap.className = "status-fields";
+
+  const rows = [
+    ["Status", copy.status],
+    ["Detail", copy.detail],
+    ["Action", copy.action, true],
+    ["Updated", copy.updated],
+  ];
+  for (const [label, value, isAction] of rows) {
+    const row = document.createElement("div");
+    row.className = "status-row";
+    if (isAction) row.classList.add("action");
+    const lbl = document.createElement("b");
+    lbl.className = "field-label";
+    lbl.textContent = label;
+    const val = document.createElement("span");
+    val.className = "field-value";
+    val.textContent = value;
+    row.append(lbl, val);
+    fieldsWrap.append(row);
+  }
+
+  tag.append(word, fieldsWrap);
+  article.append(hero, tag);
+  return article;
+}
+
+function renderPosterWall(flights, meta = {}) {
+  const wallMode = resolveWallMode({
+    orientation: LANDSCAPE_MQ.matches ? "landscape" : "portrait",
+    width: window.innerWidth,
+  });
+  const kind = posterStatusKind({
+    flightsLength: flights.length,
+    httpError: meta.httpError,
+    networkError: meta.networkError,
+    stale: meta.stale,
+    loading: meta.loading,
+  });
+
+  const settingsBtn = els.posterSettingsBtn;
+  els.posterWall.replaceChildren(settingsBtn);
+
+  if (kind === "ok") {
+    const grounds = assignPanelGrounds(flights, CARRIER_BRAND_NAMES, SWATCH_ORDER);
+    for (let i = 0; i < flights.length; i += 1) {
+      els.posterWall.append(createFlightPanel(flights[i], grounds[i], i, wallMode));
+    }
+    lastPosterFlights = flights;
+    lastPosterMeta = { ...meta, stale: meta.stale };
+    return;
+  }
+
+  lastPosterFlights = [];
+  lastPosterMeta = { ...meta };
+
+  const copy = buildPosterStatusCopy(kind, {
+    radiusMi: meta.radiusMi,
+    updatedLabel: meta.updatedLabel,
+    errorDetail: meta.errorDetail,
+    unauthorized: meta.unauthorized,
+  });
+  els.posterWall.append(createStatusPanel(copy, { error: kind === "err" }));
 }
 
 function pauseRefresh() {
@@ -232,18 +443,33 @@ function handleUnauthorized() {
   clearStoredSecret();
   pauseRefresh();
   setStatus(unauthorizedStatusMessage(), "error");
-  renderFlights([]);
+  renderSettingsFlights([]);
+  renderPosterWall([], {
+    httpError: true,
+    unauthorized: true,
+    updatedLabel: lastUpdated ? lastUpdated.toLocaleTimeString() : "—",
+    radiusMi: readFormSettings().radiusMi,
+  });
+  navigateToSettings({ sticky: false });
 }
 
-async function fetchFlights() {
+async function fetchFlights({ boot = false } = {}) {
   const s = readFormSettings();
   if (!s.secret) {
     setStatus("APP_SHARED_SECRET required (worker/.dev.vars — not AIRLABS_API_KEY).", "error");
     pauseRefresh();
-    return;
+    renderPosterWall([], {
+      httpError: true,
+      errorDetail: "APP_SHARED_SECRET required.",
+      radiusMi: s.radiusMi,
+    });
+    return false;
   }
+
   savePrefs(s);
   setStatus("Loading flights…");
+  renderPosterWall([], { loading: true, radiusMi: s.radiusMi });
+
   const url = buildFlightsUrl(workerBase, {
     lat: s.lat,
     lon: s.lon,
@@ -262,7 +488,7 @@ async function fetchFlights() {
     });
     if (res.status === 401) {
       handleUnauthorized();
-      return;
+      return false;
     }
     if (!res.ok) {
       let detail = `HTTP ${res.status}`;
@@ -273,15 +499,23 @@ async function fetchFlights() {
         /* ignore */
       }
       setStatus(`Request failed: ${detail}`, "error");
-      renderFlights([]);
-      return;
+      renderSettingsFlights([]);
+      renderPosterWall([], {
+        httpError: true,
+        errorDetail: detail,
+        radiusMi: s.radiusMi,
+        updatedLabel: lastUpdated ? lastUpdated.toLocaleTimeString() : "—",
+      });
+      return false;
     }
+
     saveSecret(s.secret);
     const body = await res.json();
     const flights = guardFlights(body.flights || []);
     lastUpdated = new Date();
     const time = lastUpdated.toLocaleTimeString();
     const packSize = body.pack?.size;
+
     setStatus(
       `${formatPackStatus({
         shown: flights.length,
@@ -293,10 +527,30 @@ async function fetchFlights() {
       })} · ${workerBackendLabel(workerBase)}`,
       "ok",
     );
-    renderFlights(flights);
+
+    renderSettingsFlights(flights);
+    renderPosterWall(flights, {
+      stale: body.stale,
+      radiusMi: s.radiusMi,
+      updatedLabel: time,
+    });
+
+    if (boot) {
+      bootFetchSucceeded = true;
+      maybeDefaultRouteToPoster();
+    }
+    return true;
   } catch (err) {
-    setStatus(`Network error: ${err?.message || err}`, "error");
-    renderFlights([]);
+    const detail = friendlyFetchErrorMessage(err, workerBase);
+    setStatus(`Network error: ${detail}`, "error");
+    renderSettingsFlights([]);
+    renderPosterWall([], {
+      networkError: true,
+      errorDetail: detail,
+      radiusMi: s.radiusMi,
+      updatedLabel: lastUpdated ? lastUpdated.toLocaleTimeString() : "—",
+    });
+    return false;
   }
 }
 
@@ -356,11 +610,48 @@ function useGeolocation() {
   );
 }
 
-function boot() {
+function initRouting() {
+  const queryView = parseViewQuery();
+  if (queryView) {
+    setStickyView(queryView);
+    showView(queryView);
+    return;
+  }
+
+  const sticky = getStickyView();
+  if (sticky) {
+    showView(sticky);
+    return;
+  }
+
+  allowDefaultRouteToPoster = true;
+  showView("settings");
+}
+
+async function boot() {
   const s = loadSettings();
   fillForm(s);
   initMap(s.lat, s.lon);
   els.placeLabel.textContent = "Default pin: Jersey City, NJ (adjust via search, map, or GPS).";
+  initRouting();
+  syncWallMode();
+
+  LANDSCAPE_MQ.addEventListener("change", () => {
+    syncWallMode();
+    if (!els.viewPoster.hidden && lastPosterFlights.length) {
+      renderPosterWall(lastPosterFlights, lastPosterMeta);
+    }
+  });
+
+  window.addEventListener("resize", syncWallMode);
+
+  els.posterSettingsBtn.addEventListener("click", () => {
+    navigateToSettings({ sticky: true });
+  });
+
+  els.posterReturnBtn.addEventListener("click", () => {
+    navigateToPoster({ sticky: true });
+  });
 
   els.form.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -395,7 +686,14 @@ function boot() {
 
   if (s.secret) {
     scheduleRefresh();
-    fetchFlights();
+    const bootFetch = allowDefaultRouteToPoster;
+    await fetchFlights({ boot: bootFetch });
+  } else if (!els.viewPoster.hidden) {
+    renderPosterWall([], {
+      httpError: true,
+      errorDetail: "APP_SHARED_SECRET required.",
+      radiusMi: s.radiusMi,
+    });
   }
 }
 

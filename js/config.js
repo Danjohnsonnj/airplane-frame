@@ -7,6 +7,15 @@ export const WORKER_BASE = PROD_WORKER_BASE;
 
 export const JC_DEFAULT = { lat: 40.728, lon: -74.078 };
 
+export const SWATCH_ORDER = [
+  "ground-sun",
+  "ground-navy",
+  "ground-rose",
+  "ground-teal",
+  "ground-coral",
+  "ground-mint",
+];
+
 export const DEFAULTS = {
   radiusMi: 25,
   refreshSeconds: 300,
@@ -30,6 +39,7 @@ export const STORAGE_KEYS = {
   destGroup: "af_destGroup",
   destGroupMode: "af_destGroupMode",
   unique: "af_unique",
+  viewSticky: "af_viewSticky",
 };
 
 /**
