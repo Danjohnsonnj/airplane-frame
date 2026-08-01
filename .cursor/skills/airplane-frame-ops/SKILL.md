@@ -17,13 +17,16 @@ Do **not** duplicate long procedures here. Read and follow:
 - `docs/runbooks/cloudflare-signup.md`
 - `docs/runbooks/secrets.md`
 - `docs/runbooks/deploy-worker.md`
+- `docs/runbooks/pages.md` — GitHub Pages + front-end UAT
 - `spike/README.md` / `spike/CREDENTIALS.md` — data APIs
 - `docs/plans/airplane-frame/HANDOFF.md` — current phase / next action
+- Root `README.md` — local preview + Pages pointer
 
 ## Hard rules
 
 - Never commit secrets or paste them into chat.
-- Never put API keys in the GitHub Pages front end.
+- Never put API keys (`AIRLABS_API_KEY`, etc.) in the GitHub Pages front end.
+- Front-end Bearer token is **`APP_SHARED_SECRET` only** — not the AirLabs key (see `docs/runbooks/secrets.md`).
 - Only return / display flights that include carrier, destination, and planeType.
 - Locked data stack: airplanes.live + AirLabs (hexdb fallback).
 

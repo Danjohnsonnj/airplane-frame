@@ -12,7 +12,7 @@
   - Pipeline: airplanes.live → AirLabs (hexdb fallback) → JSON
   - Cache: ~300s per lat/lon/radiusNm bucket (`CACHE_TTL_SECONDS`)
   - UI radius query param `radiusMi` (statute) → nm via `milesToNm` (~25 mi → 22 nm)
-- Phase 3 Pages UI: **not started**
+- Phase 3 Pages UI: **implemented** (root `index.html` + `css/` + `js/`); GitHub Pages enable + two-device UAT may still be pending — see `docs/runbooks/pages.md`
 
 ## Locked data stack (Phase 1)
 
@@ -35,25 +35,27 @@
 ## Architecture
 
 ```
-[Browser: plain HTML/CSS/JS on GitHub Pages]   ← Phase 3
-   |  Authorization: Bearer APP_SHARED_SECRET
-   |  Query: lat, lon, radiusMi
+[Browser: plain HTML/CSS/JS — repo root; GitHub Pages]
+   |  Authorization: Bearer APP_SHARED_SECRET (localStorage)
+   |  Query: lat, lon, radiusMi; client min-altitude filter
+   |  Location: JC default, map click, Open-Meteo place search, device geolocation
    v
 [Worker https://airplane-frame.danjohnsonnj.workers.dev]
    |  secrets: AIRLABS_API_KEY, APP_SHARED_SECRET
    |  cache ~5 min; airplanes.live → AirLabs → hexdb fallback
    |  require carrier + destination + planeType
    v
-[JSON: { pin, count, flights[] }]
+[JSON: { pin, count, flights[] }]  → UI shows all after minAltitudeFt filter
+                                    → Phase 4: diversity pack down to 3–5
 ```
 
-### Front end (Phase 3+)
+### Front end (Phase 3 done; polish pending Pages UAT)
 
 - Modern browsers (last ~1 year)
-- `localStorage`: home pin, radius, refresh interval, shared secret, later filters
-- Dev location UX: map click or lat/lon; JC default
-- MVP location UX: add free geocoder place search
-- No poster art in MVP; short visual-direction note later
+- `localStorage`: home pin, radius, refresh interval, min altitude, **`APP_SHARED_SECRET` only** (never `AIRLABS_API_KEY`; 401 clears stored secret and pauses auto-refresh)
+- Location: JC default; map click (Leaflet/OSM); place search (Open-Meteo geocoder); device geolocation
+- Functional UI only; no poster art
+- Unit tests: `node --test js/lib.test.js`
 
 ### Worker (live)
 

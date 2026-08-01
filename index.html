@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>airplane-frame</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <link rel="stylesheet" href="css/app.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <h1>airplane-frame</h1>
+      <p class="tagline">Nearby commercial flights around your pin</p>
+    </header>
+
+    <main class="layout">
+      <section class="panel" aria-labelledby="settings-heading">
+        <h2 id="settings-heading">Settings</h2>
+        <form id="settings-form" class="form-grid">
+          <label class="secret-field">
+            APP_SHARED_SECRET
+            <input
+              id="secret"
+              name="secret"
+              type="password"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="from worker/.dev.vars — not the AirLabs key"
+              required
+            />
+            <span class="field-hint"
+              >Personal Worker gate only. Never paste <code>AIRLABS_API_KEY</code> here —
+              that stays on the Worker. See
+              <a href="docs/runbooks/secrets.md">secrets runbook</a>.</span
+            >
+          </label>
+          <label>
+            Radius (miles)
+            <input id="radiusMi" name="radiusMi" type="number" min="1" max="250" step="1" />
+          </label>
+          <label>
+            Refresh (seconds)
+            <input
+              id="refreshSeconds"
+              name="refreshSeconds"
+              type="number"
+              min="30"
+              max="3600"
+              step="30"
+            />
+          </label>
+          <label>
+            Min altitude (ft)
+            <input
+              id="minAltitudeFt"
+              name="minAltitudeFt"
+              type="number"
+              min="0"
+              max="60000"
+              step="500"
+            />
+          </label>
+          <div class="form-actions">
+            <button type="submit">Save settings</button>
+            <button type="button" id="refresh-btn">Refresh flights</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel" aria-labelledby="location-heading">
+        <h2 id="location-heading">Location</h2>
+        <form id="search-form" class="search-row">
+          <label class="grow">
+            Place search
+            <input
+              id="place-query"
+              name="place"
+              type="search"
+              placeholder="e.g. Jersey City, NJ"
+              autocomplete="off"
+            />
+          </label>
+          <button type="submit">Search</button>
+          <button type="button" id="geo-btn">Use my location</button>
+        </form>
+        <p id="place-label" class="muted" aria-live="polite"></p>
+        <div class="coords">
+          <label>
+            Lat
+            <input id="lat" name="lat" type="number" step="any" />
+          </label>
+          <label>
+            Lon
+            <input id="lon" name="lon" type="number" step="any" />
+          </label>
+          <button type="button" id="apply-coords-btn">Apply coords</button>
+        </div>
+        <div id="map" role="application" aria-label="Map — click to set pin"></div>
+      </section>
+
+      <section class="panel" aria-labelledby="flights-heading">
+        <div class="flights-header">
+          <h2 id="flights-heading">Flights</h2>
+          <p id="status" class="status" aria-live="polite">
+            Enter APP_SHARED_SECRET and refresh.
+          </p>
+        </div>
+        <ul id="flight-list" class="flight-list"></ul>
+      </section>
+    </main>
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>

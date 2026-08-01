@@ -5,6 +5,8 @@ OpenSky and Aviationstack are **optional** — not required for MVP.
 
 **Production:** the same AirLabs key is stored as a Cloudflare Worker secret (`AIRLABS_API_KEY`). See `docs/runbooks/secrets.md`. Do not put keys in chat or in `*.example` files.
 
+**Front-end auth is different:** the Pages UI uses `APP_SHARED_SECRET` (from `worker/.dev.vars`), never `AIRLABS_API_KEY`. Pasting the AirLabs key into the browser field returns 401.
+
 Put spike-only secrets in `spike/.env` (gitignored):
 
 ```bash

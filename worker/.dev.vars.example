@@ -1,5 +1,7 @@
 # Local wrangler secrets — copy to .dev.vars (gitignored)
-# Reuse AIRLABS_API_KEY from spike/.env. Generate APP_SHARED_SECRET with: openssl rand -hex 32
+# AIRLABS_API_KEY: Worker-only (from spike/.env). Never put in the browser UI.
+# APP_SHARED_SECRET: personal gate — paste THIS into the front-end APP_SHARED_SECRET field.
+# Generate: openssl rand -hex 32
 # See docs/runbooks/secrets.md
 APP_SHARED_SECRET=replace-me-with-openssl-rand-hex-32
 AIRLABS_API_KEY=

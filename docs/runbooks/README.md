@@ -7,8 +7,9 @@ Operational how-tos for airplane-frame. Agents: start at `.cursor/skills/airplan
 | [cloudflare-signup.md](./cloudflare-signup.md) | New machine / new Cloudflare account; Wrangler login |
 | [secrets.md](./secrets.md) | Local `.dev.vars`, production secrets, rotation |
 | [deploy-worker.md](./deploy-worker.md) | Test, deploy, and curl-verify the Worker |
+| [pages.md](./pages.md) | GitHub Pages enable, local preview, front-end UAT |
 
 **Production Worker (Phase 2):** `https://airplane-frame.danjohnsonnj.workers.dev`  
 **Account workers.dev subdomain:** `danjohnsonnj.workers.dev`
 
-Related: `spike/CREDENTIALS.md` (AirLabs / data APIs), `docs/plans/airplane-frame/HANDOFF.md` (current phase).
+Related: `spike/CREDENTIALS.md` (AirLabs / data APIs), `docs/plans/airplane-frame/HANDOFF.md` (current phase), root `README.md` (site entry).

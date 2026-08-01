@@ -79,3 +79,5 @@ See lessons.md: “Fresh workers.dev may briefly fail TLS”.
 ## Why a Worker
 
 GitHub Pages cannot hold `AIRLABS_API_KEY`. Browser calls to many flight APIs also hit CORS. The Worker holds secrets, enriches server-side (airplanes.live + AirLabs, hexdb fallback), caches ~5 minutes per lat/lon/radius bucket, and returns slim JSON.
+
+Clients authenticate with **`APP_SHARED_SECRET`** only (see [secrets.md](./secrets.md)). Do not send the AirLabs key as the Bearer token.

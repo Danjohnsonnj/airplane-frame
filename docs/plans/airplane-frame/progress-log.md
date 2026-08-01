@@ -48,3 +48,17 @@
 - Verified: n/a (documentation only).
 - Learned: n/a.
 - Overwrote: HANDOFF current phase → Phase 3 not started; tech-brief architecture marked Worker live; runbooks reflect production URL `https://airplane-frame.danjohnsonnj.workers.dev`.
+
+## 2026-07-31 - Session 4: Phase 3 Pages UI implemented
+
+- Happened: Root static site (`index.html`, `css/app.css`, `js/{config,lib,app}.js`) calling production Worker; Leaflet map click; Open-Meteo place search; device geolocation; localStorage for secret/pin/radius/refresh/minAltitude (default 5000 ft client filter); shows all enriched candidates. Added `docs/runbooks/pages.md`, README, unit tests. Place search + geolocation pulled forward from Phase 5/Later.
+- Verified: `node --test js/lib.test.js` 7 pass; local `http.server` page load; place search sets JC pin; wrong secret → unauthorized; live Worker + filter path → e.g. 11 raw / 3 ≥5000 ft with required fields. Pages enable + two-device UAT still user-side.
+- Learned: Open-Meteo geocoding API is CORS-friendly for browser place search (no key).
+- Overwrote: HANDOFF → Phase 4 next; Phase 3 IMPLEMENTED (Pages UAT open); Phase 5 narrowed; tech/product briefs updated.
+
+## 2026-07-31 - Session 4b: Secret-field UX + docs (AirLabs vs APP_SHARED_SECRET)
+
+- Happened: User pasted `AIRLABS_API_KEY` into the UI and got 401. Relabeled field to `APP_SHARED_SECRET`, hint + runbook table for which secret goes where; on 401 clear stored secret and pause auto-refresh; secret only persisted after successful 200 or explicit Save.
+- Verified: `node --test js/lib.test.js` (includes unauthorizedStatusMessage).
+- Learned: Two Worker secrets are easy to conflate; name the env var in the UI.
+- Overwrote: secrets.md, pages.md, README, deploy-worker, skill, lessons, tech-brief, CREDENTIALS, `.dev.vars.example`.

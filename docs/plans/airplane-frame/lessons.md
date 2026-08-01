@@ -48,3 +48,17 @@
 - Lesson: Handshake failures with no peer cert can clear after enabling `workers_dev = true` and redeploying / waiting briefly. Confirm subdomain enabled via API (`/workers/scripts/{name}/subdomain` → enabled).
 - Evidence: airplane-frame deploy 2026-07-31; failed curl then 200 after redeploy.
 - Crystallize?: Yes — note in deploy-worker runbook.
+
+## Open-Meteo geocoder works from the browser
+
+- Context: Phase 3 place search without a map API key or Worker proxy.
+- Lesson: `https://geocoding-api.open-meteo.com/v1/search` is CORS-usable for personal low-volume place → lat/lon; prefer it over Nominatim-in-browser for MVP.
+- Evidence: Local UI search “Jersey City” → pin set 2026-07-31.
+- Crystallize?: Yes — pages runbook / front-end config.
+
+## Front-end Bearer is APP_SHARED_SECRET, not AIRLABS_API_KEY
+
+- Context: UI 401 when the AirLabs key was pasted into the shared-secret field.
+- Lesson: Two Worker secrets. `APP_SHARED_SECRET` is the personal access gate for `Authorization: Bearer`. `AIRLABS_API_KEY` never leaves the Worker. Label the UI field with the env var name; on 401 clear stored secret and pause auto-refresh.
+- Evidence: User report 2026-07-31; fixed copy in UI + secrets/pages runbooks.
+- Crystallize?: Yes — secrets.md “which secret goes where” + pages.md auth section.

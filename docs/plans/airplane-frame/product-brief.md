@@ -33,8 +33,8 @@ Personal sky-watching tool first; eventual poster gallery second. Hybrid model (
 | Product model | Hybrid: radius candidates → airport-interest bias → diversity-first pack of 3–5 |
 | Architecture | GitHub Pages (plain HTML/CSS/JS) + free Worker/BFF (e.g. Cloudflare Worker) |
 | Access | Shared secret (owner + one tester device OK); ~5 min response cache |
-| Location (dev) | Saved pin via map/coords; Jersey City default |
-| Location (MVP) | Same + place-name search (free geocoder) |
+| Location (dev / Phase 3) | Saved pin: map click, place search, device geolocation; Jersey City default |
+| Location (MVP leftover) | Phase 5 shrinks to visual-direction note (+ any geocoder polish) |
 | Radius | ~25 miles default, user-adjustable |
 | Filters | After pipeline works: carrier allow/deny, destination group, uniqueness |
 | Selection | Diversity-first pack; light interest score as tie-break only |
