@@ -10,7 +10,7 @@ Show **3–5** commercial flights near a user-defined, session-persisted locatio
 
 ## Rationale
 
-Personal sky-watching tool first; eventual poster gallery second. Hybrid model (live positions in a radius, enriched and ranked as commercial flights) matches “what’s near me” while requiring named commercial identity for the later art direction.
+Hybrid model (live positions in a radius, enriched and ranked as commercial flights) matches “what’s near me” while requiring named commercial identity for art direction. **Target IA** (not shipped): full-screen poster wall as the main view; today’s controls live in a settings view — see [visual-direction.md](./visual-direction.md). MVP remains a functional tool until poster implementation is explicitly started.
 
 ## Non-goals
 
@@ -34,11 +34,11 @@ Personal sky-watching tool first; eventual poster gallery second. Hybrid model (
 | Architecture | GitHub Pages (plain HTML/CSS/JS) + free Worker/BFF (e.g. Cloudflare Worker) |
 | Access | Shared secret (owner + one tester device OK); ~5 min response cache |
 | Location (dev / Phase 3) | Saved pin: map click, place search, device geolocation; Jersey City default |
-| Location (MVP leftover) | Phase 5 shrinks to visual-direction note (+ any geocoder polish) |
+| Location (MVP leftover) | Phase 5 = visual-direction note DONE; geocoder polish deferred |
 | Radius | ~25 miles default, user-adjustable |
 | Filters | Carrier allow/deny, destination group (`nyc` prefer/exclude), uniqueness — Phase 4 DONE |
 | Selection | Diversity-first pack ≤5 (`PACK_SIZE`); light interest score as tie-break; N slider deferred |
-| UI | Functional MVP first; short visual-direction note for later poster phase |
+| UI | Shipped: functional MVP. Target: poster-main / settings-secondary SPA per [visual-direction.md](./visual-direction.md) |
 | Maintenance | `docs/runbooks/` + Cursor skill pointing at them |
 | Data vendors | Spike-driven; no brand lock until success criteria met |
 

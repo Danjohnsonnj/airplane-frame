@@ -103,3 +103,10 @@
 - Happened: User verified GitHub Pages → production Worker (stale/age UI as applicable).
 - Verified: phase-4.5.plan.md UAT item 4 — PASS; full Phase 4.5 UAT complete.
 - Overwrote: HANDOFF open items cleared; phase-4.5.plan + phases.md Phase 4.5 status.
+
+## 2026-08-01 - Phase 5 visual-direction note DONE
+
+- Happened: Interview-locked poster IA into `docs/plans/airplane-frame/visual-direction.md` (classic travel posters + baggage-tag secondary; poster-main / settings-secondary SPA; sticky `?view=`; responsive wall; staged fidelity). Synced HANDOFF, product-brief, phases, tech-brief. Geocoder polish deferred. Next: inspiration → deeper design interview → `design-mock-probe`.
+- Verified: note has Purpose/Locked/Intake/Deferred/Next; HANDOFF links resolve; product-brief rationale no longer “gallery second.”
+- Learned: n/a.
+- Overwrote: Phase 5 → DONE; HANDOFF next action → design path; open decisions drop geocoder-vs-note-only.

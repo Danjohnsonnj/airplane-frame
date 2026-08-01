@@ -38,11 +38,12 @@
 
 ## Phase 5 - MVP location polish + direction note
 
-- Place-name search + device geolocation landed in Phase 3; this phase is mainly a short visual-direction note for future 1950s poster work (plus any geocoder UX polish).
+- Place-name search + device geolocation landed in Phase 3; this phase is a short visual-direction note for future 1950s poster work (geocoder UX polish deferred).
 - Verify: direction note exists in repo; full MVP success criteria in product-brief met.
+- **Status: DONE 2026-08-01** — [visual-direction.md](./visual-direction.md) locked (poster-main SPA IA); geocoder polish deferred.
 
 ## Later (out of current phase plan)
 
-- 1950s poster UI + plane/livery illustration source decision
+- Implement poster SPA per [visual-direction.md](./visual-direction.md) (ask first); plane/livery illustration source decision
 - Live browser geolocation
 - Optional widen of sky-watcher filters (min altitude, widebody bias strength)
