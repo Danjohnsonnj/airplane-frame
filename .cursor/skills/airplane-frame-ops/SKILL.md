@@ -2,9 +2,9 @@
 name: airplane-frame-ops
 description: >-
   Operate and maintain the airplane-frame Pages + Worker stack: deploy, secrets,
-  API incidents, and Phase handoff. Use when deploying the Worker, rotating
-  secrets, debugging flight enrichment, or when the user mentions runbooks,
-  wrangler, AirLabs, or airplane-frame ops.
+  API incidents, Phase handoff, and local preview. Use when deploying the Worker,
+  rotating secrets, debugging flight enrichment, starting local Wrangler/Pages,
+  or when the user mentions runbooks, wrangler, AirLabs, or airplane-frame ops.
 ---
 
 # airplane-frame ops
@@ -30,6 +30,10 @@ Do **not** duplicate long procedures here. Read and follow:
 - Front-end Bearer token is **`APP_SHARED_SECRET` only** — not the AirLabs key (see `docs/runbooks/secrets.md`).
 - Only return / display flights that include carrier, destination, and planeType.
 - Locked data stack: airplanes.live + AirLabs (hexdb fallback).
+
+## Local stack (agent-run)
+
+When the user wants local preview or local UAT, **you** start the servers — follow **Agent: start local stack** in `docs/runbooks/local-dev.md` (do not duplicate steps here). First-load secret paste stays with the user.
 
 ## Live endpoints
 

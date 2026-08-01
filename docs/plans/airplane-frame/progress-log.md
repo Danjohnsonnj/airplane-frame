@@ -90,3 +90,16 @@
 - Verified: local UAT checklist items 1–3 in phase-4.5.plan.md — PASS.
 - Deferred: GitHub Pages UAT (item 4) — unpushed local changes; re-run after commit/push to https://danjohnsonnj.github.io/airplane-frame/
 - Overwrote: HANDOFF open items; phase-4.5.plan UAT section.
+
+## 2026-08-01 - Phase 4.5 pushed; Pages UAT unblocked
+
+- Happened: Committed and pushed `3705970` (`feat: add KV flight cache, stale fallback, and local Wrangler preview`) to `main`/origin.
+- Verified: working tree clean; `main` matches `origin/main`.
+- Unblocked: Phase 4.5 Pages UAT item 4 — re-run at https://danjohnsonnj.github.io/airplane-frame/ after Pages rebuild.
+- Overwrote: HANDOFF open items; phase-4.5.plan UAT; phases.md Phase 4.5 status.
+
+## 2026-08-01 - Phase 4.5 Pages UAT PASS
+
+- Happened: User verified GitHub Pages → production Worker (stale/age UI as applicable).
+- Verified: phase-4.5.plan.md UAT item 4 — PASS; full Phase 4.5 UAT complete.
+- Overwrote: HANDOFF open items cleared; phase-4.5.plan + phases.md Phase 4.5 status.

@@ -23,4 +23,4 @@
 - [x] Cold start from local-dev.md — flights load under normal refresh spacing (PASS 2026-08-01)
 - [x] Double Refresh within a minute — stable pack (PASS 2026-08-01)
 - [x] Stop Wrangler on localhost — connection error (no silent prod fallback) (PASS 2026-08-01)
-- [ ] GitHub Pages uses production Worker; stale/age visible if upstream flaps — **DEFERRED** until local changes are pushed / Pages rebuilds
+- [x] GitHub Pages uses production Worker; stale/age visible if upstream flaps (PASS 2026-08-01)

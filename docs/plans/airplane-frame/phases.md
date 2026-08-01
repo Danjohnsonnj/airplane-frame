@@ -34,7 +34,7 @@
 - Workers KV candidate cache (`FLIGHT_CACHE`) replaces Cache API; stale serve on upstream failure; one retry on 429/5xx.
 - Local preview auto-routes to Wrangler `:8788` (own IP); `scripts/dev-*.sh` + `docs/runbooks/local-dev.md`.
 - Verify: unit tests pass; prod KV fresh hit; local status shows `local Worker`; UAT checklist in phase-4.5.plan.md.
-- **Status: DONE 2026-08-01** — deployed Worker with KV; front-end `resolveWorkerBase` + stale status line. Local UAT PASS 2026-08-01; Pages UAT deferred until push.
+- **Status: DONE 2026-08-01** — deployed Worker with KV; front-end `resolveWorkerBase` + stale status line. Local + GitHub Pages UAT PASS 2026-08-01.
 
 ## Phase 5 - MVP location polish + direction note
 

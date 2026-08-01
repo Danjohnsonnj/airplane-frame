@@ -4,6 +4,20 @@ Use this when testing on your machine so **airplanes.live** sees **your IP**, no
 
 GitHub Pages always uses the **production** Worker. Local preview at `127.0.0.1:8080` auto-routes to local Wrangler on `:8788`.
 
+## Agent: start local stack (for the user)
+
+When the user asks to run local preview / local UAT / “start the servers,” do this — do **not** ask them to run the scripts unless a step fails.
+
+1. Confirm `worker/.dev.vars` exists (do not read or print secret values).
+2. Confirm ports **8080** and **8788** are free (or reuse already-healthy processes).
+3. From repo root, start both in the background (separate shells):
+   - `./scripts/dev-pages.sh` → expect `http://127.0.0.1:8080/`
+   - `./scripts/dev-worker.sh` → expect `http://127.0.0.1:8788/health` → `{ "ok": true }`
+4. Tell the user the UI URL. **First load** (paste `APP_SHARED_SECRET`, Save, Refresh) stays user-gated — never paste secrets into chat or the browser for them.
+5. On failure, use **Troubleshooting** below; stop and report rather than inventing alternate ports.
+
+Full human checklist: **Prerequisites** → **Cold-start** → **First load**.
+
 ## Prerequisites
 
 1. [secrets.md](./secrets.md) — `worker/.dev.vars` with `APP_SHARED_SECRET` + `AIRLABS_API_KEY`

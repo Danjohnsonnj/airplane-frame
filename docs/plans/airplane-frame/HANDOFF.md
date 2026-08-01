@@ -26,10 +26,10 @@
 - phase-4.plan.md - Phase 4 plan (DONE including UAT)
 - phase-4.5.plan.md - Phase 4.5 plan (DONE)
 - docs/runbooks/README.md - ops runbook index
-- docs/runbooks/local-dev.md - local Pages + Wrangler cold start
+- docs/runbooks/local-dev.md - local Pages + Wrangler cold start (**agents start the stack**; see Agent section)
 - spike/README.md - Phase 1 spike entry
 - .cursor/skills/airplane-frame-ops/SKILL.md - agent entry to runbooks
 
 **Open decisions:** Optional user-selectable N (3–5) deferred; tune min-altitude default after more real traffic; Phase 5 geocoder polish vs note-only.
-**Open items:** Phase 4.5 Pages UAT deferred — commit/push local changes, then verify https://danjohnsonnj.github.io/airplane-frame/ (production Worker + stale UI). Local UAT PASS 2026-08-01 per `phase-4.5.plan.md`.
-**Last updated:** 2026-08-01 — Phase 4.5 local UAT PASS; Pages UAT pending push
+**Open items:** None — Phase 4.5 UAT complete (local + GitHub Pages PASS 2026-08-01).
+**Last updated:** 2026-08-01 — Phase 4.5 UAT PASS on GitHub Pages
