@@ -44,6 +44,8 @@
 
 ## Later (out of current phase plan)
 
-- Implement poster SPA per [visual-direction.md](./visual-direction.md) (ask first); plane/livery illustration source decision
+- **Design path (active):** `design-mock-probe` for poster wall — locks in [visual-direction.md](./visual-direction.md); pointer [docs/agents/design-mock-probe-pointer.md](../../agents/design-mock-probe-pointer.md); output under `docs/design-mocks/`
+- Implement poster SPA per visual-direction + mocks as reference only (ask first); plane/livery illustration source decision
 - Live browser geolocation
 - Optional widen of sky-watcher filters (min altitude, widebody bias strength)
+- Deferred: settings period polish; geocoder UX polish

@@ -83,3 +83,10 @@
 - Lesson: `resolveWorkerBase` routes `localhost`/`127.0.0.1` → `http://127.0.0.1:8788`. Run `scripts/dev-worker.sh` alongside `scripts/dev-pages.sh`. `?worker=prod` overrides to production.
 - Evidence: Phase 4.5 implementation 2026-08-01.
 - Crystallize?: Yes — local-dev.md, README, pages runbook.
+
+## Poster design: grill → visual-direction → mock probe → ask before ship
+
+- Context: Post–Phase 5 visual path.
+- Lesson: Lock IA in `visual-direction.md` via interview; refine hexes/type/status copy in `design-mock-probe` HTML under `docs/design-mocks/`. Mocks are reference only — never port DOM/CSS into Pages until user green-lights poster implementation. Pointer: `docs/agents/design-mock-probe-pointer.md`.
+- Evidence: Design interview 2026-08-01; HANDOFF next = poster mock probe.
+- Crystallize?: Yes — HANDOFF required reading + pointer.

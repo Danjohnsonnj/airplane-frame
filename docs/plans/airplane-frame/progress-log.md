@@ -117,3 +117,10 @@
 - Verified: intake table cites paths; reject cluster includes people/figures/dense illustration; HANDOFF next action updated.
 - Learned: Stage-1 panels biased to solid fields + type/ephemera; Pan Am circles + TWA/LAX glance stack inform tag/status chips.
 - Overwrote: visual-direction Reference intake *(none yet)* → confirmed rows; Next path step 1 DONE.
+
+## 2026-08-01 - Design interview locks → mock-probe ready
+
+- Happened: Deeper design interview. Locked mobile-first responsive; panel = hero (airline + flight#) above luggage tag (dest code + route/aircraft/altitude/distance); tag horizontal in rows / bespoke vertical in columns; sequential swatch book + reserved neutral status; status = one luggage tag (not chrome chip); empty/error hero strip "Nearby flights"; typography dual-family direction; motion = quiet state + staged settle. API field gaps acked. Wrote locks into visual-direction; added design-mock-probe pointer + design-mocks README; synced HANDOFF/phases/product-brief.
+- Verified: HANDOFF next action = poster `design-mock-probe`; required reading points at pointer + visual-direction + skill.
+- Learned: Destination-led panel hierarchy superseded by airline-led hero + tag-led dest code; status should reuse tag motif rather than a separate chip.
+- Overwrote: visual-direction panel hierarchy / chrome / empty-error / deferred list; HANDOFF phase → design path (mock probes).

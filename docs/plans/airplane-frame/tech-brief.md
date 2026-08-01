@@ -59,7 +59,7 @@
 - Modern browsers (last ~1 year)
 - `localStorage`: home pin, radius, refresh, min altitude, filters, **`APP_SHARED_SECRET` only**
 - Location: JC default; map click (Leaflet/OSM); place search (Open-Meteo); device geolocation
-- Shipped: functional UI only; no poster art. Target poster-main / settings-secondary IA: [visual-direction.md](./visual-direction.md)
+- Shipped: functional UI only; no poster art. Target poster-main / settings-secondary IA: [visual-direction.md](./visual-direction.md). Design mocks: `docs/design-mocks/` (pointer `docs/agents/design-mock-probe-pointer.md`); do not implement poster SPA until asked.
 - Unit tests: `node --test js/lib.test.js`
 - Local: `127.0.0.1:8080` → `resolveWorkerBase` → local Wrangler `:8788` (or `?worker=prod`)
 - Live: https://danjohnsonnj.github.io/airplane-frame/
