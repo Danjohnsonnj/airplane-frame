@@ -1,0 +1,11 @@
+name = "airplane-frame"
+main = "src/index.js"
+compatibility_date = "2026-07-31"
+workers_dev = true
+preview_urls = true
+
+[vars]
+# Non-secret defaults (override in dashboard if needed)
+CACHE_TTL_SECONDS = "300"
+MAX_ENRICH = "12"
+MAX_RESULTS = "20"

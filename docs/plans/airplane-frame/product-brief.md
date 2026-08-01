@@ -44,8 +44,8 @@ Personal sky-watching tool first; eventual poster gallery second. Hybrid model (
 
 ## Success criteria
 
-- For a Jersey City pin, the Worker returns 3–5 flights each with carrier, destination, and human-readable plane type on free/trial tiers at ≤5-minute polling
+- For a Jersey City pin, the Worker returns enriched flights each with carrier, destination, and human-readable plane type on free/trial tiers at ≤5-minute polling (deployed: `https://airplane-frame.danjohnsonnj.workers.dev`; Phase 4 narrows to curated 3–5)
 - Front end loads from GitHub Pages, sends shared secret + location/radius, renders the pack
 - Location pin persists across sessions in that browser (localStorage); MVP includes place search
-- Runbooks exist for deploy, secrets, and API breakage; skill routes agents to them
+- Runbooks exist for deploy, secrets, and Cloudflare setup (`docs/runbooks/`); skill `.cursor/skills/airplane-frame-ops` routes agents to them
 - UAT smoke: open Pages URL on two devices with the shared key; both see enriched flights within one refresh cycle

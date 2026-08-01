@@ -1,0 +1,11 @@
+# Spike artifacts (local secrets — do not commit)
+spike/.env
+spike/credentials.json
+spike/out/
+.env
+credentials.json
+
+# Worker
+worker/node_modules/
+worker/.dev.vars
+worker/.wrangler/

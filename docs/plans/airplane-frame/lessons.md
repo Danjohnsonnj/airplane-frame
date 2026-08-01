@@ -20,3 +20,31 @@
 - Lesson: Free/trial flight APIs churn (auth, credits, schema). Write success criteria (JC pin, required fields, 5-min cadence) and keep the first stack that passes; document in tech-brief + runbook.
 - Evidence: Interview lock — spike-driven data stack.
 - Crystallize?: Yes — Phase 1 verify checklist in phases.md / runbook.
+
+## airplanes.live needs a User-Agent
+
+- Context: Fetching `https://api.airplanes.live/v2/point/...` from Python urllib.
+- Lesson: Send a descriptive User-Agent; bare urllib gets HTTP 403. curl often works without one.
+- Evidence: Spike 2026-07-31 — 403 without UA, 200 with `airplane-frame-spike/0.1`.
+- Crystallize?: Yes — shared HTTP helper in Worker/spike.
+
+## Keyless count-pass ≠ production stack
+
+- Context: airplanes.live + hexdb returned ≥3 JC flights with required fields.
+- Lesson: Still validate destination freshness and carrier branding (callsign→airline or live flight API). Do not lock MVP on hexdb alone without a quality check against a live schedule/flight API.
+- Evidence: Spike samples showed trustee ownOp names and dubious city pairs for NYC-area traffic.
+- Crystallize?: no
+
+## Locked stack: airplanes.live + AirLabs
+
+- Context: Phase 1 close-out.
+- Lesson: Production path is airplanes.live for positions/type, AirLabs for carrier+route, hexdb only as destination fallback. OpenSky not required for MVP.
+- Evidence: AirLabs spike 2026-07-31 — brand names and EWR/LGA-plausible routes; user locked Phase 1.
+- Crystallize?: Yes — Worker env: `AIRLABS_API_KEY`, `APP_SHARED_SECRET`.
+
+## Fresh workers.dev may briefly fail TLS
+
+- Context: Right after first deploy to `*.workers.dev`.
+- Lesson: Handshake failures with no peer cert can clear after enabling `workers_dev = true` and redeploying / waiting briefly. Confirm subdomain enabled via API (`/workers/scripts/{name}/subdomain` → enabled).
+- Evidence: airplane-frame deploy 2026-07-31; failed curl then 200 after redeploy.
+- Crystallize?: Yes — note in deploy-worker runbook.

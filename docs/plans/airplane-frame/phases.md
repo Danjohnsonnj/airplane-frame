@@ -6,12 +6,14 @@
 - Prove Jersey City ~25 mi can yield flights with carrier, destination, and plane type at ~5-minute cadence on free/trial limits.
 - Record winners, auth, rate limits, and gaps in tech-brief.md; seed lessons.md.
 - Verify: scripted or manual Worker/curl run returns ≥3 fully enriched flights for a JC pin; criteria checklist checked in progress-log.
+- **Status: DONE 2026-07-31** — Locked stack: airplanes.live + AirLabs (hexdb fallback). OpenSky deferred.
 
 ## Phase 2 - Worker BFF + access gate
 
 - Scaffold Cloudflare Worker (or chosen free BFF): shared-secret auth, ~5 min cache, radius query, enrichment pipeline stub using spike winners.
 - Add `docs/runbooks/` for deploy + secrets; add Cursor skill that points at runbooks.
 - Verify: unauthorized request rejected; authorized request returns schema-stable JSON; deploy runbook followed once successfully.
+- **Status: DONE 2026-07-31** — Deployed `https://airplane-frame.danjohnsonnj.workers.dev`; local + remote 401/200 verify PASS (≥3 AirLabs-enriched flights).
 
 ## Phase 3 - Pages functional UI (dev location)
 

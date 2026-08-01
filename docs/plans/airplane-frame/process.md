@@ -44,5 +44,7 @@ Older single-effort trees may live at `docs/_plan/`. New efforts use `docs/plans
 
 ## Maintenance surfaces (project-specific)
 
-- Human ops: `docs/runbooks/` (deploy, secrets rotation, API incident steps) — create during Phase 2+.
-- Agent entrypoint: a Cursor project skill that points at those runbooks (do not duplicate runbook content into the skill).
+- Human ops: `docs/runbooks/` — index in `docs/runbooks/README.md` (cloudflare-signup, secrets, deploy-worker).
+- Agent entrypoint: `.cursor/skills/airplane-frame-ops/SKILL.md` (points at runbooks; do not duplicate procedures into the skill).
+- Data credentials guide: `spike/CREDENTIALS.md` + `spike/README.md`.
+- Production Worker: `https://airplane-frame.danjohnsonnj.workers.dev`

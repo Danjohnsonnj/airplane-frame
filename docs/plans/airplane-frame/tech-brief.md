@@ -2,55 +2,64 @@
 
 ## Current architecture (verified)
 
-- Empty git repo / greenfield workspace - no application code yet
-- Plan artifacts only under `docs/plans/airplane-frame/`
+- Plan artifacts: `docs/plans/airplane-frame/`
+- Ops: `docs/runbooks/` + `.cursor/skills/airplane-frame-ops`
+- Phase 1 spike: `spike/` (`run_spike.py`, `CREDENTIALS.md`, `README.md`) — **locked**
+- Phase 2 Worker: `worker/` — **deployed and verified**
+  - URL: **https://airplane-frame.danjohnsonnj.workers.dev**
+  - Subdomain: `danjohnsonnj.workers.dev`
+  - Auth: `Authorization: Bearer <APP_SHARED_SECRET>`
+  - Pipeline: airplanes.live → AirLabs (hexdb fallback) → JSON
+  - Cache: ~300s per lat/lon/radiusNm bucket (`CACHE_TTL_SECONDS`)
+  - UI radius query param `radiusMi` (statute) → nm via `milesToNm` (~25 mi → 22 nm)
+- Phase 3 Pages UI: **not started**
+
+## Locked data stack (Phase 1)
+
+| Role | Source | Auth | Notes |
+|------|--------|------|-------|
+| Live positions + plane type | [airplanes.live](https://airplanes.live/api-guide/) `/v2/point/{lat}/{lon}/{radius}` | None | Radius in **nautical miles** (max 250). Requires `User-Agent`. ~1 req/s. |
+| Carrier + origin/destination | [AirLabs](https://airlabs.co/docs/) `flight_icao` | `AIRLABS_API_KEY` | Prefer over `ownOp` / hexdb. Enrich capped (`MAX_ENRICH`, default 12). |
+| Destination fallback | hexdb.io `/api/v1/route/icao/{callsign}` | None | Stale risk; only if AirLabs misses destination. |
+
+**Not in MVP stack:** Aviationstack, OpenSky (optional later), adsb.lol routeset.
 
 ## Verified findings / gaps
 
-1. Pure static browser→API (option A) is a poor fit for required destination + carrier + type: common free ADS-B APIs lack CORS and/or require OAuth client secrets unsuitable for public Pages (confirm-in-spike; OpenSky historically needs proxy + now OAuth2 client credentials).
-2. Architecture D (GitHub Actions → static `data.json`) was considered then rejected in favor of B so the browser can own the watch location and adjustable refresh.
-3. Exact free/trial vendors for positions + route enrichment + aircraft type names are **unverified** — Phase 1 spike owns this.
-4. Cloudflare Worker (or equivalent free serverless) is the intended BFF; not yet scaffolded.
+1. Worker required for AirLabs key + CORS-safe front end — **done**.
+2. Keys only in `spike/.env` / `worker/.dev.vars` / Wrangler secrets — never `*.example`.
+3. Diversity pack + filters still Phase 4; Worker currently returns up to `MAX_RESULTS` (20) enriched candidates.
+4. Statute↔nm conversion implemented in Worker (`auth.js` / query parsing).
+5. Fresh workers.dev TLS can fail briefly until subdomain + `workers_dev = true` settle — see deploy runbook / lessons.
 
-## Proposed architecture
+## Architecture
 
 ```
-[Browser: plain HTML/CSS/JS on GitHub Pages]
-   |  Authorization: shared secret
-   |  Query: lat, lon, radiusMi, optional filter prefs
+[Browser: plain HTML/CSS/JS on GitHub Pages]   ← Phase 3
+   |  Authorization: Bearer APP_SHARED_SECRET
+   |  Query: lat, lon, radiusMi
    v
-[Worker/BFF - free tier]
-   |  secrets: flight API keys / OAuth clients
-   |  cache: ~5 min per location bucket
-   |  pipeline: fetch positions in radius
-   |            → filter commercial / enrich route + type
-   |            → airport-bias + diversity pack → 3–5
+[Worker https://airplane-frame.danjohnsonnj.workers.dev]
+   |  secrets: AIRLABS_API_KEY, APP_SHARED_SECRET
+   |  cache ~5 min; airplanes.live → AirLabs → hexdb fallback
+   |  require carrier + destination + planeType
    v
-[JSON: flights[]] → render functional cards
+[JSON: { pin, count, flights[] }]
 ```
 
-### Front end
+### Front end (Phase 3+)
 
 - Modern browsers (last ~1 year)
 - `localStorage`: home pin, radius, refresh interval, shared secret, later filters
 - Dev location UX: map click or lat/lon; JC default
 - MVP location UX: add free geocoder place search
-- No poster art in MVP; keep a short visual-direction note when UI lands
+- No poster art in MVP; short visual-direction note later
 
-### Worker
+### Worker (live)
 
-- Hold all third-party secrets
-- Enforce shared secret + rate limit / cache
-- Implement ranking: radius candidates → airport-interest bias → diversity-first 3–5
-- Return only flights that include carrier, destination, plane type
-
-### Spike success criteria (Phase 1)
-
-Against a Jersey City lat/lon, ~25 mi radius, free/trial only:
-
-- Produce ≥3 flights in a single run with all three required fields
-- Sustainable at ~5-minute polling without exhausting free tier in normal personal use
-- Document chosen APIs, auth method, rate limits, and failure modes in tech-brief + eventual runbook
+- `GET /health`, `GET /flights`
+- Shared-secret gate + ~5 min cache
+- Phase 4: diversity pack down to 3–5
 
 ## Hard invariants
 
@@ -58,3 +67,4 @@ Against a Jersey City lat/lon, ~25 mi radius, free/trial only:
 - Never display a flight missing carrier, destination, or plane type
 - Free/trial data sources only unless user explicitly approves otherwise
 - Personal access gate on the Worker (shared secret)
+- Primary enrichment: AirLabs; hexdb fallback only
