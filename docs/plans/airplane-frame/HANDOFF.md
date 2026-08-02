@@ -41,7 +41,7 @@
 
 | Fact | Value |
 |------|--------|
-| Branch | `feature/pi-node-adapter` (4: `bbafa04`; Pi checkout on this branch) |
+| Branch | `main` @ `da96c2f` (Pi should checkout `main` next) |
 | Target API | `https://api.danjnj.com` (`PROD_API_BASE` in `js/config.js`) |
 | Rollback | `?worker=cloudflare` → `https://airplane-frame.danjohnsonnj.workers.dev` |
 | Cloudflare zone | `danjnj.com` **Active** (Free); NS `amy`/`shane.ns.cloudflare.com`; Squarespace `www` = **DNS only** |
