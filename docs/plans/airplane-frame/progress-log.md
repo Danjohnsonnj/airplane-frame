@@ -194,3 +194,24 @@
 - Verified: `cd worker && npm test` pass (40); production deploy + smoke curl.
 - Learned: Empty upstream success poisoned fresh KV same as 429 — GitHub Pages EMPTY while local Wrangler worked; empty TTL + last-good serve mitigates without unique egress.
 - Overwrote: tech-brief cache TTL facts; lessons egress note; HANDOFF open items.
+
+## 2026-08-02 - Next exploration: Pi-hosted Worker + Cloudflare Tunnel
+
+- Happened: Confirmed production rate-limit/EMPTY remains a **blocker** despite KV mitigations and LAN local preview (`06a4ecc`). Chose Option 1 (Pi runs Worker logic; Cloudflare Tunnel publishes `api.<domain>`; GitHub Pages stays on `main`). Authored implementation plan at `~/.cursor/plans/pi_hosted_worker_cloudflare_tunnel_9f3a7c2d.plan.md`. Phase 6 poster UAT paused until egress is reliable.
+- Verified: n/a (docs / planning only).
+- Learned: Shared Cloudflare Worker egress cannot be fixed by cache alone; dedicated home-network egress is the next exploration.
+- Overwrote: HANDOFF (phase + next action + required reading); tech-brief gap #7; phases.md Phase 6 UAT paused + Phase 6.5; lessons egress note.
+
+## 2026-08-02 - Pi adapter slices 1–2 + danjnj.com Cloudflare cutover
+
+- Happened: On `feature/pi-node-adapter`, implemented Node adapter + `FileKv` (`worker/src/node/`), tests, `start:pi`, `.pi.env.example` — commit `379e268`. Locked API hostname **`https://api.danjnj.com`** (zone `danjnj.com`, Cloudflare Free). Added domain at Cloudflare; Squarespace nameservers → `amy.ns.cloudflare.com` / `shane.ns.cloudflare.com`. Restored Squarespace site by setting `www` (and recommending apex A’s) to **DNS only** while Universal SSL was missing. Pi baseline: `mypi` / `192.168.1.46` Wi‑Fi, git present, **Node not installed**; SSH works from Terminal.app (Cursor LAN blocked — missing `NSLocalNetworkUsageDescription`).
+- Verified: `cd worker && npm test` (47); `curl http://127.0.0.1:8788/health` → 200; `dig NS danjnj.com` → Cloudflare NS; `https://www.danjnj.com` → 200 after grey-cloud.
+- Learned: Proxied hostnames without an issued Universal cert → HTTPS handshake failure; grey-cloud (DNS only) restores origin TLS immediately. Cursor cannot reach LAN until app ships Local Network usage string.
+- Overwrote: HANDOFF next → Slice 3.2; phases 6.5 status; tech-brief target hostname; plan todos slices 1–2 complete / domain in progress.
+
+## 2026-08-02 - Slice 3 Pages routing to api.danjnj.com
+
+- Happened: Updated docs/plan for Pi progress + Cloudflare cutover. Implemented Slice 3.2: `PROD_API_BASE=https://api.danjnj.com`, `CLOUDFLARE_WORKER_BASE` + `?worker=cloudflare` rollback, `?worker=prod` → Pi API; tests + pages/local-dev/README/index hints.
+- Verified: `node --test js/lib.test.js` (37); `cd worker && npm test` (47).
+- Learned: n/a new.
+- Overwrote: HANDOFF next → Slice 4; plan `route-pages-to-pi` completed.

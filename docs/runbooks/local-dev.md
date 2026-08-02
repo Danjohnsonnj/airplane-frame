@@ -60,12 +60,12 @@ If the page loads but flights fail to connect, check **macOS Firewall** (System 
 
 ## Overrides
 
-| URL | Worker used |
+| URL | Backend used |
 |-----|-------------|
 | `http://127.0.0.1:8080/` | Local `:8788` (your IP) |
 | `http://<lan-ip>:8080/` | Local `:8788` on same host |
-| `http://127.0.0.1:8080/?worker=prod` | Production `workers.dev` |
-| `http://<lan-ip>:8080/?worker=prod` | Production `workers.dev` |
+| `http://127.0.0.1:8080/?worker=prod` | `https://api.danjnj.com` (Pi Tunnel) |
+| `http://127.0.0.1:8080/?worker=cloudflare` | Legacy `workers.dev` (explicit rollback) |
 
 ## Troubleshooting
 
@@ -73,7 +73,8 @@ If the page loads but flights fail to connect, check **macOS Firewall** (System 
 |---------|----------------|
 | `Network error` / connection refused | `dev-worker.sh` not running, or macOS firewall blocking `:8788` |
 | `401 Unauthorized` | Wrong secret pasted (AirLabs key vs `APP_SHARED_SECRET`) |
-| `502` / upstream 429 on **production** | Shared Cloudflare IP — wait, use KV cache, or test locally |
+| `502` / upstream 429 on **Cloudflare Worker** | Shared Cloudflare IP — use `?worker=cloudflare` only for diagnosis; prefer local or Pi Tunnel (`api.danjnj.com`) |
+| `502` / connection error on **api.danjnj.com** | Tunnel or Pi service down — check Pi health / cloudflared; do not silent-failover |
 | `502` on **local** | airplanes.live rate limit on your IP — wait ~1s between refreshes |
 
 ## Tests

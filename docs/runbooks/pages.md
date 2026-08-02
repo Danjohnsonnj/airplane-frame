@@ -23,7 +23,15 @@ HTTPS only. The Worker already allows browser CORS (`Access-Control-Allow-Origin
 ./scripts/dev-worker.sh   # http://127.0.0.1:8788/
 ```
 
-On `127.0.0.1` or a LAN IP (`192.168.x.x`, etc.), the UI auto-targets local Wrangler (your IP for airplanes.live). Add `?worker=prod` to hit production from localhost. LAN access: [local-dev.md](./local-dev.md#same-wi-fi-phone--tablet).
+On `127.0.0.1` or a LAN IP (`192.168.x.x`, etc.), the UI auto-targets local Wrangler (your IP for airplanes.live). Overrides:
+
+| Query | Backend |
+|-------|---------|
+| (none, on github.io) | `https://api.danjnj.com` (Pi Tunnel — Phase 6.5) |
+| `?worker=prod` | Same Pi tunnel API (force from localhost) |
+| `?worker=cloudflare` | Legacy `workers.dev` Worker (explicit rollback; shared egress) |
+
+LAN access: [local-dev.md](./local-dev.md#same-wi-fi-phone--tablet).
 
 Manual alternative:
 
@@ -60,7 +68,7 @@ Settings persisted in `localStorage` and sent as Worker query params:
 | Unique carriers & destinations | Default on                                                       |
 | Min altitude                   | Sent to Worker (`minAltitudeFt`); pack already altitude-filtered |
 
-Worker returns ≤5 flights (`PACK_SIZE`). Status line shows pack size, candidate total, stale age (if any), and backend (`local Worker` vs `production Worker`).
+Worker returns ≤5 flights (`PACK_SIZE`). Status line shows pack size, candidate total, stale age (if any), and backend (`local Worker` vs `production API (Pi)` vs `Cloudflare Worker (rollback)`).
 
 ## UAT checklist (Phase 4 pack + filters)
 

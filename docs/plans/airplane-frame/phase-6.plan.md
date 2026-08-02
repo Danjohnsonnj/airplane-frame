@@ -1,6 +1,6 @@
 # Phase 6 — Poster SPA
 
-**Status:** IMPLEMENTATION COMPLETE — UAT pending  
+**Status:** IMPLEMENTATION COMPLETE — UAT PAUSED (production egress blocker; see HANDOFF Phase 6.5)  
 **Entry:** [HANDOFF.md](./HANDOFF.md)
 
 ## Decisions recorded (one path)

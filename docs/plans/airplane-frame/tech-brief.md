@@ -35,6 +35,8 @@
 4. Statute↔nm conversion implemented in Worker (`auth.js` / query parsing).
 5. Fresh workers.dev TLS can fail briefly until subdomain + `workers_dev = true` settle — see deploy runbook / lessons.
 6. Cache enriched **candidates**, then apply filters/pack per request — filter changes do not burn AirLabs within TTL.
+7. **Production blocker (2026-08-02):** airplanes.live rate-limits ~1 req/s **per IP**. Cloudflare Workers egress uses a **shared IP pool**, so production `/flights` often gets 429 / empty while local Wrangler (own IP) succeeds. KV empty-aware cache + stale serve reduce EMPTY frequency but **do not** provide dedicated egress.
+8. **Egress path in progress (2026-08-02):** Pi Node adapter + file cache landed on `feature/pi-node-adapter` (`379e268`). Target public API: **`https://api.danjnj.com`** (Cloudflare Tunnel → Pi `127.0.0.1:8788`). Zone `danjnj.com` on Cloudflare Free; NS at Cloudflare; Squarespace site kept via DNS-only `www`. Legacy rollback: `https://airplane-frame.danjohnsonnj.workers.dev` via `?worker=cloudflare`. Plan: `~/.cursor/plans/pi_hosted_worker_cloudflare_tunnel_9f3a7c2d.plan.md`.
 
 ## Architecture
 
@@ -45,9 +47,11 @@
    |         destGroup(+Mode), unique
    |  Location: JC default, map click, Open-Meteo place search, device geolocation
    v
-[Worker https://airplane-frame.danjohnsonnj.workers.dev]
-   |  secrets: AIRLABS_API_KEY, APP_SHARED_SECRET
-   |  cache candidates in KV ~5 min; airplanes.live → AirLabs → hexdb fallback
+[TODAY] Worker https://airplane-frame.danjohnsonnj.workers.dev  (shared egress — rate-limit prone)
+[TARGET] https://api.danjnj.com  (Tunnel → Pi Node adapter; home egress)
+         ?worker=cloudflare → legacy workers.dev rollback
+   |  secrets: AIRLABS_API_KEY, APP_SHARED_SECRET (Pi env / Worker secrets)
+   |  cache: KV (Worker) or file FLIGHT_CACHE (Pi); airplanes.live → AirLabs → hexdb
    |  stale serve on upstream failure; filter + diversity pack (≤ PACK_SIZE)
    v
 [JSON: { pin, count, candidateCount, flights[], pack, stale, ageSeconds, cachedForSeconds }]
@@ -61,7 +65,7 @@
 - Location: JC default; map click (Leaflet/OSM); place search (Open-Meteo); device geolocation
 - Shipped: functional UI only; no poster art. Target poster-main / settings-secondary IA: [visual-direction.md](./visual-direction.md). Design mocks: `docs/design-mocks/` (pointer `docs/agents/design-mock-probe-pointer.md`); do not implement poster SPA until asked.
 - Unit tests: `node --test js/lib.test.js`
-- Local: `127.0.0.1:8080` → `resolveWorkerBase` → local Wrangler `:8788` (or `?worker=prod`)
+- Local: `127.0.0.1:8080` → `resolveWorkerBase` → local Wrangler `:8788` (or `?worker=prod` → Pi API / `?worker=cloudflare` → workers.dev)
 - Live: https://danjohnsonnj.github.io/airplane-frame/
 
 ### Worker (live)

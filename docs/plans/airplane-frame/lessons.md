@@ -73,14 +73,14 @@
 ## airplanes.live 429 on Cloudflare shared egress
 
 - Context: Production Worker gets HTTP 429 from airplanes.live; laptop curl succeeds. Empty `[]` upstream success can also poison the fresh KV window and surface GitHub Pages EMPTY.
-- Lesson: Free airplanes.live limits ~1 req/s **per IP**. Workers egress from shared Cloudflare addresses — other tenants burn the budget. Mitigations: KV cache (fresh 10 min for non-empty, 60s for empty), prefer last-good pack when upstream returns empty, stale serve on failure, local Wrangler for testing (own IP). Do not rapid-refresh production during dev.
-- Evidence: 2026-08-01 — prod 429/empty, local 200; KV + retry deployed Phase 4.5; empty-aware cache hotfix 2026-08-01.
-- Crystallize?: Yes — local-dev runbook + lessons.
+- Lesson: Free airplanes.live limits ~1 req/s **per IP**. Workers egress from shared Cloudflare addresses — other tenants burn the budget. Mitigations (partial): KV cache (fresh 10 min for non-empty, 60s for empty), prefer last-good pack when upstream returns empty, stale serve on failure, local Wrangler / LAN for testing (own IP). Do not rapid-refresh production during dev. **Mitigations do not fix shared egress** — treated as production blocker 2026-08-02; next exploration is Pi-hosted Worker + Cloudflare Tunnel (keep Pages; move API to home IP). Plan: `~/.cursor/plans/pi_hosted_worker_cloudflare_tunnel_9f3a7c2d.plan.md`.
+- Evidence: 2026-08-01 — prod 429/empty, local 200; KV + retry deployed Phase 4.5; empty-aware cache hotfix 2026-08-01; 2026-08-02 — still blocking Pages reliability → Pi Option 1 next.
+- Crystallize?: Yes — local-dev runbook + lessons + HANDOFF.
 
 ## Local preview must run Wrangler for own IP
 
 - Context: `python3 -m http.server` alone still called production Worker.
-- Lesson: `resolveWorkerBase` routes `localhost`/`127.0.0.1` → `http://127.0.0.1:8788`. Run `scripts/dev-worker.sh` alongside `scripts/dev-pages.sh`. `?worker=prod` overrides to production.
+- Lesson: `resolveWorkerBase` routes `localhost`/`127.0.0.1` → `http://127.0.0.1:8788`. GitHub Pages → `https://api.danjnj.com`. `?worker=prod` forces the Pi API; `?worker=cloudflare` forces legacy `workers.dev` (no silent failover). Run `scripts/dev-worker.sh` alongside `scripts/dev-pages.sh` for local.
 - Evidence: Phase 4.5 implementation 2026-08-01.
 - Crystallize?: Yes — local-dev.md, README, pages runbook.
 
@@ -104,3 +104,17 @@
 - Lesson: Ship minimal alias map in both FE (`resolveCarrierBrand`) and Worker (`normalizeCarrierName`); keep maps in sync. Trustee/lessor and regionals not in brand book stay on `ground-*` swatches. `data-carrier` must be the resolved book string, never raw carrier.
 - Evidence: Phase 6 code review + carrier-brand-alias implementation 2026-08-01.
 - Crystallize?: Yes — carrier-brand-alias.plan.md, airlines-seen alias table.
+
+## Cloudflare proxied + no Universal cert = HTTPS handshake failure
+
+- Context: Moving `danjnj.com` NS to Cloudflare while Squarespace still hosts `www`.
+- Lesson: Orange-cloud (Proxied) without an issued Universal SSL cert breaks HTTPS (`ssl/tls alert handshake failure`) even when HTTP redirects. Set apex/`www` to **DNS only** (grey cloud) so origin (Squarespace) TLS works immediately; re-enable Proxied only after Edge Certificates cover the hostnames. Tunnel `api.<zone>` still uses Proxied when ready.
+- Evidence: 2026-08-02 cutover — `www` restored after DNS-only.
+- Crystallize?: Yes — pi-worker / pages runbooks when written.
+
+## Cursor (macOS) may be blocked from LAN without Local Network plist key
+
+- Context: SSH/ping to Pi from Cursor terminal failed with `No route to host` while Terminal.app worked.
+- Lesson: Cursor.app lacks `NSLocalNetworkUsageDescription`, so macOS silently blocks RFC1918 and never shows a Local Network toggle. Use Terminal.app for Pi SSH, or launch Cursor from Terminal as a temporary workaround. Do not misdiagnose as AP isolation if Safari/Terminal reach the LAN.
+- Evidence: 2026-08-02 Pi bring-up; Cursor forum reports.
+- Crystallize?: no (upstream Cursor bug).

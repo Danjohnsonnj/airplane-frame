@@ -17,7 +17,7 @@ import {
   resolveWallMode,
   unauthorizedStatusMessage,
 } from "./lib.js";
-import { LOCAL_WORKER_BASE, PROD_WORKER_BASE, resolveWorkerBase } from "./config.js";
+import { CLOUDFLARE_WORKER_BASE, LOCAL_WORKER_BASE, PROD_API_BASE, resolveWorkerBase } from "./config.js";
 
 describe("isCompleteFlight", () => {
   it("requires carrier, destination, and planeType", () => {
@@ -303,17 +303,34 @@ describe("resolveWorkerBase", () => {
     );
   });
 
-  it("uses production on github.io", () => {
+  it("uses Pi tunnel API on github.io by default", () => {
     assert.equal(
       resolveWorkerBase({ hostname: "danjohnsonnj.github.io", search: "" }),
-      PROD_WORKER_BASE,
+      PROD_API_BASE,
     );
   });
 
-  it("?worker=prod forces production from localhost", () => {
+  it("?worker=prod forces Pi tunnel API from localhost", () => {
     assert.equal(
       resolveWorkerBase({ hostname: "127.0.0.1", search: "?worker=prod" }),
-      PROD_WORKER_BASE,
+      PROD_API_BASE,
+    );
+  });
+
+  it("?worker=cloudflare forces legacy workers.dev from github.io", () => {
+    assert.equal(
+      resolveWorkerBase({
+        hostname: "danjohnsonnj.github.io",
+        search: "?worker=cloudflare",
+      }),
+      CLOUDFLARE_WORKER_BASE,
+    );
+  });
+
+  it("?worker=cloudflare forces legacy workers.dev from localhost", () => {
+    assert.equal(
+      resolveWorkerBase({ hostname: "127.0.0.1", search: "?worker=cloudflare" }),
+      CLOUDFLARE_WORKER_BASE,
     );
   });
 

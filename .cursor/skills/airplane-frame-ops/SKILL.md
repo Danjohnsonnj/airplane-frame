@@ -22,6 +22,7 @@ Do **not** duplicate long procedures here. Read and follow:
 - `spike/README.md` / `spike/CREDENTIALS.md` — data APIs
 - `docs/plans/airplane-frame/HANDOFF.md` — current phase / next action
 - Root `README.md` — local preview + Pages pointer
+- `~/.cursor/plans/pi_hosted_worker_cloudflare_tunnel_9f3a7c2d.plan.md` — Phase 6.5 Pi API + Tunnel (`api.danjnj.com`)
 
 ## Hard rules
 
@@ -37,8 +38,10 @@ When the user wants local preview or local UAT, **you** start the servers — fo
 
 ## Live endpoints
 
-- Production: `https://airplane-frame.danjohnsonnj.workers.dev`
-- Local Worker: `http://127.0.0.1:8788` (when `scripts/dev-worker.sh` is running)
+- Target production API: `https://api.danjnj.com` (Tunnel → Pi; pending cutover)
+- Legacy Cloudflare Worker rollback: `https://airplane-frame.danjohnsonnj.workers.dev` (`?worker=cloudflare`)
+- Local Worker: `http://127.0.0.1:8788` (when `scripts/dev-worker.sh` / `npm run start:pi` is running)
+- Preferred reliable path today: local / LAN Wrangler or Pi adapter (own IP). Cursor on macOS may need Terminal.app for LAN SSH (Local Network plist gap).
 - `GET /health` (no auth)
 - `GET /flights?lat=&lon=&radiusMi=` with `Authorization: Bearer <APP_SHARED_SECRET>`
 

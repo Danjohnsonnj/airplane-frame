@@ -1,9 +1,19 @@
 /** Shared front-end defaults. No secrets here. */
-export const PROD_WORKER_BASE = "https://airplane-frame.danjohnsonnj.workers.dev";
+
+/** Production API via Cloudflare Tunnel → Pi (Phase 6.5). */
+export const PROD_API_BASE = "https://api.danjnj.com";
+
+/** Legacy Cloudflare Worker — explicit rollback only (`?worker=cloudflare`). */
+export const CLOUDFLARE_WORKER_BASE =
+  "https://airplane-frame.danjohnsonnj.workers.dev";
+
 export const LOCAL_WORKER_BASE = "http://127.0.0.1:8788";
 
+/** @deprecated Prefer PROD_API_BASE — kept for older imports/tests during transition */
+export const PROD_WORKER_BASE = PROD_API_BASE;
+
 /** @deprecated Use resolveWorkerBase — kept for imports during transition */
-export const WORKER_BASE = PROD_WORKER_BASE;
+export const WORKER_BASE = PROD_API_BASE;
 
 export const JC_DEFAULT = { lat: 40.728, lon: -74.078 };
 
@@ -60,22 +70,25 @@ export function isLocalDevHost(hostname) {
 }
 
 /**
- * Pick Worker base URL from page location.
+ * Pick API base URL from page location.
  * @param {{ hostname?: string, search?: string } | Location | URL} loc
  */
 export function resolveWorkerBase(loc) {
   const hostname = loc?.hostname || "";
   const search = loc?.search || "";
   const params = new URLSearchParams(search);
-  if (params.get("worker") === "prod") return PROD_WORKER_BASE;
-  if (!isLocalDevHost(hostname)) return PROD_WORKER_BASE;
+  // Explicit rollback to shared-egress Cloudflare Worker (never silent failover).
+  if (params.get("worker") === "cloudflare") return CLOUDFLARE_WORKER_BASE;
+  // Force production Pi API from a local/LAN page.
+  if (params.get("worker") === "prod") return PROD_API_BASE;
+  if (!isLocalDevHost(hostname)) return PROD_API_BASE;
   if (hostname === "localhost" || hostname === "127.0.0.1") {
     return LOCAL_WORKER_BASE;
   }
   return `http://${hostname}:8788`;
 }
 
-/** Human label for status line — local vs production backend. */
+/** Human label for status line — local vs production backends. */
 export function workerBackendLabel(base) {
   const str = String(base);
   if (str === LOCAL_WORKER_BASE || str.includes("127.0.0.1:8788")) {
@@ -86,8 +99,14 @@ export function workerBackendLabel(base) {
     if (url.port === "8788" && isLocalDevHost(url.hostname)) {
       return "local Worker";
     }
+    if (str === CLOUDFLARE_WORKER_BASE || url.hostname.endsWith(".workers.dev")) {
+      return "Cloudflare Worker (rollback)";
+    }
   } catch {
     // not a URL
   }
-  return "production Worker";
+  if (str === PROD_API_BASE || str.includes("api.danjnj.com")) {
+    return "production API (Pi)";
+  }
+  return "production API";
 }
