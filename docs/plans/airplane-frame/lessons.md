@@ -118,3 +118,17 @@
 - Lesson: Cursor.app lacks `NSLocalNetworkUsageDescription`, so macOS silently blocks RFC1918 and never shows a Local Network toggle. Use Terminal.app for Pi SSH, or launch Cursor from Terminal as a temporary workaround. Do not misdiagnose as AP isolation if Safari/Terminal reach the LAN.
 - Evidence: 2026-08-02 Pi bring-up; Cursor forum reports.
 - Crystallize?: no (upstream Cursor bug).
+
+## Tunnel published hostname UI + Pi arch
+
+- Context: Cloudflare Zero Trust Tunnels create flow on Raspberry Pi OS.
+- Lesson: Installer OS = Debian; architecture = **arm64** (not x86 “64-bit”). After connector is Healthy, add route via **Published application** (not Private hostname/CIDR). Hostname `api` + zone → service `http://127.0.0.1:8788`.
+- Evidence: 2026-08-02 `airplane-frame-pi` + `api.danjnj.com`.
+- Crystallize?: Yes — `docs/runbooks/pi-worker.md`.
+
+## Pi worker.env is root-only; manual start needs sudo source
+
+- Context: Optional pre-systemd smoke of `start:pi`.
+- Lesson: `/etc/airplane-frame/worker.env` is `root:root` 600 (and dir may be 700). `sudo -u airplane-frame … source` → Permission denied. Use `sudo bash -c 'set -a; source …; set +a; runuser -u airplane-frame -- npm run start:pi'`. systemd `EnvironmentFile=` still works (PID 1 reads the file).
+- Evidence: 2026-08-02 Pi smoke.
+- Crystallize?: Yes — `docs/runbooks/pi-worker.md`.

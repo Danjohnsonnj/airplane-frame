@@ -1,0 +1,11 @@
+[Unit]
+Description=airplane-frame sync timer (every 5 minutes)
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+Persistent=true
+Unit=airplane-frame-sync.service
+
+[Install]
+WantedBy=timers.target

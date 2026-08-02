@@ -1,0 +1,24 @@
+[Unit]
+Description=airplane-frame Pi API (Node adapter)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=airplane-frame
+Group=airplane-frame
+WorkingDirectory=/opt/airplane-frame/worker
+EnvironmentFile=/etc/airplane-frame/worker.env
+Environment=PATH=/usr/local/bin:/usr/bin
+ExecStart=/usr/bin/npm run start:pi
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+# Hardening (loopback bind is still required via HOST=127.0.0.1 in worker.env)
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

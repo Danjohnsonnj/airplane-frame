@@ -1,0 +1,10 @@
+[Unit]
+Description=airplane-frame sync origin/main into /opt/airplane-frame
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+Environment=PATH=/usr/local/bin:/usr/bin
+ExecStart=/opt/airplane-frame/scripts/pi-sync-main.sh

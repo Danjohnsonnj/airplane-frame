@@ -215,3 +215,17 @@
 - Verified: `node --test js/lib.test.js` (37); `cd worker && npm test` (47).
 - Learned: n/a new.
 - Overwrote: HANDOFF next → Slice 4; plan `route-pages-to-pi` completed.
+
+## 2026-08-02 - Tunnel route api.danjnj.com published
+
+- Happened: Slice 6 prep through local `/health`; cloudflared on Pi (Debian arm64); tunnel `airplane-frame-pi` Healthy; published application `api.danjnj.com` → `http://127.0.0.1:8788`; Cloudflare created CNAME to `3f42e0bf-6401-421d-8f4f-fc6d14201893.cfargotunnel.com`.
+- Verified: local `curl http://127.0.0.1:8788/health` → 200 `{"ok":true}`. Public curl + systemd still pending.
+- Learned: Tunnel UI path is Add a route → Published application; installer arch is arm64 (not x86 64-bit). Manual `source` of `worker.env` as `airplane-frame` fails (mode 600) — use `sudo bash -c source … runuser`.
+- Overwrote: HANDOFF key facts/next; tech-brief egress fact; phases 6.5; pi-worker Tunnel section; plan `configure-tunnel` completed.
+
+## 2026-08-02 - Slice 8 merge cutover
+
+- Happened: systemd worker + sync timer verified; public `/health` 200. Adding `deploy/systemd/` unit files; merging `feature/pi-node-adapter` → `main` so Pages uses `api.danjnj.com`.
+- Verified: local + public health under systemd before merge.
+- Learned: prefer scp/`deploy/systemd` over nano paste for Pi unit install; curl immediately after enable can race npm startup (~5s).
+- Overwrote: HANDOFF next → Pages UAT; plan deploy-and-uat in progress.

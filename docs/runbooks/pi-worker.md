@@ -34,7 +34,33 @@ Never print or paste this file into chat, git, or screenshots.
 
 ## systemd units
 
-Copy these three files to `/etc/systemd/system/`, then:
+Canonical unit files live in the repo at `deploy/systemd/` (same contents as below). Prefer **copying those files** — do not paste into nano over SSH (clipboard paste often fails).
+
+**From Mac (Terminal.app), after units are on your laptop checkout:**
+
+```bash
+cd "/Users/danjohnson/Local Documents/repos/airplane-frame"
+scp deploy/systemd/airplane-frame-worker.service \
+    deploy/systemd/airplane-frame-sync.service \
+    deploy/systemd/airplane-frame-sync.timer \
+    pi@192.168.1.46:/tmp/
+ssh pi@192.168.1.46
+sudo mv /tmp/airplane-frame-worker.service \
+        /tmp/airplane-frame-sync.service \
+        /tmp/airplane-frame-sync.timer \
+        /etc/systemd/system/
+```
+
+**Or on the Pi** once this commit is in the checkout (`git pull` / fetch on `feature/pi-node-adapter`):
+
+```bash
+sudo cp /opt/airplane-frame/deploy/systemd/airplane-frame-worker.service \
+       /opt/airplane-frame/deploy/systemd/airplane-frame-sync.service \
+       /opt/airplane-frame/deploy/systemd/airplane-frame-sync.timer \
+       /etc/systemd/system/
+```
+
+Then:
 
 ```bash
 sudo systemctl daemon-reload
@@ -42,67 +68,19 @@ sudo systemctl enable --now airplane-frame-worker.service
 sudo systemctl enable --now airplane-frame-sync.timer
 ```
 
+Reference copies (for reading only):
+
 ### `airplane-frame-worker.service`
 
-```ini
-[Unit]
-Description=airplane-frame Pi API (Node adapter)
-After=network-online.target
-Wants=network-online.target
-
-[Service]
-Type=simple
-User=airplane-frame
-Group=airplane-frame
-WorkingDirectory=/opt/airplane-frame/worker
-EnvironmentFile=/etc/airplane-frame/worker.env
-Environment=PATH=/usr/local/bin:/usr/bin
-ExecStart=/usr/bin/npm run start:pi
-Restart=on-failure
-RestartSec=5
-StandardOutput=journal
-StandardError=journal
-
-# Hardening (loopback bind is still required via HOST=127.0.0.1 in worker.env)
-NoNewPrivileges=true
-PrivateTmp=true
-
-[Install]
-WantedBy=multi-user.target
-```
+See `deploy/systemd/airplane-frame-worker.service`.
 
 ### `airplane-frame-sync.service`
 
-```ini
-[Unit]
-Description=airplane-frame sync origin/main into /opt/airplane-frame
-After=network-online.target
-Wants=network-online.target
-
-[Service]
-Type=oneshot
-User=root
-Environment=PATH=/usr/local/bin:/usr/bin
-ExecStart=/opt/airplane-frame/scripts/pi-sync-main.sh
-```
-
-The sync script runs git/`npm ci` as `airplane-frame` via `runuser`, and restarts `airplane-frame-worker.service` only when paths under `worker/` changed.
+See `deploy/systemd/airplane-frame-sync.service`. Sync script runs git/`npm ci` as `airplane-frame` via `runuser`, and restarts the worker only when `worker/` paths changed.
 
 ### `airplane-frame-sync.timer`
 
-```ini
-[Unit]
-Description=airplane-frame sync timer (every 5 minutes)
-
-[Timer]
-OnBootSec=2min
-OnUnitActiveSec=5min
-Persistent=true
-Unit=airplane-frame-sync.service
-
-[Install]
-WantedBy=timers.target
-```
+See `deploy/systemd/airplane-frame-sync.timer` (every five minutes, `Persistent=true`).
 
 ## Sync script
 
@@ -159,9 +137,22 @@ sudo systemctl start airplane-frame-sync.service
 
 ## Tunnel
 
-After local `/health` is 200: Cloudflare **Networking → Tunnels** → connector on the Pi → published hostname `api.danjnj.com` → `http://127.0.0.1:8788`. Do not open router ports. Public check: `curl -i https://api.danjnj.com/health`.
+**Live (2026-08-02):** tunnel name `airplane-frame-pi` (Debian **arm64** installer). Published application: hostname `api.danjnj.com` → service `http://127.0.0.1:8788`. Cloudflare auto-created CNAME `api.danjnj.com` → `3f42e0bf-6401-421d-8f4f-fc6d14201893.cfargotunnel.com`. Do not open router ports.
 
-Details: plan Slice 7.
+UI path if recreating: **Networking → Tunnels** → tunnel → **Add a route** → **Published application** (not Private hostname / CIDR).
+
+Public check (from a non-Pi host; Node/API must be listening on the Pi):
+
+```bash
+curl -i https://api.danjnj.com/health
+```
+
+Manual start with secrets (file is `root:root` 600 — do not `source` as `airplane-frame`):
+
+```bash
+cd /opt/airplane-frame/worker
+sudo bash -c 'set -a; source /etc/airplane-frame/worker.env; set +a; runuser -u airplane-frame -- npm run start:pi'
+```
 
 ## Pages
 
