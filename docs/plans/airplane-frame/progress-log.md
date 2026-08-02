@@ -257,3 +257,10 @@
 - Verified: `cd worker && npm test` 55 pass; local Wrangler fresh curl — `airlabsCalls=5`, `candidateCount=20`, `pack.size=10`; cache hit synthesizes `enrich.cached=true`.
 - Learned: airline-ish + min-alt before attempt list unlocks realistic pool without raising AirLabs tier.
 - Overwrote: tech-brief pipeline; secrets/deploy/pages env names; HANDOFF next → push + Pi env/sync.
+
+## 2026-08-02 - Enrich efficiency Pi UAT PASS
+
+- Happened: Pi synced `d1f4d10→114fb12`, `worker.env` set to MAX_ATTEMPT=36 / MAX_AIRLABS=5 / PACK_SIZE=10, cache cleared, worker restarted.
+- Verified: loopback `/health` ok; public `api.danjnj.com` fresh — count 10, candidates 19, pack.size 10, airlabsCalls 5; UI shows 10 flights.
+- Learned: env edit + cache clear required after sync or pack.size can stay on old PACK_SIZE until restart/cache miss.
+- Overwrote: HANDOFF — enrich efficiency DONE; next → deferred Phase 6 polish / optional callsign cache.
