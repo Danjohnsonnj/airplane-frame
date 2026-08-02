@@ -5,7 +5,8 @@ Secrets never go in git.
 | Environment | Where |
 |-------------|--------|
 | Local `wrangler dev` | `worker/.dev.vars` (gitignored) |
-| Production | Cloudflare secrets via Wrangler |
+| Pi production API | `/etc/airplane-frame/worker.env` (`root:root` mode `600`) — see [pi-worker.md](./pi-worker.md) |
+| Legacy Cloudflare Worker | Cloudflare secrets via Wrangler |
 | Spike script only | `spike/.env` (gitignored) — AirLabs key can be copied into `.dev.vars` |
 | Browser / GitHub Pages | **Only** `APP_SHARED_SECRET` in `localStorage` — never `AIRLABS_API_KEY` |
 
@@ -48,9 +49,20 @@ Confirm both `worker/.dev.vars` and `spike/.env` stay untracked (`git status`).
 
 **Never** put real keys in `worker/.dev.vars.example` or `spike/.env.example`.
 
-## Production
+## Pi production (`api.danjnj.com`)
 
-After [cloudflare-signup.md](./cloudflare-signup.md):
+On the Pi only — copy `worker/.pi.env.example` to `/etc/airplane-frame/worker.env`, fill `AIRLABS_API_KEY` and `APP_SHARED_SECRET`, keep `HOST=127.0.0.1` / `PORT=8788` / `FLIGHT_CACHE_PATH=/var/lib/airplane-frame/cache.json`.
+
+```bash
+sudo chown root:root /etc/airplane-frame/worker.env
+sudo chmod 600 /etc/airplane-frame/worker.env
+```
+
+Use the **same** `APP_SHARED_SECRET` the browser already stores (or rotate everywhere together). Never commit `worker.env` or put AirLabs keys in Pages. Ops: [pi-worker.md](./pi-worker.md).
+
+## Legacy Cloudflare Worker production
+
+After [cloudflare-signup.md](./cloudflare-signup.md) (rollback path `?worker=cloudflare`):
 
 ```bash
 cd worker
@@ -75,8 +87,9 @@ Then deploy (see [deploy-worker.md](./deploy-worker.md)). Secrets uploaded befor
 ## Rotate shared secret
 
 1. Generate a new secret (`openssl rand -hex 32`).
-2. Update local `.dev.vars` and production (`wrangler secret put APP_SHARED_SECRET`).
-3. Update every client (localStorage / tester devices).
-4. Old secret stops working immediately.
+2. Update local `.dev.vars`, Pi `/etc/airplane-frame/worker.env`, and legacy Wrangler (`wrangler secret put APP_SHARED_SECRET`) as needed.
+3. Restart Pi worker: `sudo systemctl restart airplane-frame-worker.service`.
+4. Update every client (localStorage / tester devices).
+5. Old secret stops working immediately.
 
-Rotating `AIRLABS_API_KEY` is separate (AirLabs dashboard + Worker secret only; front end unchanged).
+Rotating `AIRLABS_API_KEY` is separate (AirLabs dashboard + Pi `worker.env` / Wrangler only; front end unchanged).

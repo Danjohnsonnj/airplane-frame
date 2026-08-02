@@ -32,6 +32,7 @@ cd worker && npm test
 
 ## Ops
 
-- [docs/runbooks/](docs/runbooks/) — Cloudflare, secrets, deploy, Pages, local dev
+- [docs/runbooks/](docs/runbooks/) — Cloudflare, secrets, Pages, local dev
+- [docs/runbooks/pi-worker.md](docs/runbooks/pi-worker.md) — Pi Node API, systemd, sync, Tunnel
 - [docs/plans/airplane-frame/HANDOFF.md](docs/plans/airplane-frame/HANDOFF.md) — current phase
 - `.cursor/skills/airplane-frame-ops` — agent entry to runbooks

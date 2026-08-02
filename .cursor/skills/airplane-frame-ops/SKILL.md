@@ -17,7 +17,8 @@ Do **not** duplicate long procedures here. Read and follow:
 - `docs/runbooks/local-dev.md` — local Pages + Wrangler (own IP)
 - `docs/runbooks/cloudflare-signup.md`
 - `docs/runbooks/secrets.md`
-- `docs/runbooks/deploy-worker.md`
+- `docs/runbooks/deploy-worker.md` — legacy Cloudflare Worker
+- `docs/runbooks/pi-worker.md` — Pi Node API, systemd, sync, Tunnel
 - `docs/runbooks/pages.md` — GitHub Pages + front-end UAT
 - `spike/README.md` / `spike/CREDENTIALS.md` — data APIs
 - `docs/plans/airplane-frame/HANDOFF.md` — current phase / next action
