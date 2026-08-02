@@ -43,6 +43,23 @@ export const STORAGE_KEYS = {
 };
 
 /**
+ * True when the page is served from local dev (loopback or private LAN).
+ * @param {string} hostname
+ */
+export function isLocalDevHost(hostname) {
+  if (!hostname) return false;
+  if (hostname === "localhost" || hostname === "127.0.0.1") return true;
+  if (hostname.startsWith("10.")) return true;
+  if (hostname.startsWith("192.168.")) return true;
+  const parts = hostname.split(".");
+  if (parts.length === 4 && parts[0] === "172") {
+    const second = Number(parts[1]);
+    if (second >= 16 && second <= 31) return true;
+  }
+  return false;
+}
+
+/**
  * Pick Worker base URL from page location.
  * @param {{ hostname?: string, search?: string } | Location | URL} loc
  */
@@ -51,16 +68,26 @@ export function resolveWorkerBase(loc) {
   const search = loc?.search || "";
   const params = new URLSearchParams(search);
   if (params.get("worker") === "prod") return PROD_WORKER_BASE;
+  if (!isLocalDevHost(hostname)) return PROD_WORKER_BASE;
   if (hostname === "localhost" || hostname === "127.0.0.1") {
     return LOCAL_WORKER_BASE;
   }
-  return PROD_WORKER_BASE;
+  return `http://${hostname}:8788`;
 }
 
 /** Human label for status line — local vs production backend. */
 export function workerBackendLabel(base) {
-  if (base === LOCAL_WORKER_BASE || String(base).includes("127.0.0.1:8788")) {
+  const str = String(base);
+  if (str === LOCAL_WORKER_BASE || str.includes("127.0.0.1:8788")) {
     return "local Worker";
+  }
+  try {
+    const url = new URL(str);
+    if (url.port === "8788" && isLocalDevHost(url.hostname)) {
+      return "local Worker";
+    }
+  } catch {
+    // not a URL
   }
   return "production Worker";
 }

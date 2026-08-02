@@ -316,4 +316,11 @@ describe("resolveWorkerBase", () => {
       PROD_WORKER_BASE,
     );
   });
+
+  it("uses same-hostname local Worker on RFC1918 LAN IP", () => {
+    assert.equal(
+      resolveWorkerBase({ hostname: "192.168.1.50", search: "" }),
+      "http://192.168.1.50:8788",
+    );
+  });
 });

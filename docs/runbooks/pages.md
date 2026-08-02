@@ -23,13 +23,13 @@ HTTPS only. The Worker already allows browser CORS (`Access-Control-Allow-Origin
 ./scripts/dev-worker.sh   # http://127.0.0.1:8788/
 ```
 
-On `127.0.0.1`, the UI auto-targets local Wrangler (your IP for airplanes.live). Add `?worker=prod` to hit production from localhost.
+On `127.0.0.1` or a LAN IP (`192.168.x.x`, etc.), the UI auto-targets local Wrangler (your IP for airplanes.live). Add `?worker=prod` to hit production from localhost. LAN access: [local-dev.md](./local-dev.md#same-wi-fi-phone--tablet).
 
 Manual alternative:
 
 ```bash
-python3 -m http.server 8080
-cd worker && npx wrangler dev --ip 127.0.0.1 --port 8788
+python3 -m http.server 8080 --bind 0.0.0.0
+cd worker && npx wrangler dev --ip 0.0.0.0 --port 8788
 ```
 
 ## Auth: APP_SHARED_SECRET only

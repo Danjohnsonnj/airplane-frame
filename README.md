@@ -18,7 +18,7 @@ airplanes.live rate-limits by IP. Local preview uses **your** IP via Wrangler, n
 ./scripts/dev-worker.sh   # terminal 2 — http://127.0.0.1:8788/
 ```
 
-Full checklist: [docs/runbooks/local-dev.md](docs/runbooks/local-dev.md). Add `?worker=prod` on localhost to test against production Worker.
+Full checklist: [docs/runbooks/local-dev.md](docs/runbooks/local-dev.md). Same-Wi‑Fi devices can use the **LAN** URL printed when scripts start. Add `?worker=prod` on localhost to test against production Worker.
 
 Enter **`APP_SHARED_SECRET`** from `worker/.dev.vars` — **not** `AIRLABS_API_KEY`. Details: [docs/runbooks/secrets.md](docs/runbooks/secrets.md).
 
