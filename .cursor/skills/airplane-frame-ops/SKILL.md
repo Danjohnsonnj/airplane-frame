@@ -39,10 +39,10 @@ When the user wants local preview or local UAT, **you** start the servers — fo
 
 ## Live endpoints
 
-- Target production API: `https://api.danjnj.com` (Tunnel → Pi; pending cutover)
-- Legacy Cloudflare Worker rollback: `https://airplane-frame.danjohnsonnj.workers.dev` (`?worker=cloudflare`)
-- Local Worker: `http://127.0.0.1:8788` (when `scripts/dev-worker.sh` / `npm run start:pi` is running)
-- Preferred reliable path today: local / LAN Wrangler or Pi adapter (own IP). Cursor on macOS may need Terminal.app for LAN SSH (Local Network plist gap).
+- Production API: `https://api.danjnj.com` (Tunnel → Pi; live)
+- Legacy Cloudflare Worker rollback: `https://airplane-frame.danjohnsonnj.workers.dev` (`?worker=cloudflare`; often 429)
+- Local / Pi loopback: `http://127.0.0.1:8788` (`airplane-frame-worker` systemd or `scripts/dev-worker.sh`)
+- After Pi power-cycle: confirm `cloudflared` + `airplane-frame-worker` enabled/active — see `docs/runbooks/pi-worker.md` § Reboot. Cursor on macOS may need Terminal.app for LAN SSH.
 - `GET /health` (no auth)
 - `GET /flights?lat=&lon=&radiusMi=` with `Authorization: Bearer <APP_SHARED_SECRET>`
 

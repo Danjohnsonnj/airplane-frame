@@ -10,7 +10,7 @@ Personal web app: nearby commercial flights (carrier, destination, plane type) a
 | Production API (target) | `https://api.danjnj.com` (Cloudflare Tunnel → Pi; Phase 6.5) |
 | Legacy Worker (rollback) | https://airplane-frame.danjohnsonnj.workers.dev — `?worker=cloudflare` |
 
-**Production note:** Cloudflare Worker shared egress often gets airplanes.live **429** / EMPTY. Local + LAN preview (own IP) is reliable. Phase 6.5 moves production API to the Pi via Tunnel — see [HANDOFF.md](docs/plans/airplane-frame/HANDOFF.md).
+**Production note:** API is the Pi via Cloudflare Tunnel (`api.danjnj.com`). Legacy `workers.dev` (`?worker=cloudflare`) often 429/EMPTY. Ops/reboot: [docs/runbooks/pi-worker.md](docs/runbooks/pi-worker.md). Status: [HANDOFF.md](docs/plans/airplane-frame/HANDOFF.md).
 
 ## Local testing (own IP)
 

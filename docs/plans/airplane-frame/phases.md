@@ -48,20 +48,20 @@
 - Carrier colors from [airline-brand-colors.md](../../design-reference/airline-brand-colors.md); unknown carriers get unique sequential swatches; duplicate book carriers share brand color.
 - Reference mock: [poster-ad-wall.html](../../design-mocks/poster-ad-wall.html) — visual only, not literal DOM port.
 - Verify: local stack shows poster view with live Worker pack; mobile rows + wide columns; empty/error/stale states; unique swatches for unknowns; duplicate brand carriers share color; readable complementary ink.
-- **Status: IMPLEMENTATION COMPLETE — UAT PAUSED** — poster/settings views, `css/poster.css`, carrier gen pipeline, status panel; see [phase-6.plan.md](./phase-6.plan.md). UAT blocked by production egress rate limits (see next section).
+- **Status: IMPLEMENTATION COMPLETE — UAT DEFERRED** — poster/settings views, `css/poster.css`, carrier gen pipeline, status panel; see [phase-6.plan.md](./phase-6.plan.md). Egress fixed via Phase 6.5; poster polish parked (2026-08-02).
 
 ## Phase 6.5 - Pi-hosted Worker + Cloudflare Tunnel (egress)
 
 - **Why now:** Production `workers.dev` shared egress is rate-limiting airplanes.live — a blocker for reliable GitHub Pages use even after KV/stale mitigations.
 - **Approach (Option 1):** Raspberry Pi runs the Worker logic (Node adapter + file cache); Cloudflare Tunnel publishes `https://api.danjnj.com` to `127.0.0.1:8788`; GitHub Pages stays on `main` and points at the tunnel hostname. Existing Cloudflare Worker kept as explicit rollback (`?worker=cloudflare`).
 - Plan: `~/.cursor/plans/pi_hosted_worker_cloudflare_tunnel_9f3a7c2d.plan.md`
-- Progress: Cutover complete on `main` (`be9eed0`). Tunnel + systemd; Pages `/flights` via `api.danjnj.com` with complete pack; rollback param routes to `workers.dev` (often empty).
+- Progress: Cutover complete on `main`. Tunnel + systemd; Pages `/flights` via `api.danjnj.com` with complete pack; rollback param routes to `workers.dev` (often empty).
 - Verify: public Pages hits tunnel; Pi health 200; home-network egress; reboot + sync timer; rollback param works.
-- **Status: DONE** — production egress on home IP via Pi Tunnel (2026-08-02). Optional reboot soak later.
+- **Status: DONE** — production egress on home IP via Pi Tunnel (2026-08-02). Reboot/power-move checklist: [pi-worker.md](../../runbooks/pi-worker.md#reboot--power-loss).
 
 ## Later (out of current phase plan)
 
-- Resume Phase 6 poster UAT after egress is reliable
+- **Deferred:** Phase 6 poster UAT / polish (egress no longer blocks; polish parked)
 - Plane/livery illustration source decision
 - Live browser geolocation
 - Optional widen of sky-watcher filters (min altitude, widebody bias strength)

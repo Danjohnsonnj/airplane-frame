@@ -36,7 +36,7 @@
 5. Fresh workers.dev TLS can fail briefly until subdomain + `workers_dev = true` settle — see deploy runbook / lessons.
 6. Cache enriched **candidates**, then apply filters/pack per request — filter changes do not burn AirLabs within TTL.
 7. **Production blocker (2026-08-02):** airplanes.live rate-limits ~1 req/s **per IP**. Cloudflare Workers egress uses a **shared IP pool**, so production `/flights` often gets 429 / empty while local Wrangler (own IP) succeeds. KV empty-aware cache + stale serve reduce EMPTY frequency but **do not** provide dedicated egress.
-8. **Egress path in progress (2026-08-02):** Pi Node adapter on `feature/pi-node-adapter` (`bbafa04`). Public API hostname **`https://api.danjnj.com`** via Tunnel `airplane-frame-pi` → Pi `127.0.0.1:8788` (CNAME to `*.cfargotunnel.com`). Zone `danjnj.com` Active on Cloudflare Free; Squarespace `www` DNS-only. Pi: `mypi` arm64, Node 20. Legacy rollback: `?worker=cloudflare` → `workers.dev`. Plan: `~/.cursor/plans/pi_hosted_worker_cloudflare_tunnel_9f3a7c2d.plan.md`. Still pending: public `/health` confirm, systemd, merge to `main`.
+8. **Egress path live (2026-08-02):** Production API **`https://api.danjnj.com`** via Tunnel `airplane-frame-pi` → Pi Node adapter `127.0.0.1:8788`. Zone `danjnj.com` Active; Squarespace `www` DNS-only. Pi `mypi` arm64, Node 20, systemd (`airplane-frame-worker` + sync timer) + `cloudflared` enabled for boot. Pages on `main` calls the tunnel; `?worker=cloudflare` → legacy `workers.dev`. Ops: [pi-worker.md](../../runbooks/pi-worker.md). Phase 6 poster polish deferred.
 
 ## Architecture
 

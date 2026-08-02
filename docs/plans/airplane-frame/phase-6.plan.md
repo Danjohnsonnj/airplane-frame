@@ -1,6 +1,6 @@
 # Phase 6 — Poster SPA
 
-**Status:** IMPLEMENTATION COMPLETE — UAT PAUSED (production egress blocker; see HANDOFF Phase 6.5)  
+**Status:** IMPLEMENTATION COMPLETE — UAT DEFERRED (egress fixed via Phase 6.5; poster polish parked 2026-08-02 — see HANDOFF)  
 **Entry:** [HANDOFF.md](./HANDOFF.md)
 
 ## Decisions recorded (one path)

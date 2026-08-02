@@ -132,3 +132,10 @@
 - Lesson: `/etc/airplane-frame/worker.env` is `root:root` 600 (and dir may be 700). `sudo -u airplane-frame … source` → Permission denied. Use `sudo bash -c 'set -a; source …; set +a; runuser -u airplane-frame -- npm run start:pi'`. systemd `EnvironmentFile=` still works (PID 1 reads the file).
 - Evidence: 2026-08-02 Pi smoke.
 - Crystallize?: Yes — `docs/runbooks/pi-worker.md`.
+
+## Boot triad: worker + sync timer + cloudflared
+
+- Context: Pi power move / reboot after Phase 6.5 cutover.
+- Lesson: All three must be **enabled** (`systemctl enable`). Worker alone → local health OK but public 502. cloudflared alone → Tunnel up but no origin. After restart/boot, wait ~10s before curl (npm startup race). Prefer `sudo shutdown -h now` before unplug.
+- Evidence: 2026-08-02 cutover + enable race on restart.
+- Crystallize?: Yes — `docs/runbooks/pi-worker.md` § Reboot.

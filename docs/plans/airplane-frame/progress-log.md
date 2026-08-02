@@ -236,3 +236,10 @@
 - Verified: Network host `api.danjnj.com` + flights render; rollback URL loads legacy path.
 - Learned: address-bar GET to `/flights` is 401 without Bearer; UAT via Pages UI only.
 - Overwrote: HANDOFF next → Phase 6 poster polish; phases 6.5 DONE; plan deploy-and-uat completed.
+
+## 2026-08-02 - Defer poster polish; document Pi reboot survival
+
+- Happened: Phase 6 poster UAT/polish deferred. Expanded `pi-worker.md` with Reboot/power-loss checklist; `airplane-frame-worker` After=cloudflared; HANDOFF/phases/tech-brief/README/ops skill aligned to live Tunnel cutover.
+- Verified: prior cutover UAT (Pages → api.danjnj.com). User will confirm enablement + post-move `/health`.
+- Learned: boot requires cloudflared + worker + sync.timer all enabled.
+- Overwrote: HANDOFF next → reboot checklist; Phase 6 status UAT DEFERRED.

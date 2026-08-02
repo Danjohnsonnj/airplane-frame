@@ -2,65 +2,62 @@
 
 **Goal:** Personal web app showing 3–5 nearby commercial flights (carrier, destination, plane type) around a saved location, starting with Jersey City, NJ.
 
-**Current phase:** Phase 6.5 — Pi-hosted Worker + Cloudflare Tunnel (egress)
+**Current phase:** Phase 6.5 **DONE** (Pi Tunnel cutover). Phase 6 poster polish **deferred**.
 
 **Next action (cold-start executable):**
 
-1. Read required reading below.
-2. **Phase 6.5 cutover done:** Pi systemd + Tunnel; Pages → `https://api.danjnj.com`; production `/flights` UAT passed (complete pack). Rollback `?worker=cloudflare` still routes to `workers.dev` (often EMPTY/429 — expected).
-3. **Next:** resume **Phase 6 poster UAT** / polish ([visual-direction.md](./visual-direction.md), carrier-brand-alias). Optional: Pi reboot soak; rotate secrets exposed earlier in chat.
-4. Keep ops entry: [docs/runbooks/pi-worker.md](../../runbooks/pi-worker.md).
+1. Read [docs/runbooks/pi-worker.md](../../runbooks/pi-worker.md) — especially **Reboot / power-loss**.
+2. **Before moving the Pi:** on the Pi, confirm boot-enabled services (commands in that runbook). Then `sudo reboot` or power-cycle; after Wi‑Fi returns, verify local + public `/health`.
+3. **Deferred (do not start unless asked):** Phase 6 poster UAT/polish ([visual-direction.md](./visual-direction.md), carrier-brand-alias). Rotate secrets exposed in earlier chat when convenient.
+4. Production site: https://danjohnsonnj.github.io/airplane-frame/ → API `https://api.danjnj.com`.
 
 **Hard invariants:** Free/trial data sources only; destination + carrier + plane type are non-negotiable on every displayed flight; no API secrets in the GitHub Pages front end; personal shared-secret gate on the Worker (or Pi API).
 
-**Required reading (this phase):**
+**Required reading (ops / resume):**
 
-- tech-brief.md — topology, egress blocker, target `api.danjnj.com`
-- lessons.md — airplanes.live 429; Cloudflare grey-cloud SSL; Cursor LAN block
-- docs/runbooks/local-dev.md — own-IP local/LAN preview
-- docs/runbooks/pages.md — Pages URL selection + `?worker=cloudflare` / `?worker=prod`
-- docs/runbooks/secrets.md — secret boundaries (Pi holds keys; Pages never does)
-- docs/runbooks/pi-worker.md — Pi layout, systemd units, sync script, Tunnel
-- process.md — how we work (read before committing)
-- `~/.cursor/plans/pi_hosted_worker_cloudflare_tunnel_9f3a7c2d.plan.md` — full plan (Progress + slices 5–8 done/in progress)
+- docs/runbooks/pi-worker.md — Pi layout, systemd, Tunnel, **reboot**
+- docs/runbooks/secrets.md — Pi `worker.env` vs Pages Bearer
+- docs/runbooks/pages.md — `?worker=cloudflare` rollback
+- tech-brief.md — topology
+- process.md — before committing
 
 **Index (load on demand):**
 
 - product-brief.md — background, goals, rationale, non-goals, boundaries
-- tech-brief.md — current vs proposed architecture, verified findings
-- phases.md — phases + per-phase verify steps
-- progress-log.md — dated history of decisions/learnings/overwrites
-- lessons.md — curated, accreted toolkit
-- phase-3.plan.md / phase-4.plan.md / phase-4.5.plan.md / phase-6.plan.md / carrier-brand-alias.plan.md — phase plans
-- visual-direction.md / carrier-brand-alias.plan.md — resume Phase 6 UAT after egress is fixed
-- docs/runbooks/README.md — ops runbook index
-- spike/README.md — Phase 1 spike entry
+- phases.md — phase status (6.5 DONE; Phase 6 polish deferred)
+- progress-log.md — dated history
+- lessons.md — curated toolkit
+- phase-6.plan.md / carrier-brand-alias.plan.md / visual-direction.md — deferred poster polish
+- docs/runbooks/README.md — ops index
+- spike/README.md — Phase 1 spike
 - .cursor/skills/airplane-frame-ops/SKILL.md — agent entry to runbooks
+- `~/.cursor/plans/pi_hosted_worker_cloudflare_tunnel_9f3a7c2d.plan.md` — Phase 6.5 plan (complete)
 
 **Key facts (resume without re-discovery):**
 
 | Fact | Value |
 |------|--------|
-| Branch | `main` @ `da96c2f` (Pi should checkout `main` next) |
-| Target API | `https://api.danjnj.com` (`PROD_API_BASE` in `js/config.js`) |
-| Rollback | `?worker=cloudflare` → `https://airplane-frame.danjohnsonnj.workers.dev` |
-| Cloudflare zone | `danjnj.com` **Active** (Free); NS `amy`/`shane.ns.cloudflare.com`; Squarespace `www` = **DNS only** |
-| Tunnel | `airplane-frame-pi` **Healthy**; published app `api.danjnj.com` → `http://127.0.0.1:8788`; CNAME → `3f42e0bf-6401-421d-8f4f-fc6d14201893.cfargotunnel.com` |
-| Pi | `mypi` / `192.168.1.46` (Wi‑Fi); arm64; eth MAC `B8:27:EB:7C:EE:0F`; Wi‑Fi MAC `B8:27:EB:29:BB:5A` |
-| Pi SSH | `ssh pi@192.168.1.46` from **Terminal.app** (Cursor LAN often blocked — missing Local Network plist) |
-| Pi software | Node **v20.19.2**; git; cloudflared; `/opt/airplane-frame` on feature branch; `worker.env` 600; **systemd worker + sync timer enabled** |
-| Adapter | `worker/src/node/` — `npm run start:pi`; tests: `cd worker && npm test` |
+| Branch | `main` (Pi checkout: `/opt/airplane-frame` on `main`) |
+| Target API | `https://api.danjnj.com` |
+| Rollback | `?worker=cloudflare` → `workers.dev` (often EMPTY/429 — expected) |
+| Cloudflare zone | `danjnj.com` **Active**; Squarespace `www` = **DNS only** |
+| Tunnel | `airplane-frame-pi`; `api.danjnj.com` → `http://127.0.0.1:8788`; CNAME → `3f42e0bf-6401-421d-8f4f-fc6d14201893.cfargotunnel.com` |
+| Pi | `mypi` / `192.168.1.46` (Wi‑Fi); **arm64**; eth MAC `B8:27:EB:7C:EE:0F`; Wi‑Fi MAC `B8:27:EB:29:BB:5A` |
+| Pi SSH | `ssh pi@192.168.1.46` from **Terminal.app** (Cursor LAN often blocked) |
+| Boot services | `airplane-frame-worker.service`, `airplane-frame-sync.timer`, `cloudflared` — must be **enabled** |
+| Secrets | `/etc/airplane-frame/worker.env` root:root mode 600 |
+| Adapter | `worker/src/node/` — `npm run start:pi` |
 
 **Verify before coding:**
 
 ```bash
-git branch --show-current   # expect feature/pi-node-adapter
+git branch --show-current   # expect main for prod ops
 node --test js/lib.test.js
 cd worker && npm test
 ```
 
 **Open decisions:** Optional user-selectable N (3–5) deferred; tune min-altitude default after more real traffic; settings tag-chip chrome explore later.
 
-**Open items:** Phase 6 poster UAT / polish. Optional Pi reboot + sync soak. Rotate secrets exposed in chat/screenshot when convenient. Settings period polish, geocoder polish, livery source deferred. Carrier inventory: [airlines-seen-2026-08-01.md](../../design-reference/airlines-seen-2026-08-01.md).
+**Open items:** **Deferred:** Phase 6 poster polish/UAT. Rotate secrets exposed in chat/screenshot when convenient. Settings period polish, geocoder polish, livery source deferred. Carrier inventory: [airlines-seen-2026-08-01.md](../../design-reference/airlines-seen-2026-08-01.md). After Pi move: confirm DHCP/Wi‑Fi and public `/health`.
 
-**Last updated:** 2026-08-02 — Phase 6.5 cutover UAT passed; next = Phase 6 poster polish
+**Last updated:** 2026-08-02 — cutover done; poster polish deferred; reboot/power-move checklist in pi-worker.md

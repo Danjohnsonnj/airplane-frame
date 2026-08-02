@@ -1,6 +1,6 @@
 [Unit]
 Description=airplane-frame Pi API (Node adapter)
-After=network-online.target
+After=network-online.target cloudflared.service
 Wants=network-online.target
 
 [Service]

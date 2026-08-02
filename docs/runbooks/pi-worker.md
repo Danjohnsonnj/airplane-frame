@@ -19,7 +19,7 @@ Full plan: `~/.cursor/plans/pi_hosted_worker_cloudflare_tunnel_9f3a7c2d.plan.md`
 
 See plan Slice 6: Node ≥18, user `airplane-frame`, dirs above, read-only GitHub deploy key, clone, `npm ci`, `worker.env` from `worker/.pi.env.example`.
 
-Until `feature/pi-node-adapter` is merged, checkout that branch for smoke tests; after merge, stay on `main` (sync script fast-forwards `main` only).
+Stay on **`main`**. The sync timer fast-forwards `origin/main` only.
 
 ## Secrets
 
@@ -51,7 +51,7 @@ sudo mv /tmp/airplane-frame-worker.service \
         /etc/systemd/system/
 ```
 
-**Or on the Pi** once this commit is in the checkout (`git pull` / fetch on `feature/pi-node-adapter`):
+**Or on the Pi** (after `git pull` on `main`):
 
 ```bash
 sudo cp /opt/airplane-frame/deploy/systemd/airplane-frame-worker.service \
@@ -60,13 +60,16 @@ sudo cp /opt/airplane-frame/deploy/systemd/airplane-frame-worker.service \
        /etc/systemd/system/
 ```
 
-Then:
+Then (idempotent — safe to re-run):
 
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable --now airplane-frame-worker.service
 sudo systemctl enable --now airplane-frame-sync.timer
+sudo systemctl enable --now cloudflared.service
 ```
+
+`enable` makes them start on boot. `cloudflared` was installed by the Cloudflare Tunnel dashboard command; it must stay enabled or `api.danjnj.com` returns 502 after reboot.
 
 Reference copies (for reading only):
 
@@ -109,11 +112,63 @@ sudo systemctl start airplane-frame-sync.service
 sudo journalctl -u airplane-frame-sync.service -n 50 --no-pager
 ```
 
+## Reboot / power-loss
+
+Services that must come back after power disconnect:
+
+| Unit | Role |
+|------|------|
+| `cloudflared.service` | Tunnel to Cloudflare |
+| `airplane-frame-worker.service` | Node API on `127.0.0.1:8788` |
+| `airplane-frame-sync.timer` | Pulls `main` every ~5 minutes |
+
+**Before unplugging / moving the Pi** (run on the Pi):
+
+```bash
+sudo systemctl enable airplane-frame-worker.service airplane-frame-sync.timer cloudflared.service
+systemctl is-enabled airplane-frame-worker.service airplane-frame-sync.timer cloudflared.service
+# expect: enabled / enabled / enabled
+sudo -u airplane-frame git -C /opt/airplane-frame status -sb
+# expect: ## main...origin/main (clean or only local noise)
+```
+
+Optional: refresh unit files from the repo, then reload:
+
+```bash
+sudo -u airplane-frame git -C /opt/airplane-frame pull --ff-only
+sudo cp /opt/airplane-frame/deploy/systemd/* /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl restart airplane-frame-worker.service
+```
+
+Then power off cleanly when possible:
+
+```bash
+sudo shutdown -h now
+# or: sudo reboot
+```
+
+**After power returns** (wait for Wi‑Fi; IP may still be `192.168.1.46` if DHCP reservation holds):
+
+```bash
+# from Mac Terminal.app once SSH works:
+ssh pi@192.168.1.46
+sudo systemctl is-active airplane-frame-worker.service cloudflared.service
+sudo systemctl list-timers airplane-frame-sync.timer --no-pager
+# wait ~10s after boot for npm/node to listen, then:
+curl -i http://127.0.0.1:8788/health
+curl -i https://api.danjnj.com/health
+```
+
+Both curls should be **200** `{"ok":true}`. If public is **502**, Tunnel or worker is not up yet — recheck `systemctl status cloudflared airplane-frame-worker --no-pager` and wait for Wi‑Fi/`network-online`.
+
+**Note:** Immediate curl after `systemctl restart` can fail for ~5s while `npm run start:pi` starts; that is not a boot failure.
+
 ## Health, logs, ops
 
 ```bash
 curl -i http://127.0.0.1:8788/health
-sudo systemctl status airplane-frame-worker.service --no-pager
+sudo systemctl status airplane-frame-worker.service cloudflared.service --no-pager
 sudo journalctl -u airplane-frame-worker -n 100 --no-pager
 sudo systemctl start airplane-frame-sync.service
 sudo systemctl list-timers airplane-frame-sync.timer
