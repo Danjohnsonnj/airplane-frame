@@ -55,9 +55,9 @@
 - **Why now:** Production `workers.dev` shared egress is rate-limiting airplanes.live — a blocker for reliable GitHub Pages use even after KV/stale mitigations.
 - **Approach (Option 1):** Raspberry Pi runs the Worker logic (Node adapter + file cache); Cloudflare Tunnel publishes `https://api.danjnj.com` to `127.0.0.1:8788`; GitHub Pages stays on `main` and points at the tunnel hostname. Existing Cloudflare Worker kept as explicit rollback (`?worker=cloudflare`).
 - Plan: `~/.cursor/plans/pi_hosted_worker_cloudflare_tunnel_9f3a7c2d.plan.md`
-- Progress: Slices 1–4 on `feature/pi-node-adapter` (`bbafa04`). Zone Active; Tunnel `airplane-frame-pi` Healthy with published `api.danjnj.com` → `127.0.0.1:8788`. Pi Node 20 + clone + `worker.env`; local `/health` OK. Next: public `/health`, systemd (6.8), then Slice 8 merge.
+- Progress: Cutover complete on `main` (`be9eed0`). Tunnel + systemd; Pages `/flights` via `api.danjnj.com` with complete pack; rollback param routes to `workers.dev` (often empty).
 - Verify: public Pages hits tunnel; Pi health 200; home-network egress; reboot + sync timer; rollback param works.
-- **Status: IN PROGRESS** — Tunnel route created; systemd + merge gated (2026-08-02).
+- **Status: DONE** — production egress on home IP via Pi Tunnel (2026-08-02). Optional reboot soak later.
 
 ## Later (out of current phase plan)
 

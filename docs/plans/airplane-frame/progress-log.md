@@ -229,3 +229,10 @@
 - Verified: local + public health under systemd before merge.
 - Learned: prefer scp/`deploy/systemd` over nano paste for Pi unit install; curl immediately after enable can race npm startup (~5s).
 - Overwrote: HANDOFF next → Pages UAT; plan deploy-and-uat in progress.
+
+## 2026-08-02 - Phase 6.5 cutover UAT passed
+
+- Happened: Pi on `main`; systemd + Tunnel healthy. Pages default `/flights` → `https://api.danjnj.com` with complete pack. `?worker=cloudflare` shows empty poster (legacy shared egress — expected).
+- Verified: Network host `api.danjnj.com` + flights render; rollback URL loads legacy path.
+- Learned: address-bar GET to `/flights` is 401 without Bearer; UAT via Pages UI only.
+- Overwrote: HANDOFF next → Phase 6 poster polish; phases 6.5 DONE; plan deploy-and-uat completed.

@@ -7,9 +7,9 @@
 **Next action (cold-start executable):**
 
 1. Read required reading below.
-2. **Pi API live:** systemd + Tunnel; `https://api.danjnj.com/health` → 200.
-3. **Slice 8 in flight:** merge landed / landing on `main` — on Pi: checkout `main`, pull/sync, confirm `/health`. Then Pages UAT: `https://danjohnsonnj.github.io/airplane-frame/` → Network `/flights` to `api.danjnj.com`; rollback `?worker=cloudflare`.
-4. Resume Phase 6 poster UAT once `/flights` pack is reliable via home egress.
+2. **Phase 6.5 cutover done:** Pi systemd + Tunnel; Pages → `https://api.danjnj.com`; production `/flights` UAT passed (complete pack). Rollback `?worker=cloudflare` still routes to `workers.dev` (often EMPTY/429 — expected).
+3. **Next:** resume **Phase 6 poster UAT** / polish ([visual-direction.md](./visual-direction.md), carrier-brand-alias). Optional: Pi reboot soak; rotate secrets exposed earlier in chat.
+4. Keep ops entry: [docs/runbooks/pi-worker.md](../../runbooks/pi-worker.md).
 
 **Hard invariants:** Free/trial data sources only; destination + carrier + plane type are non-negotiable on every displayed flight; no API secrets in the GitHub Pages front end; personal shared-secret gate on the Worker (or Pi API).
 
@@ -61,6 +61,6 @@ cd worker && npm test
 
 **Open decisions:** Optional user-selectable N (3–5) deferred; tune min-altitude default after more real traffic; settings tag-chip chrome explore later.
 
-**Open items:** Pages on `main` still points at `api.danjnj.com` but **adapter code not merged yet** — merge Slice 8 to cut Pages over cleanly; then verify `/flights` via home egress (clears shared-egress 429 blocker). Phase 6 poster UAT after that. Rotate secrets exposed in chat/screenshot when convenient. Settings period polish, geocoder polish, livery source deferred. Carrier inventory: [airlines-seen-2026-08-01.md](../../design-reference/airlines-seen-2026-08-01.md).
+**Open items:** Phase 6 poster UAT / polish. Optional Pi reboot + sync soak. Rotate secrets exposed in chat/screenshot when convenient. Settings period polish, geocoder polish, livery source deferred. Carrier inventory: [airlines-seen-2026-08-01.md](../../design-reference/airlines-seen-2026-08-01.md).
 
-**Last updated:** 2026-08-02 — systemd + public `/health` OK; next = Slice 8 merge/UAT
+**Last updated:** 2026-08-02 — Phase 6.5 cutover UAT passed; next = Phase 6 poster polish
