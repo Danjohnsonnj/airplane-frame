@@ -3,8 +3,23 @@ import { normalizeCarrierName } from "./carrier-aliases.js";
 const USER_AGENT = "airplane-frame-worker/0.1 (personal)";
 const RETRY_DELAY_MS = 1200;
 
+const AIRLABS_BREAKER_CODES = new Set([
+  "month_limit_exceeded",
+  "year_limit_exceeded",
+  "hour_limit_exceeded",
+  "unknown_api_key",
+  "invalid_api_key",
+  "expired_api_key",
+]);
+
+const AIRLINE_ISH_RE = /^[A-Z]{3}\d/i;
+
 function isRetryableStatus(status) {
   return status === 429 || (status >= 500 && status < 600);
+}
+
+function isAirlineIsh(callsign) {
+  return AIRLINE_ISH_RE.test((callsign || "").trim());
 }
 
 export async function fetchJson(url, init = {}) {
@@ -46,14 +61,22 @@ export async function fetchAirplanesLive(lat, lon, radiusNm, deps = {}) {
   }
 }
 
-export async function enrichAirLabs(callsign, apiKey) {
+export async function enrichAirLabs(callsign, apiKey, deps = {}) {
   if (!apiKey) return null;
+  const fetchImpl = deps.fetch || fetch;
   const url =
     `https://airlabs.co/api/v9/flight?flight_icao=${encodeURIComponent(callsign)}` +
     `&api_key=${encodeURIComponent(apiKey)}`;
   try {
-    const data = await fetchJson(url);
-    if (!data || data.error) return null;
+    const data = await fetchJson(url, { fetch: fetchImpl });
+    if (!data) return null;
+    if (data.error) {
+      const code = data.error.code;
+      if (code && AIRLABS_BREAKER_CODES.has(code)) {
+        return { _airlabsLimit: true, code };
+      }
+      return null;
+    }
     const resp = data.response;
     if (resp && typeof resp === "object" && !Array.isArray(resp)) return resp;
     if (Array.isArray(resp) && resp[0] && typeof resp[0] === "object") return resp[0];
@@ -63,10 +86,12 @@ export async function enrichAirLabs(callsign, apiKey) {
   }
 }
 
-export async function enrichHexdb(callsign) {
+export async function enrichHexdb(callsign, deps = {}) {
+  const fetchImpl = deps.fetch || fetch;
   try {
     return await fetchJson(
       `https://hexdb.io/api/v1/route/icao/${encodeURIComponent(callsign.trim().toUpperCase())}`,
+      { fetch: fetchImpl },
     );
   } catch {
     return null;
@@ -85,7 +110,7 @@ export function buildFlightRow(aircraft, airlabs, hexdb) {
   let carrier = (aircraft.ownOp || "").trim() || null;
   let enrichmentSource = "none";
 
-  if (airlabs) {
+  if (airlabs && !airlabs._airlabsLimit) {
     origin = airlabs.dep_iata || airlabs.dep_icao || null;
     destination = airlabs.arr_iata || airlabs.arr_icao || null;
     carrier = airlabs.airline_name || airlabs.airline_icao || carrier;
@@ -118,29 +143,76 @@ export function buildFlightRow(aircraft, airlabs, hexdb) {
   };
 }
 
-export async function enrichAircraftList(aircraftList, { airlabsKey, maxEnrich }) {
+/**
+ * Hexdb-first enrichment with AirLabs gap-fill under a hard per-fetch cap.
+ * @returns {Promise<{ candidates: object[], stats: object }>}
+ */
+export async function enrichAircraftList(aircraftList, opts = {}) {
+  const {
+    airlabsKey,
+    maxAttempt = 36,
+    maxAirlabs = 5,
+    maxResults = 20,
+    minAltitudeFt = 0,
+    fetch: fetchImpl = fetch,
+  } = opts;
+
   const trimmed = [];
   for (const ac of aircraftList) {
     const flight = (ac.flight || "").trim();
     const planeType = (ac.desc || "").trim() || (ac.t || "").trim();
     if (!flight || !planeType) continue;
     if (ac.alt_baro == null || ac.alt_baro === "ground") continue;
+    if (minAltitudeFt > 0 && Number(ac.alt_baro) < minAltitudeFt) continue;
     trimmed.push(ac);
   }
 
-  trimmed.sort((a, b) => (a.dst ?? 999) - (b.dst ?? 999));
-  const slice = trimmed.slice(0, maxEnrich);
+  trimmed.sort((a, b) => {
+    const aIsh = isAirlineIsh(a.flight) ? 0 : 1;
+    const bIsh = isAirlineIsh(b.flight) ? 0 : 1;
+    if (aIsh !== bIsh) return aIsh - bIsh;
+    return (a.dst ?? 999) - (b.dst ?? 999);
+  });
 
-  const out = [];
+  const slice = trimmed.slice(0, maxAttempt);
+  const candidates = [];
+  let airlabsCalls = 0;
+  let hexdbCalls = 0;
+  let attempted = 0;
+  let breakerTripped = false;
+
   for (const ac of slice) {
+    if (candidates.length >= maxResults) break;
+
+    attempted += 1;
     const callsign = ac.flight.trim();
-    const airlabs = await enrichAirLabs(callsign, airlabsKey);
-    let hexdb = null;
-    if (!buildFlightRow(ac, airlabs, null)) {
-      hexdb = await enrichHexdb(callsign);
+    const deps = { fetch: fetchImpl };
+
+    hexdbCalls += 1;
+    const hexdb = await enrichHexdb(callsign, deps);
+    let row = buildFlightRow(ac, null, hexdb);
+
+    if (!row && airlabsKey && !breakerTripped && airlabsCalls < maxAirlabs) {
+      airlabsCalls += 1;
+      const airlabs = await enrichAirLabs(callsign, airlabsKey, deps);
+      if (airlabs?._airlabsLimit) {
+        breakerTripped = true;
+      } else {
+        row = buildFlightRow(ac, airlabs, hexdb);
+      }
     }
-    const row = buildFlightRow(ac, airlabs, hexdb);
-    if (row) out.push(row);
+
+    if (row) candidates.push(row);
   }
-  return out;
+
+  return {
+    candidates,
+    stats: {
+      attempted,
+      airlabsCalls,
+      hexdbCalls,
+      complete: candidates.length,
+      cached: false,
+    },
+  };
 }

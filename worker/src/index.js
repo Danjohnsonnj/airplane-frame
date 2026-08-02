@@ -56,6 +56,7 @@ function packedResponse(parsed, candidates, packSize, cacheTtl, meta = {}) {
     stale: Boolean(meta.stale),
     ageSeconds: meta.ageSeconds ?? 0,
     pack: packEcho(parsed, packSize),
+    enrich: meta.enrich,
   };
 }
 
@@ -65,14 +66,17 @@ async function fetchFreshCandidates(parsed, env) {
     parsed.lon,
     parsed.radiusNm,
   );
-  const maxEnrich = Number(env.MAX_ENRICH || 12);
+  const maxAttempt = Number(env.MAX_ATTEMPT || env.MAX_ENRICH || 36);
+  const maxAirlabs = Number(env.MAX_AIRLABS || 5);
   const maxResults = Number(env.MAX_RESULTS || 20);
-  return (
-    await enrichAircraftList(aircraft, {
-      airlabsKey: env.AIRLABS_API_KEY,
-      maxEnrich,
-    })
-  ).slice(0, maxResults);
+  const { candidates, stats } = await enrichAircraftList(aircraft, {
+    airlabsKey: env.AIRLABS_API_KEY,
+    maxAttempt,
+    maxAirlabs,
+    maxResults,
+    minAltitudeFt: parsed.minAltitudeFt,
+  });
+  return { candidates, enrich: stats };
 }
 
 export default {
@@ -100,7 +104,7 @@ export default {
     const cacheTtl = Number(env.CACHE_TTL_SECONDS || 600);
     const staleTtl = Number(env.STALE_TTL_SECONDS || 3600);
     const emptyCacheTtl = Number(env.EMPTY_CACHE_TTL_SECONDS || 60);
-    const packSize = Number(env.PACK_SIZE || 5);
+    const packSize = Number(env.PACK_SIZE || 10);
     const pin = {
       lat: parsed.lat,
       lon: parsed.lon,
@@ -131,7 +135,11 @@ export default {
         resolved.candidates,
         packSize,
         cacheTtl,
-        { stale: resolved.stale, ageSeconds: resolved.ageSeconds },
+        {
+          stale: resolved.stale,
+          ageSeconds: resolved.ageSeconds,
+          enrich: resolved.enrich,
+        },
       );
       return json(body, 200, {
         "Cache-Control": "no-store",

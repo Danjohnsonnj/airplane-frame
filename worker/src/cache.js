@@ -34,17 +34,27 @@ function hasNonEmptyCandidates(record) {
   );
 }
 
+function cachedEnrich(candidates) {
+  return {
+    cached: true,
+    attempted: 0,
+    airlabsCalls: 0,
+    hexdbCalls: 0,
+    complete: Array.isArray(candidates) ? candidates.length : 0,
+  };
+}
+
 /**
  * @param {object} opts
  * @param {{ get: Function, put: Function }} opts.kv
- * @param {() => Promise<object[]>} opts.fetchFresh
+ * @param {() => Promise<{ candidates: object[], enrich: object }>} opts.fetchFresh
  * @param {string} opts.key
  * @param {object} opts.pin
  * @param {number} opts.nowMs
  * @param {number} opts.freshTtlSec
  * @param {number} opts.emptyFreshTtlSec
  * @param {number} opts.staleTtlSec
- * @returns {Promise<{ candidates: object[], stale: boolean, ageSeconds: number, fetchedAt: number }>}
+ * @returns {Promise<{ candidates: object[], stale: boolean, ageSeconds: number, fetchedAt: number, enrich: object }>}
  */
 export async function resolveCandidates(opts) {
   const {
@@ -85,12 +95,21 @@ export async function resolveCandidates(opts) {
         stale: false,
         ageSeconds: ageSeconds(record.fetchedAt, nowMs),
         fetchedAt: record.fetchedAt,
+        enrich: cachedEnrich(record.candidates),
       };
     }
   }
 
   try {
-    const candidates = await fetchFresh();
+    const fresh = await fetchFresh();
+    const candidates = Array.isArray(fresh?.candidates) ? fresh.candidates : [];
+    const enrich = fresh?.enrich || {
+      cached: false,
+      attempted: 0,
+      airlabsCalls: 0,
+      hexdbCalls: 0,
+      complete: candidates.length,
+    };
     const fetchedAt = nowMs;
 
     if (candidates.length === 0 && hasNonEmptyCandidates(record)) {
@@ -99,6 +118,7 @@ export async function resolveCandidates(opts) {
         stale: true,
         ageSeconds: ageSeconds(record.fetchedAt, nowMs),
         fetchedAt: record.fetchedAt,
+        enrich: cachedEnrich(record.candidates),
       };
     }
 
@@ -111,6 +131,7 @@ export async function resolveCandidates(opts) {
       stale: false,
       ageSeconds: 0,
       fetchedAt,
+      enrich,
     };
   } catch (err) {
     if (hasRecord) {
@@ -119,6 +140,7 @@ export async function resolveCandidates(opts) {
         stale: true,
         ageSeconds: ageSeconds(record.fetchedAt, nowMs),
         fetchedAt: record.fetchedAt,
+        enrich: cachedEnrich(record.candidates),
       };
     }
     throw err;

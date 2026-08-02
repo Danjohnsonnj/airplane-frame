@@ -243,3 +243,17 @@
 - Verified: prior cutover UAT (Pages → api.danjnj.com). User will confirm enablement + post-move `/health`.
 - Learned: boot requires cloudflared + worker + sync.timer all enabled.
 - Overwrote: HANDOFF next → reboot checklist; Phase 6 status UAT DEFERRED.
+
+## 2026-08-02 - Enrich efficiency plan locked; HANDOFF retargeted
+
+- Happened: Diagnosed thin packs (MAX_ENRICH=12 AirLabs-first + altitude after enrich; AirLabs key truncate on Pi). Authored `~/.cursor/plans/enrich_efficiency_pool_355002fc.plan.md` (hexdb-first, MAX_ATTEMPT=36, MAX_AIRLABS=5, PACK_SIZE=10, enrich stats, cache contract). Terra review-plan findings folded in.
+- Verified: plan `check-refs.py` 18/18; live AirLabs key OK after Pi length fix.
+- Learned: apply minAltitude before enrich attempts; never burn AirLabs on soft-null limit errors without a breaker sentinel.
+- Overwrote: HANDOFF goal → up to 10 flights; next action → implement enrich efficiency plan; planned env table row.
+
+## 2026-08-02 - Enrich efficiency + PACK_SIZE 10 shipped (local UAT)
+
+- Happened: Implemented hexdb-first enrich pool (`MAX_ATTEMPT`/`MAX_AIRLABS`), AirLabs breaker sentinel, `PACK_SIZE` default 10, `enrich` on `/flights` (not in KV); wired cache/index/env/docs.
+- Verified: `cd worker && npm test` 55 pass; local Wrangler fresh curl — `airlabsCalls=5`, `candidateCount=20`, `pack.size=10`; cache hit synthesizes `enrich.cached=true`.
+- Learned: airline-ish + min-alt before attempt list unlocks realistic pool without raising AirLabs tier.
+- Overwrote: tech-brief pipeline; secrets/deploy/pages env names; HANDOFF next → push + Pi env/sync.

@@ -68,7 +68,7 @@ Settings persisted in `localStorage` and sent as Worker query params:
 | Unique carriers & destinations | Default on                                                       |
 | Min altitude                   | Sent to Worker (`minAltitudeFt`); pack already altitude-filtered |
 
-Worker returns ≤5 flights (`PACK_SIZE`). Status line shows pack size, candidate total, stale age (if any), and backend (`local Worker` vs `production API (Pi)` vs `Cloudflare Worker (rollback)`).
+Worker returns ≤10 flights (`PACK_SIZE` default 10). Status line shows pack size, candidate total, stale age (if any), and backend (`local Worker` vs `production API (Pi)` vs `Cloudflare Worker (rollback)`).
 
 ## UAT checklist (Phase 4 pack + filters)
 

@@ -1,37 +1,37 @@
 # airplane-frame - Handoff
 
-**Goal:** Personal web app showing 3–5 nearby commercial flights (carrier, destination, plane type) around a saved location, starting with Jersey City, NJ.
+**Goal:** Personal web app showing up to **10** nearby commercial flights (carrier, destination, plane type) around a saved location, starting with Jersey City, NJ.
 
-**Current phase:** Phase 6.5 **DONE** (Pi Tunnel cutover). Phase 6 poster polish **deferred**.
+**Current phase:** Enrich efficiency + pack size — **code + local UAT DONE**; Pi env/sync pending push to `main`. Phase 6.5 Pi Tunnel **DONE**. Phase 6 poster polish **deferred**.
 
 **Next action (cold-start executable):**
 
-1. Read [docs/runbooks/pi-worker.md](../../runbooks/pi-worker.md) — especially **Reboot / power-loss**.
-2. **Before moving the Pi:** on the Pi, confirm boot-enabled services (commands in that runbook). Then `sudo reboot` or power-cycle; after Wi‑Fi returns, verify local + public `/health`.
-3. **Deferred (do not start unless asked):** Phase 6 poster UAT/polish ([visual-direction.md](./visual-direction.md), carrier-brand-alias). Rotate secrets exposed in earlier chat when convenient.
-4. Production site: https://danjohnsonnj.github.io/airplane-frame/ → API `https://api.danjnj.com`.
+1. Read process.md (before any commit).
+2. Commit + push enrich-efficiency changes to `main` (when user asks).
+3. On Pi (Terminal.app): sync `main`, set `MAX_ATTEMPT=36` `MAX_AIRLABS=5` `PACK_SIZE=10` in `/etc/airplane-frame/worker.env` (remove `MAX_ENRICH`), clear cache, restart worker, public smoke against `https://api.danjnj.com` — steps in `~/.cursor/plans/enrich_efficiency_pool_355002fc.plan.md` §5 and [pi-worker.md](../../runbooks/pi-worker.md).
+4. **Deferred (do not start unless asked):** Phase 6 poster UAT/polish (visual-direction.md, carrier-brand-alias). Pi reboot/move checklist remains in docs/runbooks/pi-worker.md.
+5. Production site: https://danjohnsonnj.github.io/airplane-frame/ → API `https://api.danjnj.com`.
 
 **Hard invariants:** Free/trial data sources only; destination + carrier + plane type are non-negotiable on every displayed flight; no API secrets in the GitHub Pages front end; personal shared-secret gate on the Worker (or Pi API).
 
-**Required reading (ops / resume):**
+**Required reading (this phase):**
 
-- docs/runbooks/pi-worker.md — Pi layout, systemd, Tunnel, **reboot**
-- docs/runbooks/secrets.md — Pi `worker.env` vs Pages Bearer
-- docs/runbooks/pages.md — `?worker=cloudflare` rollback
-- tech-brief.md — topology
 - process.md — before committing
+- docs/runbooks/pi-worker.md — sync + restart after `main` lands
+- docs/runbooks/secrets.md — Pi `worker.env` env names
+- `~/.cursor/plans/enrich_efficiency_pool_355002fc.plan.md` — §5 Pi UAT
 
 **Index (load on demand):**
 
-- product-brief.md — background, goals, rationale, non-goals, boundaries
+- tech-brief.md — pipeline current truth (hexdb-first + caps)
+- lessons.md — cache-by-pin + hexdb-first note
+- product-brief.md — background (may still say 3–5 historically)
 - phases.md — phase status (6.5 DONE; Phase 6 polish deferred)
 - progress-log.md — dated history
-- lessons.md — curated toolkit
+- docs/runbooks/local-dev.md / pages.md / deploy-worker.md
 - phase-6.plan.md / carrier-brand-alias.plan.md / visual-direction.md — deferred poster polish
-- docs/runbooks/README.md — ops index
 - spike/README.md — Phase 1 spike
 - .cursor/skills/airplane-frame-ops/SKILL.md — agent entry to runbooks
-- `~/.cursor/plans/pi_hosted_worker_cloudflare_tunnel_9f3a7c2d.plan.md` — Phase 6.5 plan (complete)
 
 **Key facts (resume without re-discovery):**
 
@@ -47,17 +47,18 @@
 | Boot services | `airplane-frame-worker.service`, `airplane-frame-sync.timer`, `cloudflared` — must be **enabled** |
 | Secrets | `/etc/airplane-frame/worker.env` root:root mode 600 |
 | Adapter | `worker/src/node/` — `npm run start:pi` |
+| Env (shipped defaults) | `MAX_ATTEMPT=36`, `MAX_AIRLABS=5`, `PACK_SIZE=10`, `MAX_RESULTS=20` |
 
 **Verify before coding:**
 
 ```bash
-git branch --show-current   # expect main for prod ops
+git branch --show-current   # expect main
 node --test js/lib.test.js
 cd worker && npm test
 ```
 
-**Open decisions:** Optional user-selectable N (3–5) deferred; tune min-altitude default after more real traffic; settings tag-chip chrome explore later.
+**Open decisions:** Optional user-selectable N deferred; tune min-altitude default after more real traffic; settings tag-chip chrome explore later; callsign enrichment cache follow-up after this plan.
 
-**Open items:** **Deferred:** Phase 6 poster polish/UAT. Rotate secrets exposed in chat/screenshot when convenient. Settings period polish, geocoder polish, livery source deferred. Carrier inventory: [airlines-seen-2026-08-01.md](../../design-reference/airlines-seen-2026-08-01.md). After Pi move: confirm DHCP/Wi‑Fi and public `/health`.
+**Open items:** **Pending:** push `main` + Pi env/sync + public smoke. **Deferred:** Phase 6 poster polish/UAT. Rotate secrets exposed in chat when convenient. Settings/geocoder/livery deferred. Carrier inventory: [airlines-seen-2026-08-01.md](../../design-reference/airlines-seen-2026-08-01.md).
 
-**Last updated:** 2026-08-02 — cutover done; poster polish deferred; reboot/power-move checklist in pi-worker.md
+**Last updated:** 2026-08-02 — enrich efficiency implemented; local UAT PASS; next = commit/push + Pi

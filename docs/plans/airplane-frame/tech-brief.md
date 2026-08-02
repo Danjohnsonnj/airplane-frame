@@ -9,9 +9,10 @@
   - URL: **https://airplane-frame.danjohnsonnj.workers.dev**
   - Subdomain: `danjohnsonnj.workers.dev`
   - Auth: `Authorization: Bearer <APP_SHARED_SECRET>`
-  - Pipeline: airplanes.live → AirLabs (hexdb fallback) → filter/pack → JSON
-  - Candidate cache: Workers KV `FLIGHT_CACHE` ~600s fresh for non-empty (`CACHE_TTL_SECONDS`); empty fresh window `EMPTY_CACHE_TTL_SECONDS` (60); stale fallback up to `STALE_TTL_SECONDS` (3600); prefer last-good pack when upstream returns empty; filters re-pack without re-enrich
-  - Pack: `PACK_SIZE` default 5; diversity-first + airport-interest tie-break (`worker/src/pack.js`)
+  - Pipeline: airplanes.live → hexdb/`ownOp` first → AirLabs gap-fill (capped) → filter/pack → JSON
+  - Candidate cache: Workers KV `FLIGHT_CACHE` ~600s fresh for non-empty (`CACHE_TTL_SECONDS`); empty fresh window `EMPTY_CACHE_TTL_SECONDS` (60); stale fallback up to `STALE_TTL_SECONDS` (3600); prefer last-good pack when upstream returns empty; filters re-pack without re-enrich; `enrich` stats on response only (not persisted)
+  - Pack: `PACK_SIZE` default 10; diversity-first + airport-interest tie-break (`worker/src/pack.js`)
+  - Enrich caps: `MAX_ATTEMPT` (default 36; legacy `MAX_ENRICH` fallback), `MAX_AIRLABS` (default 5), `MAX_RESULTS` (default 20)
   - UI radius query param `radiusMi` (statute) → nm via `milesToNm` (~25 mi → 22 nm)
 - Phase 3 Pages UI: **DONE** — https://danjohnsonnj.github.io/airplane-frame/
 - Phase 4 pack + filters: **DONE** 2026-07-31 (UAT PASS)
@@ -22,8 +23,8 @@
 | Role | Source | Auth | Notes |
 |------|--------|------|-------|
 | Live positions + plane type | [airplanes.live](https://airplanes.live/api-guide/) `/v2/point/{lat}/{lon}/{radius}` | None | Radius in **nautical miles** (max 250). Requires `User-Agent`. ~1 req/s. |
-| Carrier + origin/destination | [AirLabs](https://airlabs.co/docs/) `flight_icao` | `AIRLABS_API_KEY` | Prefer over `ownOp` / hexdb. Enrich capped (`MAX_ENRICH`, default 12). |
-| Destination fallback | hexdb.io `/api/v1/route/icao/{callsign}` | None | Stale risk; only if AirLabs misses destination. |
+| Destination + carrier (primary path) | hexdb.io `/api/v1/route/icao/{callsign}` + airplanes.live `ownOp` | None | Tried first per aircraft; airline-ish callsigns preferred in attempt order. |
+| Carrier + origin/destination (gap-fill) | [AirLabs](https://airlabs.co/docs/) `flight_icao` | `AIRLABS_API_KEY` | Only when hexdb/`ownOp` incomplete; hard cap `MAX_AIRLABS` (default 5) per fresh fetch; quota/key errors trip a per-fetch breaker. |
 
 **Not in MVP stack:** Aviationstack, OpenSky (optional later), adsb.lol routeset.
 
@@ -51,10 +52,10 @@
 [TARGET] https://api.danjnj.com  (Tunnel → Pi Node adapter; home egress)
          ?worker=cloudflare → legacy workers.dev rollback
    |  secrets: AIRLABS_API_KEY, APP_SHARED_SECRET (Pi env / Worker secrets)
-   |  cache: KV (Worker) or file FLIGHT_CACHE (Pi); airplanes.live → AirLabs → hexdb
+   |  cache: KV (Worker) or file FLIGHT_CACHE (Pi); airplanes.live → hexdb/ownOp → AirLabs (capped)
    |  stale serve on upstream failure; filter + diversity pack (≤ PACK_SIZE)
    v
-[JSON: { pin, count, candidateCount, flights[], pack, stale, ageSeconds, cachedForSeconds }]
+[JSON: { pin, count, candidateCount, flights[], pack, enrich, stale, ageSeconds, cachedForSeconds }]
    → UI renders pack (completeness guard only)
 ```
 
@@ -71,7 +72,8 @@
 ### Worker (live)
 
 - `GET /health`, `GET /flights` (pack + optional filters — see deploy-worker runbook)
-- Shared-secret gate; KV candidate cache + stale fallback; `PACK_SIZE` default 5
+- Shared-secret gate; KV candidate cache + stale fallback; `PACK_SIZE` default 10
+- Enrich: hexdb/`ownOp` first; AirLabs gap-fill under `MAX_AIRLABS`; response includes `enrich` stats
 
 ## Hard invariants
 
@@ -79,4 +81,4 @@
 - Never display a flight missing carrier, destination, or plane type
 - Free/trial data sources only unless user explicitly approves otherwise
 - Personal access gate on the Worker (shared secret)
-- Primary enrichment: AirLabs; hexdb fallback only
+- Enrichment: hexdb/`ownOp` first; AirLabs only for incomplete rows within `MAX_AIRLABS`

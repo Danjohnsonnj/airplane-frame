@@ -56,10 +56,17 @@ describe("resolveCandidates", () => {
     staleTtlSec,
   };
 
-  it("miss: fetchFresh, put KV, return live", async () => {
+  it("miss: fetchFresh, put KV (candidates only), return live enrich", async () => {
     const store = {};
     const kv = mockKv(store);
     const candidates = [{ flight: "UAL1", carrier: "United", destination: "EWR", planeType: "B737" }];
+    const enrich = {
+      cached: false,
+      attempted: 3,
+      airlabsCalls: 1,
+      hexdbCalls: 3,
+      complete: 1,
+    };
     let fetchCount = 0;
     const result = await resolveCandidates({
       ...baseOpts,
@@ -67,16 +74,20 @@ describe("resolveCandidates", () => {
       nowMs: 10_000,
       fetchFresh: async () => {
         fetchCount += 1;
-        return candidates;
+        return { candidates, enrich };
       },
     });
     assert.equal(fetchCount, 1);
     assert.equal(result.stale, false);
     assert.deepEqual(result.candidates, candidates);
+    assert.deepEqual(result.enrich, enrich);
     assert.ok(store[key]);
+    const saved = JSON.parse(store[key]);
+    assert.deepEqual(saved.candidates, candidates);
+    assert.equal(saved.enrich, undefined);
   });
 
-  it("hit + fresh non-empty: no fetchFresh", async () => {
+  it("hit + fresh non-empty: no fetchFresh; synthesizes cached enrich", async () => {
     const fetchedAt = 9000;
     const candidates = [{ flight: "DAL2" }];
     const store = {
@@ -90,13 +101,20 @@ describe("resolveCandidates", () => {
       nowMs: 10_000,
       fetchFresh: async () => {
         fetchCount += 1;
-        return [];
+        return { candidates: [], enrich: { cached: false } };
       },
     });
     assert.equal(fetchCount, 0);
     assert.equal(result.stale, false);
     assert.deepEqual(result.candidates, candidates);
     assert.equal(result.ageSeconds, 1);
+    assert.deepEqual(result.enrich, {
+      cached: true,
+      attempted: 0,
+      airlabsCalls: 0,
+      hexdbCalls: 0,
+      complete: 1,
+    });
   });
 
   it("hit + fresh empty within emptyFreshTtlSec: no fetchFresh", async () => {
@@ -112,13 +130,23 @@ describe("resolveCandidates", () => {
       nowMs: 100_000,
       fetchFresh: async () => {
         fetchCount += 1;
-        return [{ flight: "UAL9" }];
+        return {
+          candidates: [{ flight: "UAL9" }],
+          enrich: { cached: false, complete: 1 },
+        };
       },
     });
     assert.equal(fetchCount, 0);
     assert.equal(result.stale, false);
     assert.deepEqual(result.candidates, []);
     assert.equal(result.ageSeconds, 5);
+    assert.deepEqual(result.enrich, {
+      cached: true,
+      attempted: 0,
+      airlabsCalls: 0,
+      hexdbCalls: 0,
+      complete: 0,
+    });
   });
 
   it("hit + empty past emptyFreshTtlSec: fetchFresh again", async () => {
@@ -128,6 +156,13 @@ describe("resolveCandidates", () => {
     };
     const kv = mockKv(store);
     const fresh = [{ flight: "UAL9" }];
+    const enrich = {
+      cached: false,
+      attempted: 1,
+      airlabsCalls: 0,
+      hexdbCalls: 1,
+      complete: 1,
+    };
     let fetchCount = 0;
     const result = await resolveCandidates({
       ...baseOpts,
@@ -135,12 +170,13 @@ describe("resolveCandidates", () => {
       nowMs: 100_000,
       fetchFresh: async () => {
         fetchCount += 1;
-        return fresh;
+        return { candidates: fresh, enrich };
       },
     });
     assert.equal(fetchCount, 1);
     assert.equal(result.stale, false);
     assert.deepEqual(result.candidates, fresh);
+    assert.deepEqual(result.enrich, enrich);
   });
 
   it("fetch returns empty with prior non-empty: stale prior, KV unchanged", async () => {
@@ -156,28 +192,53 @@ describe("resolveCandidates", () => {
       kv,
       nowMs: 10_000,
       freshTtlSec: 5,
-      fetchFresh: async () => [],
+      fetchFresh: async () => ({
+        candidates: [],
+        enrich: {
+          cached: false,
+          attempted: 0,
+          airlabsCalls: 0,
+          hexdbCalls: 0,
+          complete: 0,
+        },
+      }),
     });
     assert.equal(result.stale, true);
     assert.deepEqual(result.candidates, prior);
     assert.equal(result.ageSeconds, 9);
     assert.equal(store[key], before);
+    assert.deepEqual(result.enrich, {
+      cached: true,
+      attempted: 0,
+      airlabsCalls: 0,
+      hexdbCalls: 0,
+      complete: 1,
+    });
   });
 
   it("fetch returns empty with no prior: put empty, stale false", async () => {
     const store = {};
     const kv = mockKv(store);
+    const enrich = {
+      cached: false,
+      attempted: 2,
+      airlabsCalls: 0,
+      hexdbCalls: 2,
+      complete: 0,
+    };
     const result = await resolveCandidates({
       ...baseOpts,
       kv,
       nowMs: 10_000,
-      fetchFresh: async () => [],
+      fetchFresh: async () => ({ candidates: [], enrich }),
     });
     assert.equal(result.stale, false);
     assert.deepEqual(result.candidates, []);
+    assert.deepEqual(result.enrich, enrich);
     assert.ok(store[key]);
     const saved = JSON.parse(store[key]);
     assert.deepEqual(saved.candidates, []);
+    assert.equal(saved.enrich, undefined);
   });
 
   it("hit + stale: fetchFresh fails → return cached stale", async () => {
@@ -199,6 +260,13 @@ describe("resolveCandidates", () => {
     assert.equal(result.stale, true);
     assert.deepEqual(result.candidates, candidates);
     assert.equal(result.ageSeconds, 9);
+    assert.deepEqual(result.enrich, {
+      cached: true,
+      attempted: 0,
+      airlabsCalls: 0,
+      hexdbCalls: 0,
+      complete: 1,
+    });
   });
 
   it("miss + fetchFresh fail → throws", async () => {

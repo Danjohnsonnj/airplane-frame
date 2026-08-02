@@ -70,6 +70,13 @@
 - Evidence: Local wrangler smoke 2026-07-31 — carrierDeny changed pack count without waiting for TTL.
 - Crystallize?: Yes — deploy-worker runbook + Worker `cache.js`.
 
+## Hexdb-first enrich + AirLabs cap
+
+- Context: AirLabs-first over the 12 nearest burned free-tier quota on GA/low traffic; `minAltitudeFt` ran only at pack time, so `candidateCount` stayed ~4–6.
+- Lesson: Prefilter altitude + airline-ish callsigns, attempt hexdb/`ownOp` first, gap-fill with AirLabs under `MAX_AIRLABS`, early-stop at `MAX_RESULTS`. Do not persist `enrich` stats in the candidate cache. High min-alt on first fresh fetch can omit lower traffic until TTL (altitude stays out of the cache key).
+- Evidence: Plan `enrich_efficiency_pool_355002fc` (2026-08-02); unit tests in `worker/test/providers.test.js`.
+- Crystallize?: Yes — tech-brief pipeline + secrets/deploy env names.
+
 ## airplanes.live 429 on Cloudflare shared egress
 
 - Context: Production Worker gets HTTP 429 from airplanes.live; laptop curl succeeds. Empty `[]` upstream success can also poison the fresh KV window and surface GitHub Pages EMPTY.

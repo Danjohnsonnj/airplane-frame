@@ -16,7 +16,7 @@ Prerequisite: [cloudflare-signup.md](./cloudflare-signup.md), then [secrets.md](
 | Method | Path | Auth | Notes |
 |--------|------|------|-------|
 | `GET` | `/health` | none | `{ "ok": true }` |
-| `GET` | `/flights?lat=&lon=&radiusMi=` | `Authorization: Bearer <APP_SHARED_SECRET>` | Diversity pack (≤`PACK_SIZE`, default 5). `radiusMi` is **statute miles** (converted to nm for airplanes.live). Optional filters below. |
+| `GET` | `/flights?lat=&lon=&radiusMi=` | `Authorization: Bearer <APP_SHARED_SECRET>` | Diversity pack (≤`PACK_SIZE`, default 10). `radiusMi` is **statute miles** (converted to nm for airplanes.live). Optional filters below. |
 | `OPTIONS` | `*` | none | CORS preflight |
 
 #### `/flights` optional query params
@@ -30,7 +30,7 @@ Prerequisite: [cloudflare-signup.md](./cloudflare-signup.md), then [secrets.md](
 | `destGroupMode` | off | `prefer` (fill metro dests first) or `exclude` |
 | `unique` | `1` | `1` prefer distinct carrier+destination; `0` score-only |
 
-Response includes `count` (pack length), `candidateCount` (enriched pool before pack), `stale` (boolean), `ageSeconds` (when stale), `cachedForSeconds` (always `CACHE_TTL_SECONDS`), and `pack: { size, unique, destGroup, destGroupMode }`. Enriched **candidates** are cached in **Workers KV** (`FLIGHT_CACHE`) ~10 min fresh for non-empty (`CACHE_TTL_SECONDS`); empty results use a shorter fresh window (`EMPTY_CACHE_TTL_SECONDS`, 60s); filters re-pack without re-hitting AirLabs within TTL. On upstream failure or empty with a prior non-empty KV entry, returns **200** with `stale: true` and last good candidates.
+Response includes `count` (pack length), `candidateCount` (enriched pool before pack), `stale` (boolean), `ageSeconds` (when stale), `cachedForSeconds` (always `CACHE_TTL_SECONDS`), `pack: { size, unique, destGroup, destGroupMode }`, and `enrich` (attempt/AirLabs/hexdb stats; `cached: true` on cache hit — not stored in KV). Pipeline: airplanes.live → hexdb/`ownOp` first → AirLabs gap-fill (`MAX_AIRLABS`, default 5) over up to `MAX_ATTEMPT` (default 36) aircraft. Enriched **candidates** are cached in **Workers KV** (`FLIGHT_CACHE`) ~10 min fresh for non-empty (`CACHE_TTL_SECONDS`); empty results use a shorter fresh window (`EMPTY_CACHE_TTL_SECONDS`, 60s); filters re-pack without re-enrich within TTL. On upstream failure or empty with a prior non-empty KV entry, returns **200** with `stale: true` and last good candidates.
 
 ### KV namespace (one-time)
 
@@ -43,7 +43,7 @@ npx wrangler kv namespace create FLIGHT_CACHE --preview
 
 `STALE_TTL_SECONDS` (default 1800) controls KV entry expiry for stale fallback.
 
-Pass bar: no/wrong Bearer → **401**; valid Bearer + JC pin → **200** with ≤5 flights each having `carrier`, `destination`, `planeType`.
+Pass bar: no/wrong Bearer → **401**; valid Bearer + JC pin → **200** with ≤10 flights each having `carrier`, `destination`, `planeType`.
 
 ## Local verify
 
