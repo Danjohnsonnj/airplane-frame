@@ -146,3 +146,17 @@
 - Lesson: All three must be **enabled** (`systemctl enable`). Worker alone → local health OK but public 502. cloudflared alone → Tunnel up but no origin. After restart/boot, wait ~10s before curl (npm startup race). Prefer `sudo shutdown -h now` before unplug.
 - Evidence: 2026-08-02 cutover + enable race on restart.
 - Crystallize?: Yes — `docs/runbooks/pi-worker.md` § Reboot.
+
+## Plane silhouettes: ship SoT is assets/planes/
+
+- Context: Silhouette explore mock under `docs/design-mocks/planes/` then NEC ship.
+- Lesson: Mock probe may stay a small subset. Production resolve/load uses `assets/planes/` + `js/plane-asset.js`. Key is Worker `icaoType` only — never parse `planeType` English strings. Three tiers: manifest exact → family-map → generic-jet. Inline SVG required for `currentColor` ink.
+- Evidence: 2026-08-02 silhouette ship + user UAT.
+- Crystallize?: Yes — visual-direction Hero aircraft silhouette row.
+
+## RexKramer normalize: first path d is the body
+
+- Context: Upstream AircraftShapesSVG outlines have stroke paths (body + detail).
+- Lesson: Keep the first `d` as the filled silhouette; drop later detail strokes; strip Inkscape metadata; set `fill="currentColor"` `stroke="none"`.
+- Evidence: 2026-08-02 normalize of 43 NEC SVGs matched mock A320/B738 selection.
+- Crystallize?: no

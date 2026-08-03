@@ -89,7 +89,7 @@
   flex: 1 1 0;
   flex-direction: column;
   border-bottom: 3px solid var(--ink);
-  min-height: 30vh;
+  min-height: 40vh;
 }
 
 .rows .flight-panel:last-child {
@@ -114,7 +114,44 @@
   flex-direction: column;
   justify-content: center;
   min-height: 0;
+  overflow: hidden;
   padding: 8px 17px 7px;
+}
+
+.hero .plane-silhouette {
+  position: absolute;
+  right: 0;
+  top: 0%;
+  width: min(55%, 220px);
+  transform: translateX(-10%) translateY(0%) scale(2) rotateZ(90deg);
+  opacity: 0.18;
+  color: inherit;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero .airline,
+.hero .flight-number {
+  position: relative;
+  z-index: 1;
+}
+
+.plane-silhouette svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.plane-silhouette svg path {
+  fill: currentColor;
+  stroke: none;
+}
+
+.columns .hero .plane-silhouette {
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-70%) scale(3) rotateZ(0deg);
 }
 
 .hero::before {

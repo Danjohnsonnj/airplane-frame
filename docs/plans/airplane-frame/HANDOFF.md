@@ -2,15 +2,14 @@
 
 **Goal:** Personal web app showing up to **10** nearby commercial flights (carrier, destination, plane type) around a saved location, starting with Jersey City, NJ.
 
-**Current phase:** Enrich efficiency + pack size **DONE** (local + Pi UAT). Phase 6.5 Pi Tunnel **DONE**. Phase 6 poster polish **deferred**.
+**Current phase:** Plane silhouettes **DONE** (user UAT approved). Enrich efficiency + pack size **DONE**. Phase 6.5 Pi Tunnel **DONE**. Phase 6 poster polish **deferred**.
 
 **Next action (cold-start executable):**
 
 1. Read process.md (before any commit).
-2. **SHIP:** Plane silhouettes — execute `~/.cursor/plans/plane_silhouette_ship_81841268.plan.md` (NEC RexKramer corpus → `assets/planes/` → `js/plane-asset.js` → wire `createFlightPanel` + `css/poster.css`). Design locked in visual-direction.md (2026-08-02).
-3. **Deferred (do not start unless asked):** Phase 6 poster UAT/polish (carrier-brand-alias extras). Optional follow-ups: callsign enrichment cache; tune min-altitude default.
-4. Production site: https://danjohnsonnj.github.io/airplane-frame/ → API `https://api.danjnj.com`.
-5. Pi reboot/move checklist: [pi-worker.md](../../runbooks/pi-worker.md).
+2. **Deferred (do not start unless asked):** Phase 6 poster UAT/polish (carrier-brand-alias extras). Optional follow-ups: callsign enrichment cache; tune min-altitude default.
+3. Production site: https://danjohnsonnj.github.io/airplane-frame/ → API `https://api.danjnj.com`.
+4. Pi reboot/move checklist: [pi-worker.md](../../runbooks/pi-worker.md).
 
 **Hard invariants:** Free/trial data sources only; destination + carrier + plane type are non-negotiable on every displayed flight; no API secrets in the GitHub Pages front end; personal shared-secret gate on the Worker (or Pi API).
 
@@ -22,7 +21,7 @@
 
 **Index (load on demand):**
 
-- lessons.md — cache-by-pin + hexdb-first
+- lessons.md — cache-by-pin + hexdb-first + silhouette resolve
 - product-brief.md — background (may still say 3–5 historically)
 - phases.md — phase status (6.5 DONE; Phase 6 polish deferred)
 - progress-log.md — dated history
@@ -31,7 +30,7 @@
 - spike/README.md — Phase 1 spike
 - .cursor/skills/airplane-frame-ops/SKILL.md — agent entry to runbooks
 - `~/.cursor/plans/enrich_efficiency_pool_355002fc.plan.md` — shipped plan (reference)
-- `~/.cursor/plans/plane_silhouette_ship_81841268.plan.md` — silhouette ship (NEC corpus)
+- `~/.cursor/plans/plane_silhouette_ship_81841268.plan.md` — silhouette ship DONE (NEC corpus)
 
 **Key facts (resume without re-discovery):**
 
@@ -48,18 +47,18 @@
 | Secrets | `/etc/airplane-frame/worker.env` root:root mode 600 |
 | Adapter | `worker/src/node/` — `npm run start:pi` |
 | Env (live) | `MAX_ATTEMPT=36`, `MAX_AIRLABS=5`, `PACK_SIZE=10`, `MAX_RESULTS=20` |
-| Last ship | `114fb12` enrich efficiency; Pi UAT PASS 2026-08-02 |
+| Last ship | Plane silhouettes (`assets/planes/` + `js/plane-asset.js`); prior `114fb12` enrich efficiency |
 
 **Verify before coding:**
 
 ```bash
 git branch --show-current   # expect main
-node --test js/lib.test.js
+node --test js/lib.test.js js/plane-asset.test.js
 cd worker && npm test
 ```
 
 **Open decisions:** Optional user-selectable N deferred; tune min-altitude default after more real traffic; settings tag-chip chrome explore later; callsign enrichment cache follow-up.
 
-**Open items:** **Next:** silhouette ship plan. **Deferred:** Phase 6 poster polish/UAT. Rotate secrets exposed in chat when convenient. Settings/geocoder/livery deferred. Carrier inventory: [airlines-seen-2026-08-01.md](../../design-reference/airlines-seen-2026-08-01.md).
+**Open items:** **Deferred:** Phase 6 poster polish/UAT. Rotate secrets exposed in chat when convenient. Settings/geocoder/livery deferred. Carrier inventory: [airlines-seen-2026-08-01.md](../../design-reference/airlines-seen-2026-08-01.md).
 
-**Last updated:** 2026-08-02 — silhouette design LOCKED; next = plane_silhouette_ship plan
+**Last updated:** 2026-08-02 — silhouette ship UAT approved; next = deferred Phase 6 polish

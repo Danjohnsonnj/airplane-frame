@@ -30,7 +30,7 @@ Compass for later poster UI work and for `design-mock-probe`. Not an implementat
 | Panel split (mock-provisional) | Hero-led **~60/40** (hero above / tag below) on mobile/row base |
 | Motion | Quiet state updates (fade/crossfade; status fields without bounce) **plus** short staged panel settle on load/refresh. No continuous ambient. Honor `prefers-reduced-motion` |
 | Staged fidelity | Type/ephemera panels **plus filled ICAO silhouettes** in hero (see Hero aircraft silhouette). Livery / multi-color art still deferred |
-| Hero aircraft silhouette | Decorative watermark only (`aria-hidden`); **filled** single-path SVG (`fill: currentColor`, `stroke: none`); inherits panel ink via **inline SVG** (not `<img>`); opacity **0.18**; `.hero { overflow: hidden }` clips scaled art. **Rows:** edge-anchored, `rotateZ(90deg)`, `scale(2)`. **Columns:** centered, `scale(3)`, no rotate. **Status panels:** no silhouette. Assets: RexKramer top-down shapes (GPL-3.0) — attribution required. Resolve key: Worker `icaoType` → exact file → family → generic. Visual reference: [`poster-ad-wall.html`](../../design-mocks/poster-ad-wall.html) + [`planes/`](../../design-mocks/planes/); ship SoT path per silhouette ship plan (`assets/planes/`) |
+| Hero aircraft silhouette | Decorative watermark only (`aria-hidden`); **filled** single-path SVG (`fill: currentColor`, `stroke: none`); inherits panel ink via **inline SVG** (not `<img>`); opacity **0.18**; `.hero { overflow: hidden }` clips scaled art. **Rows:** edge-anchored, `rotateZ(90deg)`, `scale(2)`. **Columns:** centered, `scale(3)`, no rotate. **Status panels:** no silhouette. Assets: RexKramer top-down shapes (GPL-3.0) — attribution in `assets/planes/ATTRIBUTION.md`. Resolve key: Worker `icaoType` → exact file → family → generic. **Ship SoT:** [`assets/planes/`](../../../assets/planes/) + [`js/plane-asset.js`](../../../js/plane-asset.js). Mock reference: [`poster-ad-wall.html`](../../design-mocks/poster-ad-wall.html) + [`planes/`](../../design-mocks/planes/) (probe subset OK) |
 | Poster chrome (mock-provisional) | Minimal **corner glyph** (gear/sliders), top-trailing, quiet. Follow-up explore later: luggage-tag chip (`SET`/`CFG`) — not this canonical mock |
 | Status surface | **One luggage tag** (same visual language as flight tags); its fields carry stale / error / updating / empty copy — not a separate chrome chip |
 | Status tag fields (mock-provisional) | Dominant state word (`EMPTY` / `STALE` / `WAIT` / `ERR`); labeled rows: **status**, **detail**, **action**, **updated**. Exact sentences refined in mock |
@@ -74,7 +74,7 @@ Confirmed 2026-08-01 from `docs/design-reference/`. Takeaways remain compass for
 
 | Surface | Canonical mock | Frames | Status |
 |---------|----------------|--------|--------|
-| Poster wall | `docs/design-mocks/poster-ad-wall.html` | Mobile row + wide column; populated + empty/error status; carrier/swatch grounds + complementary hero/tag ink; filled ICAO silhouettes | **LOCKED** 2026-08-01 (grounds/ink); silhouette **LOCKED** 2026-08-02 — ship reference |
+| Poster wall | `docs/design-mocks/poster-ad-wall.html` | Mobile row + wide column; populated + empty/error status; carrier/swatch grounds + complementary hero/tag ink; filled ICAO silhouettes | **LOCKED** 2026-08-01 (grounds/ink); silhouette **LOCKED** 2026-08-02 — ship **DONE** (SoT `assets/planes/`) |
 
 Pointer: [docs/agents/design-mock-probe-pointer.md](../../agents/design-mock-probe-pointer.md)
 
@@ -84,4 +84,5 @@ Pointer: [docs/agents/design-mock-probe-pointer.md](../../agents/design-mock-pro
 2. ~~Deeper design interview~~ (DONE 2026-08-01 — locks above).
 3. ~~**design-mock-probe** — poster wall~~ (DONE 2026-08-01 — carrier ground, complementary ink, unique swatch per pack).
 4. ~~Silhouette explore + design lock~~ (DONE 2026-08-02 — filled ICAO silhouettes locked).
-5. **Ship silhouettes** per `~/.cursor/plans/plane_silhouette_ship_81841268.plan.md` (NEC corpus → `assets/planes/` → `js/plane-asset.js` → poster SPA).
+5. ~~Ship silhouettes~~ (DONE 2026-08-02 — NEC corpus in `assets/planes/`, `js/plane-asset.js`, poster SPA; user UAT approved).
+6. **Deferred:** Phase 6 poster polish / livery (see Explicitly deferred).

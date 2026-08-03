@@ -271,3 +271,17 @@
 - Verified: `node --test docs/design-mocks/planes/resolve.test.mjs` pass; browser mock shows filled silhouettes at opacity 0.18.
 - Learned: Inline SVG required for `currentColor`; outline→filled = keep main body path only; CSS stroke-width in px crushes viewBox units.
 - Overwrote: visual-direction staged fidelity + silhouette lock; HANDOFF next-action → silhouette SHIP plan; mock inventory.
+
+## 2026-08-02 - Plane silhouette ship (NEC corpus)
+
+- Happened: Vendored+normalized 43 RexKramer ICAO SVGs + 5 family (widebody from A333) under `assets/planes/`; `manifest.json` + full alias `family-map.json` + ATTRIBUTION.md. Promoted resolver to `js/plane-asset.js` with tests. Wired `createFlightPanel` + `css/poster.css` (opacity 0.18, row/column transforms, hero overflow hidden).
+- Verified: `node --test js/plane-asset.test.js js/lib.test.js` 46 pass; HTTP 200 for manifest/B738/widebody; browser resolve smoke B738→icao, E75L/A319→family, null→generic; CSS opacity 0.18 + columns scale(3).
+- Learned: Ship SoT is `assets/planes/` (mock probe may stay subset); first path `d` is the silhouette body.
+- Overwrote: HANDOFF next → user live-pack browser smoke + commit when asked.
+
+## 2026-08-02 - Plane silhouette ship UAT approved
+
+- Happened: User approved local live-pack silhouette UAT. Closed ship plan; docs retargeted (HANDOFF next → deferred Phase 6 polish; visual-direction ship step DONE).
+- Verified: Prior agent checks (43 assets, tests, browser tiers/CSS) + user approval.
+- Learned: n/a new.
+- Overwrote: HANDOFF / visual-direction / phases / design-mocks README + mock CSS comment; lessons silhouette SoT + normalize tip.

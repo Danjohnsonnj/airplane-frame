@@ -23,6 +23,7 @@ import {
   resolveWallMode,
   unauthorizedStatusMessage,
 } from "./lib.js";
+import { resolvePlaneAsset } from "./plane-asset.js";
 
 const GEOCODE_URL = "https://geocoding-api.open-meteo.com/v1/search";
 const LANDSCAPE_MQ = window.matchMedia("(orientation: landscape)");
@@ -304,6 +305,42 @@ function createField(label, value) {
   return field;
 }
 
+/** @type {Promise<{ manifest: { icao?: string[] }, familyMap: Record<string, string> }> | null} */
+let planeMapsPromise = null;
+
+function loadPlaneMaps() {
+  if (!planeMapsPromise) {
+    planeMapsPromise = Promise.all([
+      fetch("assets/planes/manifest.json").then((r) => {
+        if (!r.ok) throw new Error(`manifest ${r.status}`);
+        return r.json();
+      }),
+      fetch("assets/planes/family-map.json").then((r) => {
+        if (!r.ok) throw new Error(`family-map ${r.status}`);
+        return r.json();
+      }),
+    ]).then(([manifest, familyMap]) => ({ manifest, familyMap }));
+  }
+  return planeMapsPromise;
+}
+
+async function fillPlaneSilhouette(host, icaoType) {
+  try {
+    const { manifest, familyMap } = await loadPlaneMaps();
+    const resolved = resolvePlaneAsset(icaoType, manifest, familyMap);
+    const res = await fetch(resolved.href);
+    if (!res.ok) throw new Error(`${resolved.href} ${res.status}`);
+    const svgText = await res.text();
+    const doc = new DOMParser().parseFromString(svgText, "image/svg+xml");
+    const svg = doc.querySelector("svg");
+    if (!svg) throw new Error(`No svg root in ${resolved.href}`);
+    host.replaceChildren(document.importNode(svg, true));
+    host.dataset.tier = resolved.tier;
+  } catch (err) {
+    console.warn("[plane-silhouette]", icaoType, err);
+  }
+}
+
 function createFlightPanel(f, ground, index, wallMode) {
   const article = document.createElement("article");
   article.className = "flight-panel";
@@ -313,13 +350,19 @@ function createFlightPanel(f, ground, index, wallMode) {
 
   const hero = document.createElement("div");
   hero.className = "hero";
+  const silhouette = document.createElement("div");
+  silhouette.className = "plane-silhouette";
+  silhouette.setAttribute("aria-hidden", "true");
+  const icao = f.icaoType == null ? "" : String(f.icaoType);
+  if (icao) silhouette.dataset.icao = icao;
+  void fillPlaneSilhouette(silhouette, f.icaoType);
   const airline = document.createElement("h3");
   airline.className = "airline";
   airline.textContent = f.carrier;
   const flightNo = document.createElement("span");
   flightNo.className = "flight-number";
   flightNo.textContent = f.flight || "";
-  hero.append(airline, flightNo);
+  hero.append(silhouette, airline, flightNo);
 
   const tag = document.createElement("div");
   tag.className = wallMode === "columns" ? "tag vertical-tag" : "tag horizontal-tag";
@@ -411,6 +454,7 @@ function renderPosterWall(flights, meta = {}) {
   els.posterWall.replaceChildren(settingsBtn);
 
   if (kind === "ok") {
+    void loadPlaneMaps();
     const grounds = assignPanelGrounds(flights, CARRIER_BRAND_NAMES, SWATCH_ORDER);
     for (let i = 0; i < flights.length; i += 1) {
       els.posterWall.append(createFlightPanel(flights[i], grounds[i], i, wallMode));

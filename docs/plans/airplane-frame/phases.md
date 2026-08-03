@@ -48,7 +48,7 @@
 - Carrier colors from [airline-brand-colors.md](../../design-reference/airline-brand-colors.md); unknown carriers get unique sequential swatches; duplicate book carriers share brand color.
 - Reference mock: [poster-ad-wall.html](../../design-mocks/poster-ad-wall.html) — visual only, not literal DOM port.
 - Verify: local stack shows poster view with live Worker pack; mobile rows + wide columns; empty/error/stale states; unique swatches for unknowns; duplicate brand carriers share color; readable complementary ink.
-- **Status: IMPLEMENTATION COMPLETE — UAT DEFERRED** — poster/settings views, `css/poster.css`, carrier gen pipeline, status panel; see [phase-6.plan.md](./phase-6.plan.md). Egress fixed via Phase 6.5; poster polish parked (2026-08-02).
+- **Status: IMPLEMENTATION COMPLETE — UAT DEFERRED** — poster/settings views, `css/poster.css`, carrier gen pipeline, status panel; see [phase-6.plan.md](./phase-6.plan.md). Egress fixed via Phase 6.5; filled ICAO silhouettes shipped 2026-08-02 (`assets/planes/` + `js/plane-asset.js`); remaining poster polish parked.
 
 ## Phase 6.5 - Pi-hosted Worker + Cloudflare Tunnel (egress)
 
