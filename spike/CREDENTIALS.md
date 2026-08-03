@@ -1,6 +1,6 @@
 # Phase 1 data spike — credentials
 
-**Locked stack (2026-07-31):** airplanes.live (positions, no key) + **AirLabs** (carrier + origin/destination) + hexdb fallback (no key).  
+**Locked stack (Worker, 2026-08-03):** airplanes.live (positions, no key) + **adsbdb** (callsign route, no key) + **AirLabs** (gap-fill, `AIRLABS_API_KEY`).  
 OpenSky and Aviationstack are **optional** — not required for MVP.
 
 **Production:** the same AirLabs key is stored as a Cloudflare Worker secret (`AIRLABS_API_KEY`). See `docs/runbooks/secrets.md`. Do not put keys in chat or in `*.example` files.
@@ -40,11 +40,17 @@ Guide: https://airplanes.live/api-guide/
 
 ---
 
-## Fallback (no key): hexdb.io
+## First-pass (no key): adsbdb.com
 
-Historically destination fallback via `/api/v1/route/icao/{callsign}`. **2026-08-03:** hexdb often hangs/502; Worker times out (10s) and skips further hexdb per request, then AirLabs gap-fill only.
+`GET https://api.adsbdb.com/v0/callsign/{CALLSIGN}` — keyless origin/destination + `airline.name` (nested `response.flightroute`). Worker uses this as first-pass enricher (2026-08-03).
 
-**Candidate replacement (exploration B, locked next — not implemented yet):** [adsbdb](https://www.adsbdb.com/) `GET https://api.adsbdb.com/v0/callsign/{CALLSIGN}` — keyless origin/destination + airline name. See tech-brief §10 / HANDOFF.
+**Attribution:** Flight route data is the work of David Taylor and Jim Mason via adsbdb. Use public GET only; do not copy/publish/incorporate into other databases. See [adsbdb README](https://github.com/mrjackwills/adsbdb/blob/main/README.md).
+
+---
+
+## Historical: hexdb.io (removed from Worker)
+
+Was `/api/v1/route/icao/{callsign}`. Upstream hung/502 in Aug 2026; replaced by adsbdb. Spike `run_spike.py` still references hexdb for Phase 1 debugging only.
 
 ---
 

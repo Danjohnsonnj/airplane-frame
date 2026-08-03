@@ -39,7 +39,7 @@ function cachedEnrich(candidates) {
     cached: true,
     attempted: 0,
     airlabsCalls: 0,
-    hexdbCalls: 0,
+    adsbdbCalls: 0,
     complete: Array.isArray(candidates) ? candidates.length : 0,
   };
 }
@@ -107,7 +107,7 @@ export async function resolveCandidates(opts) {
       cached: false,
       attempted: 0,
       airlabsCalls: 0,
-      hexdbCalls: 0,
+      adsbdbCalls: 0,
       complete: candidates.length,
     };
     const fetchedAt = nowMs;

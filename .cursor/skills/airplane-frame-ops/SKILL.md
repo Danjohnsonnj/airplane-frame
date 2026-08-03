@@ -31,7 +31,7 @@ Do **not** duplicate long procedures here. Read and follow:
 - Never put API keys (`AIRLABS_API_KEY`, etc.) in the GitHub Pages front end.
 - Front-end Bearer token is **`APP_SHARED_SECRET` only** — not the AirLabs key (see `docs/runbooks/secrets.md`).
 - Only return / display flights that include carrier, destination, and planeType.
-- Locked data stack: airplanes.live + AirLabs (hexdb fallback).
+- Locked data stack: airplanes.live + adsbdb + AirLabs (gap-fill).
 
 ## Local stack (agent-run)
 

@@ -9,8 +9,8 @@
   - URL: **https://airplane-frame.danjohnsonnj.workers.dev**
   - Subdomain: `danjohnsonnj.workers.dev`
   - Auth: `Authorization: Bearer <APP_SHARED_SECRET>`
-  - Pipeline: airplanes.live → hexdb/`ownOp` first → AirLabs gap-fill (capped) → filter/pack → JSON
-  - Outbound fetches: `FETCH_TIMEOUT_MS` 10s (`AbortSignal.timeout`); hexdb hard failure (timeout / network / 5xx) → `{ _hexdbUnavailable }` and **request-scoped skip** of further hexdb; soft 404 keeps trying
+  - Pipeline: airplanes.live → adsbdb/`ownOp` first → AirLabs gap-fill (capped) → filter/pack → JSON
+  - Outbound fetches: `FETCH_TIMEOUT_MS` 10s (`AbortSignal.timeout`); adsbdb hard failure (timeout / network / 5xx / 429) → `{ _adsbdbUnavailable }` and **request-scoped skip** of further adsbdb; soft 400/404 keeps trying
   - Candidate cache: Workers KV `FLIGHT_CACHE` ~600s fresh for non-empty (`CACHE_TTL_SECONDS`); empty fresh window `EMPTY_CACHE_TTL_SECONDS` (60); stale fallback up to `STALE_TTL_SECONDS` (3600); prefer last-good pack when upstream returns empty; filters re-pack without re-enrich; `enrich` stats on response only (not persisted). **Pi `FileKv` ignores `expirationTtl`** — clear `/var/lib/airplane-frame/cache.json` manually when stuck on ancient stale packs
   - Pack: `PACK_SIZE` default 10; diversity-first + airport-interest tie-break (`worker/src/pack.js`)
   - Enrich caps: `MAX_ATTEMPT` (default 36; legacy `MAX_ENRICH` fallback), `MAX_AIRLABS` (default 5), `MAX_RESULTS` (default 20)
@@ -24,12 +24,10 @@
 | Role | Source | Auth | Notes |
 |------|--------|------|-------|
 | Live positions + plane type | [airplanes.live](https://airplanes.live/api-guide/) `/v2/point/{lat}/{lon}/{radius}` | None | Radius in **nautical miles** (max 250). Requires `User-Agent`. ~1 req/s. |
-| Destination + carrier (primary path) | hexdb.io `/api/v1/route/icao/{callsign}` + airplanes.live `ownOp` | None | Tried first per aircraft; airline-ish callsigns preferred. **2026-08-03:** hexdb upstream hang/502 — worker times out + skips further hexdb per request. |
-| Carrier + origin/destination (gap-fill) | [AirLabs](https://airlabs.co/docs/) `flight_icao` | `AIRLABS_API_KEY` | Only when hexdb/`ownOp` incomplete; hard cap `MAX_AIRLABS` (default 5) per fresh fetch; quota/key errors trip a per-fetch breaker. While hexdb is skipped, packs are ~≤`MAX_AIRLABS`. |
+| Destination + carrier (primary path) | [adsbdb](https://www.adsbdb.com/) `GET /v0/callsign/{callsign}` + airplanes.live `ownOp` | None | Tried first per aircraft; airline-ish callsigns preferred. Route data: David Taylor / Jim Mason via adsbdb — public GET only; do not mirror DB (docs attribution). |
+| Carrier + origin/destination (gap-fill) | [AirLabs](https://airlabs.co/docs/) `flight_icao` | `AIRLABS_API_KEY` | Only when adsbdb/`ownOp` incomplete; hard cap `MAX_AIRLABS` (default 5) per fresh fetch; quota/key errors trip a per-fetch breaker. |
 
-**Not in MVP stack:** Aviationstack, OpenSky (optional later), adsb.lol routeset.
-
-**Candidate fallback (exploration B, locked next — not shipped):** [adsbdb](https://www.adsbdb.com/) `GET https://api.adsbdb.com/v0/callsign/{CALLSIGN}` — keyless; returns origin/destination + `airline.name`. Live OK when hexdb was down (2026-08-03). Not a JSON/URL drop-in; needs adapter. Route-data attribution/restrictions in adsbdb README — use public GET only, do not mirror DB.
+**Not in MVP stack:** Aviationstack, OpenSky (optional later), adsb.lol routeset, hexdb.io (removed 2026-08-03).
 
 ## Verified findings / gaps
 
@@ -41,9 +39,8 @@
 6. Cache enriched **candidates**, then apply filters/pack per request — filter changes do not burn AirLabs within TTL.
 7. **Production blocker (2026-08-02):** airplanes.live rate-limits ~1 req/s **per IP**. Cloudflare Workers egress uses a **shared IP pool**, so production `/flights` often gets 429 / empty while local Wrangler (own IP) succeeds. KV empty-aware cache + stale serve reduce EMPTY frequency but **do not** provide dedicated egress.
 8. **Egress path live (2026-08-02):** Production API **`https://api.danjnj.com`** via Tunnel `airplane-frame-pi` → Pi Node adapter `127.0.0.1:8788`. Zone `danjnj.com` Active; Squarespace `www` DNS-only. Pi `mypi` arm64, Node 20, systemd (`airplane-frame-worker` + sync timer) + `cloudflared` enabled for boot. Pages on `main` calls the tunnel; `?worker=cloudflare` → legacy `workers.dev`. Ops: [pi-worker.md](../../runbooks/pi-worker.md). Phase 6 poster polish deferred.
-9. **hexdb outage (2026-08-03):** Without timeouts, `/flights` hung (cloudflared `context canceled`; browser CORS+502 on Tunnel errors). Shipped: 10s fetch timeout + request-scoped hexdb skip (`e744e6a`). Live UAT: packs recover via AirLabs but stay thin (~4–5) at `MAX_AIRLABS=5`. Sync timer was also broken (`runuser` not on unit PATH) — fixed `59690a5` / Pi unit PATH includes `/usr/sbin:/sbin`.
-10. **Next exploration (locked 2026-08-03): B — adsbdb first-pass.** Replace hexdb with [adsbdb](https://www.adsbdb.com/) `GET https://api.adsbdb.com/v0/callsign/{CALLSIGN}` (keyless; nested origin/destination + `airline.name`; adapter required). Keep AirLabs gap-fill, 10s fetch timeouts, and request-scoped hard-fail skip (point at adsbdb). Soft 404 = miss. Respect adsbdb route-data terms (public GET only; do not mirror DB).
-    - **Parked:** **A** — raise Pi `MAX_AIRLABS` (ops-only) if B is delayed and thin packs are unacceptable.
+9. **hexdb outage (2026-08-03):** Without timeouts, `/flights` hung. Shipped: 10s fetch timeout + request-scoped skip (`e744e6a`). Packs stayed thin (~≤`MAX_AIRLABS`) while hexdb was primary.
+10. **adsbdb first-pass (2026-08-03):** Replaced hexdb with [adsbdb](https://www.adsbdb.com/) `GET /v0/callsign/{CALLSIGN}` on branch `feature/adsbdb-first-pass`. Soft 400/404 = miss; timeout/network/5xx/429 = request-scoped skip. AirLabs gap-fill unchanged. **Next:** short-TTL callsign enrichment cache closes exploration B.
 
 ## Architecture
 
@@ -58,7 +55,7 @@
 [TARGET] https://api.danjnj.com  (Tunnel → Pi Node adapter; home egress)
          ?worker=cloudflare → legacy workers.dev rollback
    |  secrets: AIRLABS_API_KEY, APP_SHARED_SECRET (Pi env / Worker secrets)
-   |  cache: KV (Worker) or file FLIGHT_CACHE (Pi); airplanes.live → hexdb/ownOp → AirLabs (capped)
+   |  cache: KV (Worker) or file FLIGHT_CACHE (Pi); airplanes.live → adsbdb/ownOp → AirLabs (capped)
    |  stale serve on upstream failure; filter + diversity pack (≤ PACK_SIZE)
    v
 [JSON: { pin, count, candidateCount, flights[], pack, enrich, stale, ageSeconds, cachedForSeconds }]
@@ -79,7 +76,7 @@
 
 - `GET /health`, `GET /flights` (pack + optional filters — see deploy-worker runbook)
 - Shared-secret gate; KV candidate cache + stale fallback; `PACK_SIZE` default 10
-- Enrich: hexdb/`ownOp` first; AirLabs gap-fill under `MAX_AIRLABS`; response includes `enrich` stats
+- Enrich: adsbdb/`ownOp` first; AirLabs gap-fill under `MAX_AIRLABS`; response includes `enrich` stats (`adsbdbCalls`, `adsbdbSkipped`)
 
 ## Hard invariants
 
@@ -87,4 +84,4 @@
 - Never display a flight missing carrier, destination, or plane type
 - Free/trial data sources only unless user explicitly approves otherwise
 - Personal access gate on the Worker (shared secret)
-- Enrichment: hexdb/`ownOp` first; AirLabs only for incomplete rows within `MAX_AIRLABS`
+- Enrichment: adsbdb/`ownOp` first; AirLabs only for incomplete rows within `MAX_AIRLABS`

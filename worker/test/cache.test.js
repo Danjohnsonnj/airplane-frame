@@ -64,7 +64,7 @@ describe("resolveCandidates", () => {
       cached: false,
       attempted: 3,
       airlabsCalls: 1,
-      hexdbCalls: 3,
+      adsbdbCalls: 3,
       complete: 1,
     };
     let fetchCount = 0;
@@ -112,7 +112,7 @@ describe("resolveCandidates", () => {
       cached: true,
       attempted: 0,
       airlabsCalls: 0,
-      hexdbCalls: 0,
+      adsbdbCalls: 0,
       complete: 1,
     });
   });
@@ -144,7 +144,7 @@ describe("resolveCandidates", () => {
       cached: true,
       attempted: 0,
       airlabsCalls: 0,
-      hexdbCalls: 0,
+      adsbdbCalls: 0,
       complete: 0,
     });
   });
@@ -160,7 +160,7 @@ describe("resolveCandidates", () => {
       cached: false,
       attempted: 1,
       airlabsCalls: 0,
-      hexdbCalls: 1,
+      adsbdbCalls: 1,
       complete: 1,
     };
     let fetchCount = 0;
@@ -198,7 +198,7 @@ describe("resolveCandidates", () => {
           cached: false,
           attempted: 0,
           airlabsCalls: 0,
-          hexdbCalls: 0,
+          adsbdbCalls: 0,
           complete: 0,
         },
       }),
@@ -211,7 +211,7 @@ describe("resolveCandidates", () => {
       cached: true,
       attempted: 0,
       airlabsCalls: 0,
-      hexdbCalls: 0,
+      adsbdbCalls: 0,
       complete: 1,
     });
   });
@@ -223,7 +223,7 @@ describe("resolveCandidates", () => {
       cached: false,
       attempted: 2,
       airlabsCalls: 0,
-      hexdbCalls: 2,
+      adsbdbCalls: 2,
       complete: 0,
     };
     const result = await resolveCandidates({
@@ -264,7 +264,7 @@ describe("resolveCandidates", () => {
       cached: true,
       attempted: 0,
       airlabsCalls: 0,
-      hexdbCalls: 0,
+      adsbdbCalls: 0,
       complete: 1,
     });
   });

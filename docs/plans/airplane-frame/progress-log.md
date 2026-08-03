@@ -306,3 +306,17 @@
 - Verified: docs only (no code this entry).
 - Learned: n/a.
 - Overwrote: HANDOFF next action → B; tech-brief §10 locked B; A parked.
+
+## 2026-08-03 - adsbdb first-pass (replace hexdb)
+
+- Happened: On `feature/adsbdb-first-pass`, replaced hexdb with adsbdb `GET /v0/callsign/{cs}` in `worker/src/providers.js`; stats `adsbdbCalls`/`adsbdbSkipped`; removed `enrichHexdb`. Tests rewritten (66 worker tests green). Docs: HANDOFF next → callsign cache; tech-brief/phases/spike/runbook/ops/lessons updated.
+- Verified: `cd worker && npm test` PASS (66). Local live `/flights` (JC, fresh cache): `count=10`, `adsbdbCalls=20`, `airlabsCalls=1`, `adsbdbSkipped=false`, ~3.7s. Pi production UAT pending merge to `main` + sync.
+- Learned: adsbdb soft 400/404; 429 is hard skip like 5xx; prefer IATA from nested airport objects.
+- Overwrote: HANDOFF, tech-brief locked stack, phases Later, spike CREDENTIALS/README, deploy-worker, ops skill, lessons.
+
+## 2026-08-03 - adsbdb first-pass local UAT PASS
+
+- Happened: User confirmed local UAT pass via `dev-pages.sh` + `dev-worker.sh` stack (`127.0.0.1:8080` → local `:8788`).
+- Verified: UI status `· local Worker`; full pack with adsbdb enrichment (agent curl earlier: `count=10`, `adsbdbCalls=20`).
+- Learned: n/a.
+- Overwrote: HANDOFF next → merge + Pi UAT before callsign cache.

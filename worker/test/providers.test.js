@@ -2,12 +2,42 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   buildFlightRow,
+  enrichAdsbdb,
   enrichAircraftList,
   enrichAirLabs,
-  enrichHexdb,
   fetchAirplanesLive,
   fetchJson,
+  parseAdsbdbPayload,
 } from "../src/providers.js";
+
+const UAL1_ROUTE = {
+  response: {
+    flightroute: {
+      callsign: "UAL1",
+      airline: {
+        name: "United Airlines",
+        icao: "UAL",
+        iata: "UA",
+      },
+      origin: {
+        iata_code: "SFO",
+        icao_code: "KSFO",
+      },
+      destination: {
+        iata_code: "EWR",
+        icao_code: "KEWR",
+      },
+    },
+  },
+};
+
+function adsbdbOk(body = UAL1_ROUTE) {
+  return {
+    ok: true,
+    status: 200,
+    text: async () => JSON.stringify(body),
+  };
+}
 
 describe("fetchAirplanesLive", () => {
   it("retries once on 429 then succeeds", async () => {
@@ -79,14 +109,53 @@ describe("fetchJson", () => {
   });
 });
 
-describe("enrichHexdb", () => {
+describe("parseAdsbdbPayload", () => {
+  it("maps nested flightroute to origin/destination/carrier", () => {
+    assert.deepEqual(parseAdsbdbPayload(UAL1_ROUTE), {
+      origin: "SFO",
+      destination: "EWR",
+      carrier: "United Airlines",
+    });
+  });
+
+  it("returns null without destination", () => {
+    assert.equal(
+      parseAdsbdbPayload({
+        response: { flightroute: { airline: { name: "United Airlines" } } },
+      }),
+      null,
+    );
+  });
+});
+
+describe("enrichAdsbdb", () => {
+  it("returns mapped route on 200", async () => {
+    const mockFetch = async () => adsbdbOk();
+    const result = await enrichAdsbdb("UAL1", { fetch: mockFetch });
+    assert.deepEqual(result, {
+      origin: "SFO",
+      destination: "EWR",
+      carrier: "United Airlines",
+    });
+  });
+
   it("returns soft null on 404", async () => {
     const mockFetch = async () => ({
       ok: false,
       status: 404,
       text: async () => "",
     });
-    const result = await enrichHexdb("UAL1", { fetch: mockFetch });
+    const result = await enrichAdsbdb("UAL1", { fetch: mockFetch });
+    assert.equal(result, null);
+  });
+
+  it("returns soft null on 400", async () => {
+    const mockFetch = async () => ({
+      ok: false,
+      status: 400,
+      text: async () => "",
+    });
+    const result = await enrichAdsbdb("UA1", { fetch: mockFetch });
     assert.equal(result, null);
   });
 
@@ -96,8 +165,18 @@ describe("enrichHexdb", () => {
       status: 502,
       text: async () => "",
     });
-    const result = await enrichHexdb("UAL1", { fetch: mockFetch });
-    assert.deepEqual(result, { _hexdbUnavailable: true });
+    const result = await enrichAdsbdb("UAL1", { fetch: mockFetch });
+    assert.deepEqual(result, { _adsbdbUnavailable: true });
+  });
+
+  it("returns unavailable sentinel on 429", async () => {
+    const mockFetch = async () => ({
+      ok: false,
+      status: 429,
+      text: async () => "",
+    });
+    const result = await enrichAdsbdb("UAL1", { fetch: mockFetch });
+    assert.deepEqual(result, { _adsbdbUnavailable: true });
   });
 });
 
@@ -113,43 +192,53 @@ describe("buildFlightRow", () => {
     lon: -74.0,
   };
 
+  const adsbdbRow = {
+    origin: "SFO",
+    destination: "EWR",
+    carrier: "United Airlines",
+  };
+
   it("prefers AirLabs carrier and destination", () => {
     const row = buildFlightRow(
       base,
       {
         airline_name: "United Airlines",
         dep_iata: "BOS",
-        arr_iata: "EWR",
+        arr_iata: "LAX",
       },
-      null,
+      adsbdbRow,
     );
     assert.equal(row.carrier, "United Airlines");
-    assert.equal(row.destination, "EWR");
+    assert.equal(row.destination, "LAX");
     assert.equal(row.origin, "BOS");
     assert.equal(row.enrichmentSource, "airlabs");
     assert.equal(row.planeType, "BOEING 737 MAX 9");
   });
 
-  it("falls back to hexdb route", () => {
-    const row = buildFlightRow(base, null, { route: "KBOS-KEWR" });
-    assert.equal(row.destination, "KEWR");
-    assert.equal(row.origin, "KBOS");
-    assert.equal(row.enrichmentSource, "hexdb");
-    assert.equal(row.carrier, "UMB BANK NA TRUSTEE");
+  it("falls back to adsbdb route", () => {
+    const row = buildFlightRow(base, null, adsbdbRow);
+    assert.equal(row.destination, "EWR");
+    assert.equal(row.origin, "SFO");
+    assert.equal(row.enrichmentSource, "adsbdb");
+    assert.equal(row.carrier, "United Airlines");
   });
 
-  it("normalizes UNITED AIRLINES INC ownOp to brand book name on hexdb path", () => {
+  it("uses ownOp when adsbdb has route but no airline", () => {
     const trusteeBase = { ...base, ownOp: "UNITED AIRLINES INC" };
-    const row = buildFlightRow(trusteeBase, null, { route: "KBOS-KEWR" });
+    const row = buildFlightRow(
+      trusteeBase,
+      null,
+      { origin: "BOS", destination: "EWR", carrier: null },
+    );
     assert.equal(row.carrier, "United Airlines");
-    assert.equal(row.enrichmentSource, "hexdb");
+    assert.equal(row.enrichmentSource, "adsbdb");
   });
 
   it("keeps AirLabs airline_name over ownOp normalization", () => {
     const row = buildFlightRow(
       { ...base, ownOp: "UNITED AIRLINES INC" },
       { airline_name: "United Airlines", dep_iata: "BOS", arr_iata: "EWR" },
-      null,
+      adsbdbRow,
     );
     assert.equal(row.carrier, "United Airlines");
     assert.equal(row.enrichmentSource, "airlabs");
@@ -160,7 +249,14 @@ describe("buildFlightRow", () => {
   });
 
   it("skips ground aircraft", () => {
-    assert.equal(buildFlightRow({ ...base, alt_baro: "ground" }, { arr_iata: "EWR", airline_name: "United Airlines" }, null), null);
+    assert.equal(
+      buildFlightRow(
+        { ...base, alt_baro: "ground" },
+        { arr_iata: "EWR", airline_name: "United Airlines" },
+        null,
+      ),
+      null,
+    );
   });
 });
 
@@ -208,7 +304,7 @@ describe("enrichAircraftList", () => {
     const urls = [];
     const mockFetch = async (url) => {
       urls.push(String(url));
-      return jsonOk({ route: "KBOS-KEWR" });
+      return adsbdbOk();
     };
     const { candidates, stats } = await enrichAircraftList(
       [ac("UAL100", { alt_baro: 500, dst: 1 }), ac("UAL200", { alt_baro: 5000, dst: 2 })],
@@ -225,16 +321,16 @@ describe("enrichAircraftList", () => {
     assert.equal(candidates[0].flight, "UAL200");
     assert.equal(stats.attempted, 1);
     assert.ok(urls.every((u) => !u.includes("airlabs")));
-    assert.ok(urls.some((u) => u.includes("hexdb") && u.includes("UAL200")));
+    assert.ok(urls.some((u) => u.includes("adsbdb") && u.includes("UAL200")));
     assert.ok(!urls.some((u) => u.includes("UAL100")));
   });
 
   it("orders airline-ish callsigns before N-numbers", async () => {
     const attempted = [];
     const mockFetch = async (url) => {
-      const m = String(url).match(/icao\/([^/?]+)/i);
+      const m = String(url).match(/callsign\/([^/?]+)/i);
       if (m) attempted.push(m[1]);
-      return jsonOk({ route: "KBOS-KEWR" });
+      return adsbdbOk();
     };
     await enrichAircraftList(
       [
@@ -253,7 +349,7 @@ describe("enrichAircraftList", () => {
     assert.deepEqual(attempted, ["UAL300", "N123AB"]);
   });
 
-  it("skips AirLabs when hexdb completes the row", async () => {
+  it("skips AirLabs when adsbdb completes the row", async () => {
     let airlabsCalls = 0;
     const mockFetch = async (url) => {
       if (String(url).includes("airlabs")) {
@@ -266,7 +362,7 @@ describe("enrichAircraftList", () => {
           },
         });
       }
-      return jsonOk({ route: "KBOS-KEWR" });
+      return adsbdbOk();
     };
     const { candidates, stats } = await enrichAircraftList([ac("UAL400")], {
       airlabsKey: "key",
@@ -277,10 +373,10 @@ describe("enrichAircraftList", () => {
       fetch: mockFetch,
     });
     assert.equal(candidates.length, 1);
-    assert.equal(candidates[0].enrichmentSource, "hexdb");
+    assert.equal(candidates[0].enrichmentSource, "adsbdb");
     assert.equal(airlabsCalls, 0);
     assert.equal(stats.airlabsCalls, 0);
-    assert.equal(stats.hexdbCalls, 1);
+    assert.equal(stats.adsbdbCalls, 1);
     assert.equal(stats.complete, 1);
     assert.equal(stats.cached, false);
   });
@@ -292,7 +388,6 @@ describe("enrichAircraftList", () => {
         airlabsCalls += 1;
         return jsonOk({ response: null });
       }
-      // hexdb miss so AirLabs is needed
       return { ok: false, status: 404, text: async () => "" };
     };
     const list = [
@@ -339,11 +434,11 @@ describe("enrichAircraftList", () => {
     assert.equal(stats.airlabsCalls, 1);
   });
 
-  it("keeps calling hexdb after soft 404 misses", async () => {
-    let hexdbCalls = 0;
+  it("keeps calling adsbdb after soft 404 misses", async () => {
+    let adsbdbCalls = 0;
     const mockFetch = async (url) => {
-      if (String(url).includes("hexdb")) {
-        hexdbCalls += 1;
+      if (String(url).includes("adsbdb")) {
+        adsbdbCalls += 1;
         return { ok: false, status: 404, text: async () => "" };
       }
       return jsonOk({
@@ -367,18 +462,18 @@ describe("enrichAircraftList", () => {
       minAltitudeFt: 0,
       fetch: mockFetch,
     });
-    assert.equal(hexdbCalls, 3);
-    assert.equal(stats.hexdbCalls, 3);
-    assert.equal(stats.hexdbSkipped, false);
+    assert.equal(adsbdbCalls, 3);
+    assert.equal(stats.adsbdbCalls, 3);
+    assert.equal(stats.adsbdbSkipped, false);
     assert.equal(stats.airlabsCalls, 3);
   });
 
-  it("skips further hexdb after hard 502 and still gap-fills AirLabs", async () => {
-    let hexdbCalls = 0;
+  it("skips further adsbdb after hard 502 and still gap-fills AirLabs", async () => {
+    let adsbdbCalls = 0;
     let airlabsCalls = 0;
     const mockFetch = async (url) => {
-      if (String(url).includes("hexdb")) {
-        hexdbCalls += 1;
+      if (String(url).includes("adsbdb")) {
+        adsbdbCalls += 1;
         return { ok: false, status: 502, text: async () => "" };
       }
       if (String(url).includes("airlabs")) {
@@ -406,19 +501,19 @@ describe("enrichAircraftList", () => {
       minAltitudeFt: 0,
       fetch: mockFetch,
     });
-    assert.equal(hexdbCalls, 1);
-    assert.equal(stats.hexdbCalls, 1);
-    assert.equal(stats.hexdbSkipped, true);
+    assert.equal(adsbdbCalls, 1);
+    assert.equal(stats.adsbdbCalls, 1);
+    assert.equal(stats.adsbdbSkipped, true);
     assert.equal(airlabsCalls, 3);
     assert.equal(candidates.length, 3);
   });
 
   it("early-stops when pool reaches maxResults", async () => {
-    let hexdbCalls = 0;
+    let adsbdbCalls = 0;
     const mockFetch = async (url) => {
-      if (String(url).includes("hexdb")) {
-        hexdbCalls += 1;
-        return jsonOk({ route: "KBOS-KEWR" });
+      if (String(url).includes("adsbdb")) {
+        adsbdbCalls += 1;
+        return adsbdbOk();
       }
       return jsonOk({ response: null });
     };
@@ -435,7 +530,7 @@ describe("enrichAircraftList", () => {
     });
     assert.equal(candidates.length, 3);
     assert.equal(stats.complete, 3);
-    assert.equal(hexdbCalls, 3);
+    assert.equal(adsbdbCalls, 3);
     assert.equal(stats.attempted, 3);
   });
 });

@@ -161,7 +161,14 @@
 - Evidence: 2026-08-02 normalize of 43 NEC SVGs matched mock A320/B738 selection.
 - Crystallize?: no
 
-## Outbound fetch must timeout; hexdb hard-fail skips rest of request
+## adsbdb first-pass: soft 400/404, hard skip on 429/5xx/timeout
+
+- Context: Replaced hexdb with adsbdb `GET /v0/callsign/{cs}` (2026-08-03).
+- Lesson: `enrichAdsbdb` maps nested `response.flightroute` (prefer IATA). Soft miss: HTTP 400 (invalid callsign) or 404 (unknown) → keep trying. Hard fail: timeout, network, 5xx, **429** → `_adsbdbUnavailable` and skip further adsbdb for that request. AirLabs gap-fill unchanged. Stats: `adsbdbCalls` / `adsbdbSkipped`. Route data: Taylor/Mason — public GET only; no DB mirror.
+- Evidence: `feature/adsbdb-first-pass` + worker tests.
+- Crystallize?: Yes — tech-brief / HANDOFF.
+
+## Outbound fetch must timeout; hard-fail skips rest of request (historical: hexdb)
 
 - Context: 2026-08-03 hexdb.io hang/502; `/health` OK but `/flights` hung; Tunnel `context canceled` / browser CORS+502.
 - Lesson: `fetchJson` uses `AbortSignal.timeout` (10s). Hexdb timeout/network/5xx → `_hexdbUnavailable` and skip further hexdb for that request; 404 stays soft. While hexdb is skipped, pack size ≈ AirLabs successes ≤ `MAX_AIRLABS`. Pi file cache ignores expiration — clear `cache.json` when stale age is absurd.

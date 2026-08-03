@@ -2,7 +2,7 @@ import { normalizeCarrierName } from "./carrier-aliases.js";
 
 const USER_AGENT = "airplane-frame-worker/0.1 (personal)";
 const RETRY_DELAY_MS = 1200;
-/** Default outbound fetch budget (airplanes.live, hexdb, AirLabs). */
+/** Default outbound fetch budget (airplanes.live, adsbdb, AirLabs). */
 export const FETCH_TIMEOUT_MS = 10_000;
 
 const AIRLABS_BREAKER_CODES = new Set([
@@ -24,14 +24,39 @@ function isAirlineIsh(callsign) {
   return AIRLINE_ISH_RE.test((callsign || "").trim());
 }
 
-function isHexdbHardFailure(err) {
+function isAdsbdbHardFailure(err) {
   if (!err) return false;
   if (err.name === "AbortError" || err.code === "TIMEOUT") return true;
   const status = err.status;
+  if (status === 429) return true;
   if (status >= 500 && status < 600) return true;
   // Network / DNS failures typically have no HTTP status.
   if (status == null) return true;
   return false;
+}
+
+function airportCode(airport) {
+  if (!airport || typeof airport !== "object") return null;
+  const iata = String(airport.iata_code || "").trim();
+  const icao = String(airport.icao_code || "").trim();
+  return iata || icao || null;
+}
+
+/** Normalize adsbdb callsign JSON into origin/destination/carrier or null (soft miss). */
+export function parseAdsbdbPayload(payload) {
+  const fr = payload?.response?.flightroute;
+  if (!fr || typeof fr !== "object") return null;
+
+  const origin = airportCode(fr.origin);
+  const destination = airportCode(fr.destination);
+  const airline = fr.airline;
+  const carrier =
+    (airline?.name && String(airline.name).trim()) ||
+    (airline?.icao && String(airline.icao).trim()) ||
+    null;
+
+  if (!destination) return null;
+  return { origin, destination, carrier };
 }
 
 export async function fetchJson(url, init = {}) {
@@ -120,32 +145,35 @@ export async function enrichAirLabs(callsign, apiKey, deps = {}) {
   }
 }
 
-export async function enrichHexdb(callsign, deps = {}) {
+export async function enrichAdsbdb(callsign, deps = {}) {
   const fetchImpl = deps.fetch || fetch;
   const init = { fetch: fetchImpl };
   if (deps.timeoutMs != null) init.timeoutMs = deps.timeoutMs;
+  const cs = callsign.trim().toUpperCase();
   try {
-    return await fetchJson(
-      `https://hexdb.io/api/v1/route/icao/${encodeURIComponent(callsign.trim().toUpperCase())}`,
+    const data = await fetchJson(
+      `https://api.adsbdb.com/v0/callsign/${encodeURIComponent(cs)}`,
       init,
     );
+    if (!data) return null;
+    return parseAdsbdbPayload(data);
   } catch (err) {
-    if (isHexdbHardFailure(err)) {
-      return { _hexdbUnavailable: true };
+    if (isAdsbdbHardFailure(err)) {
+      return { _adsbdbUnavailable: true };
     }
-    // Soft miss (404 / other 4xx): keep trying hexdb for later callsigns.
+    // Soft miss (400 invalid / 404 unknown / other 4xx): keep trying adsbdb.
     return null;
   }
 }
 
 /** Build a display row or null if required fields missing. */
-export function buildFlightRow(aircraft, airlabs, hexdb) {
+export function buildFlightRow(aircraft, airlabs, adsbdb) {
   const flight = (aircraft.flight || "").trim();
   const planeType = (aircraft.desc || "").trim() || (aircraft.t || "").trim();
   if (!flight || !planeType) return null;
   if (aircraft.alt_baro == null || aircraft.alt_baro === "ground") return null;
 
-  const hexdbData = hexdb && !hexdb._hexdbUnavailable ? hexdb : null;
+  const adsbdbData = adsbdb && !adsbdb._adsbdbUnavailable ? adsbdb : null;
 
   let origin = null;
   let destination = null;
@@ -159,16 +187,11 @@ export function buildFlightRow(aircraft, airlabs, hexdb) {
     enrichmentSource = "airlabs";
   }
 
-  if (
-    !destination &&
-    hexdbData?.route &&
-    typeof hexdbData.route === "string" &&
-    hexdbData.route.includes("-")
-  ) {
-    const parts = hexdbData.route.split("-");
-    origin = origin || parts[0];
-    destination = parts[parts.length - 1];
-    enrichmentSource = enrichmentSource === "airlabs" ? "airlabs+hexdb" : "hexdb";
+  if (!destination && adsbdbData?.destination) {
+    origin = origin || adsbdbData.origin || null;
+    destination = adsbdbData.destination;
+    if (adsbdbData.carrier) carrier = adsbdbData.carrier;
+    enrichmentSource = enrichmentSource === "airlabs" ? "airlabs+adsbdb" : "adsbdb";
   }
 
   if (!destination || !carrier || !planeType) return null;
@@ -191,7 +214,7 @@ export function buildFlightRow(aircraft, airlabs, hexdb) {
 }
 
 /**
- * Hexdb-first enrichment with AirLabs gap-fill under a hard per-fetch cap.
+ * adsbdb-first enrichment with AirLabs gap-fill under a hard per-fetch cap.
  * @returns {Promise<{ candidates: object[], stats: object }>}
  */
 export async function enrichAircraftList(aircraftList, opts = {}) {
@@ -224,10 +247,10 @@ export async function enrichAircraftList(aircraftList, opts = {}) {
   const slice = trimmed.slice(0, maxAttempt);
   const candidates = [];
   let airlabsCalls = 0;
-  let hexdbCalls = 0;
+  let adsbdbCalls = 0;
   let attempted = 0;
   let breakerTripped = false;
-  let hexdbUnavailable = false;
+  let adsbdbUnavailable = false;
 
   for (const ac of slice) {
     if (candidates.length >= maxResults) break;
@@ -236,17 +259,17 @@ export async function enrichAircraftList(aircraftList, opts = {}) {
     const callsign = ac.flight.trim();
     const deps = { fetch: fetchImpl };
 
-    let hexdb = null;
-    if (!hexdbUnavailable) {
-      hexdbCalls += 1;
-      hexdb = await enrichHexdb(callsign, deps);
-      if (hexdb?._hexdbUnavailable) {
-        hexdbUnavailable = true;
-        hexdb = null;
+    let adsbdb = null;
+    if (!adsbdbUnavailable) {
+      adsbdbCalls += 1;
+      adsbdb = await enrichAdsbdb(callsign, deps);
+      if (adsbdb?._adsbdbUnavailable) {
+        adsbdbUnavailable = true;
+        adsbdb = null;
       }
     }
 
-    let row = buildFlightRow(ac, null, hexdb);
+    let row = buildFlightRow(ac, null, adsbdb);
 
     if (!row && airlabsKey && !breakerTripped && airlabsCalls < maxAirlabs) {
       airlabsCalls += 1;
@@ -254,7 +277,7 @@ export async function enrichAircraftList(aircraftList, opts = {}) {
       if (airlabs?._airlabsLimit) {
         breakerTripped = true;
       } else {
-        row = buildFlightRow(ac, airlabs, hexdb);
+        row = buildFlightRow(ac, airlabs, adsbdb);
       }
     }
 
@@ -266,8 +289,8 @@ export async function enrichAircraftList(aircraftList, opts = {}) {
     stats: {
       attempted,
       airlabsCalls,
-      hexdbCalls,
-      hexdbSkipped: hexdbUnavailable,
+      adsbdbCalls,
+      adsbdbSkipped: adsbdbUnavailable,
       complete: candidates.length,
       cached: false,
     },
