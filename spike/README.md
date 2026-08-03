@@ -8,7 +8,8 @@ Local scripts to prove free/trial flight data for a Jersey City pin. **Stack is 
 |------|--------|
 | Positions + plane type | airplanes.live (no key) |
 | Carrier + origin/destination | AirLabs (`AIRLABS_API_KEY`) |
-| Destination fallback | hexdb.io (no key) |
+| Destination fallback | hexdb.io (no key; **outage 2026-08-03** — see HANDOFF A/B) |
+| Candidate fallback (exploration B) | adsbdb.com callsign API (keyless; not shipped yet) |
 
 OpenSky / Aviationstack are optional and **not** required for MVP. Details: [CREDENTIALS.md](./CREDENTIALS.md).
 

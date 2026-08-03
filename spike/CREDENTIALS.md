@@ -42,7 +42,9 @@ Guide: https://airplanes.live/api-guide/
 
 ## Fallback (no key): hexdb.io
 
-Used only when AirLabs does not return a destination. Routes can be stale — not the primary production path.
+Historically destination fallback via `/api/v1/route/icao/{callsign}`. **2026-08-03:** hexdb often hangs/502; Worker times out (10s) and skips further hexdb per request, then AirLabs gap-fill only.
+
+**Candidate replacement (exploration B, locked next — not implemented yet):** [adsbdb](https://www.adsbdb.com/) `GET https://api.adsbdb.com/v0/callsign/{CALLSIGN}` — keyless origin/destination + airline name. See tech-brief §10 / HANDOFF.
 
 ---
 

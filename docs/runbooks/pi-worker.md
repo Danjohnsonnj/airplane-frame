@@ -81,6 +81,8 @@ See `deploy/systemd/airplane-frame-worker.service`.
 
 See `deploy/systemd/airplane-frame-sync.service`. Sync script runs git/`npm ci` as `airplane-frame` via `runuser`, and restarts the worker only when `worker/` paths changed.
 
+**PATH:** the unit must set `Environment=PATH=…` including **`/usr/sbin:/sbin`**. A PATH of only `/usr/local/bin:/usr/bin` makes `runuser` fail with exit **127** and the timer never advances `/opt/airplane-frame` (seen 2026-08-03). After editing the unit: `daemon-reload` then `systemctl start airplane-frame-sync.service`.
+
 ### `airplane-frame-sync.timer`
 
 See `deploy/systemd/airplane-frame-sync.timer` (every five minutes, `Persistent=true`).

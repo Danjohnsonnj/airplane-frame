@@ -292,3 +292,17 @@
 - Verified: prod `_family` 404 vs `B738` 200 (pre-fix); `node --test` 47 pass; local `family/regional-jet.svg` 200.
 - Learned: never ship Pages-static assets under `_`-prefixed directories without `.nojekyll`.
 - Overwrote: lessons silhouette SoT; ATTRIBUTION family path note.
+
+## 2026-08-03 - hexdb outage: timeouts + skip; sync PATH; next exploration A/B
+
+- Happened: Live `/flights` hung (hexdb.io timeout/502; no fetch abort). Shipped `FETCH_TIMEOUT_MS=10s` + request-scoped hexdb hard-fail skip (`e744e6a`). Pi sync timer was exit 127 (`runuser` missing from unit PATH) — fixed PATH `/usr/sbin:/sbin` on Pi + `59690a5`. Cache clear restored AirLabs-only packs; thin pack (~4–5) expected at `MAX_AIRLABS=5`. Documented next exploration: **A** raise Pi `MAX_AIRLABS` (ops) vs **B** adsbdb first-pass (durable).
+- Verified: `cd worker && npm test` 61 pass; Pi `/flights` 200 with `enrichmentSource: airlabs`; public Pages OK after cache clear; sync `already-current` / SUCCESS after PATH fix.
+- Learned: Browser CORS+502 on Tunnel often means origin timeout, not CORS misconfig. FileKv ignores `expirationTtl`. adsbdb live OK as hexdb role candidate (not JSON drop-in).
+- Overwrote: HANDOFF next → A vs B; tech-brief findings 9–10; phases Later; lessons; pi-worker sync PATH; spike/CREDENTIALS hexdb/adsbdb note.
+
+## 2026-08-03 - Lock next exploration to adsbdb (B)
+
+- Happened: User chose exploration **B** (adsbdb first-pass) over temporary **A** (`MAX_AIRLABS` bump). Updated HANDOFF/tech-brief/phases/CREDENTIALS/README; A parked.
+- Verified: docs only (no code this entry).
+- Learned: n/a.
+- Overwrote: HANDOFF next action → B; tech-brief §10 locked B; A parked.

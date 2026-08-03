@@ -160,3 +160,17 @@
 - Lesson: Keep the first `d` as the filled silhouette; drop later detail strokes; strip Inkscape metadata; set `fill="currentColor"` `stroke="none"`.
 - Evidence: 2026-08-02 normalize of 43 NEC SVGs matched mock A320/B738 selection.
 - Crystallize?: no
+
+## Outbound fetch must timeout; hexdb hard-fail skips rest of request
+
+- Context: 2026-08-03 hexdb.io hang/502; `/health` OK but `/flights` hung; Tunnel `context canceled` / browser CORS+502.
+- Lesson: `fetchJson` uses `AbortSignal.timeout` (10s). Hexdb timeout/network/5xx → `_hexdbUnavailable` and skip further hexdb for that request; 404 stays soft. While hexdb is skipped, pack size ≈ AirLabs successes ≤ `MAX_AIRLABS`. Pi file cache ignores expiration — clear `cache.json` when stale age is absurd.
+- Evidence: `e744e6a` + Pi UAT (AirLabs-only packs ~4–5).
+- Crystallize?: Yes — tech-brief / HANDOFF options A–B.
+
+## Pi sync unit PATH must include sbin for runuser
+
+- Context: Sync timer exit 127; checkout stuck behind `origin/main`.
+- Lesson: `airplane-frame-sync.service` `Environment=PATH` must include `/usr/sbin:/sbin`. Without it, `runuser` is “command not found”.
+- Evidence: 2026-08-03 journal; fix `59690a5` + Pi unit.
+- Crystallize?: Yes — `docs/runbooks/pi-worker.md`.

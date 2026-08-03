@@ -61,6 +61,7 @@
 
 ## Later (out of current phase plan)
 
+- **Next exploration (HANDOFF, locked):** **B** — adsbdb first-pass replacement for hexdb. **Parked:** **A** raise Pi `MAX_AIRLABS`. See tech-brief §10.
 - **Deferred:** Phase 6 poster UAT / polish (egress no longer blocks; polish parked)
 - Plane/livery illustration source decision
 - Live browser geolocation
