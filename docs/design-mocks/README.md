@@ -10,4 +10,7 @@ See [design-mock-probe-pointer.md](../agents/design-mock-probe-pointer.md) and [
 
 | File | Surface | Status |
 |------|---------|--------|
-| `poster-ad-wall.html` | Poster wall | **LOCKED** — carrier/swatch grounds, complementary hero+tag ink, unique swatch per unknown; ship reference |
+| `poster-ad-wall.html` | Poster wall | **LOCKED** — grounds/ink (2026-08-01); filled ICAO silhouettes (2026-08-02); ship reference |
+| `planes/` | ICAO silhouette assets (mock probe) | **LOCKED** design — RexKramer GPL-3.0 + `resolve.mjs`; ship corpus expands under `assets/planes/` per silhouette ship plan |
+
+Open `poster-ad-wall.html` over local HTTP (module + fetch), e.g. `python3 -m http.server 8765 --directory docs/design-mocks`. Verify resolve: `node --test docs/design-mocks/planes/resolve.test.mjs`.

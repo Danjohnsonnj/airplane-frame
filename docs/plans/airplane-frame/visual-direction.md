@@ -29,7 +29,8 @@ Compass for later poster UI work and for `design-mock-probe`. Not an implementat
 | Typography (mock-provisional) | Condensed **display** for hero (airline + quieter flight#); **heavy grotesque** for tag (ultra-bold dest code + small labels/values). Web fonts OK in mocks; app equivalent TBD. Refine after review |
 | Panel split (mock-provisional) | Hero-led **~60/40** (hero above / tag below) on mobile/row base |
 | Motion | Quiet state updates (fade/crossfade; status fields without bounce) **plus** short staged panel settle on load/refresh. No continuous ambient. Honor `prefers-reduced-motion` |
-| Staged fidelity | Type/ephemera panels first; plane+livery illustrations later as assets exist |
+| Staged fidelity | Type/ephemera panels **plus filled ICAO silhouettes** in hero (see Hero aircraft silhouette). Livery / multi-color art still deferred |
+| Hero aircraft silhouette | Decorative watermark only (`aria-hidden`); **filled** single-path SVG (`fill: currentColor`, `stroke: none`); inherits panel ink via **inline SVG** (not `<img>`); opacity **0.18**; `.hero { overflow: hidden }` clips scaled art. **Rows:** edge-anchored, `rotateZ(90deg)`, `scale(2)`. **Columns:** centered, `scale(3)`, no rotate. **Status panels:** no silhouette. Assets: RexKramer top-down shapes (GPL-3.0) — attribution required. Resolve key: Worker `icaoType` → exact file → family → generic. Visual reference: [`poster-ad-wall.html`](../../design-mocks/poster-ad-wall.html) + [`planes/`](../../design-mocks/planes/); ship SoT path per silhouette ship plan (`assets/planes/`) |
 | Poster chrome (mock-provisional) | Minimal **corner glyph** (gear/sliders), top-trailing, quiet. Follow-up explore later: luggage-tag chip (`SET`/`CFG`) — not this canonical mock |
 | Status surface | **One luggage tag** (same visual language as flight tags); its fields carry stale / error / updating / empty copy — not a separate chrome chip |
 | Status tag fields (mock-provisional) | Dominant state word (`EMPTY` / `STALE` / `WAIT` / `ERR`); labeled rows: **status**, **detail**, **action**, **updated**. Exact sentences refined in mock |
@@ -55,7 +56,7 @@ Confirmed 2026-08-01 from `docs/design-reference/`. Takeaways remain compass for
 
 - **Hero fields:** Airline reads as poster headline; flight# as quieter sub-hed — not destination-as-poster-title (supersedes earlier destination-led panel hierarchy).
 - **Tag fields:** Dest code dominates; route / aircraft / altitude / distance as labeled utilitarian rows (or columns in vertical tag mode).
-- **Illustration stage 1:** Type + ephemera only; later art stays sparse flat shapes — no people/figures, no busy street scenes.
+- **Illustration:** Type + ephemera + filled ICAO silhouettes (locked); later livery stays sparse — no people/figures, no busy street scenes.
 - **Palette feel:** Saturated solid grounds from a closed swatch book; high contrast type; optional one punch accent.
 - **Reject cluster:** People, figures, dense multi-object illustration, checklist/form clutter on the poster wall; CSS-rotated tags; continuous ambient motion.
 
@@ -65,7 +66,7 @@ Confirmed 2026-08-01 from `docs/design-reference/`. Takeaways remain compass for
 - Build-time CSS generation for ship (mock uses `gen-carrier-css.mjs` for drift control; port pattern to app build when needed)
 - Settings chrome fork: luggage-tag chip (explore after corner-glyph mock)
 - Settings period polish (framing accents)
-- Illustration / livery asset source
+- Livery / multi-color aircraft art (filled ICAO silhouettes are locked; see Hero aircraft silhouette)
 - Geocoder UX polish
 - City-name enrichment under dest code (no API field today)
 
@@ -73,7 +74,7 @@ Confirmed 2026-08-01 from `docs/design-reference/`. Takeaways remain compass for
 
 | Surface | Canonical mock | Frames | Status |
 |---------|----------------|--------|--------|
-| Poster wall | `docs/design-mocks/poster-ad-wall.html` | Mobile row + wide column; populated + empty/error status; carrier/swatch grounds + complementary hero/tag ink | **LOCKED** 2026-08-01 — ship reference |
+| Poster wall | `docs/design-mocks/poster-ad-wall.html` | Mobile row + wide column; populated + empty/error status; carrier/swatch grounds + complementary hero/tag ink; filled ICAO silhouettes | **LOCKED** 2026-08-01 (grounds/ink); silhouette **LOCKED** 2026-08-02 — ship reference |
 
 Pointer: [docs/agents/design-mock-probe-pointer.md](../../agents/design-mock-probe-pointer.md)
 
@@ -82,4 +83,5 @@ Pointer: [docs/agents/design-mock-probe-pointer.md](../../agents/design-mock-pro
 1. ~~Gather design inspiration / fill Reference intake~~ (DONE 2026-08-01).
 2. ~~Deeper design interview~~ (DONE 2026-08-01 — locks above).
 3. ~~**design-mock-probe** — poster wall~~ (DONE 2026-08-01 — carrier ground, complementary ink, unique swatch per pack).
-4. **Implement poster SPA** in `index.html` / `css/` / `js/` per locks above; mocks as visual reference only (do not port literal DOM).
+4. ~~Silhouette explore + design lock~~ (DONE 2026-08-02 — filled ICAO silhouettes locked).
+5. **Ship silhouettes** per `~/.cursor/plans/plane_silhouette_ship_81841268.plan.md` (NEC corpus → `assets/planes/` → `js/plane-asset.js` → poster SPA).

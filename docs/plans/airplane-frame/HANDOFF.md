@@ -7,9 +7,10 @@
 **Next action (cold-start executable):**
 
 1. Read process.md (before any commit).
-2. **Deferred (do not start unless asked):** Phase 6 poster UAT/polish (visual-direction.md, carrier-brand-alias). Optional follow-ups: callsign enrichment cache; tune min-altitude default.
-3. Production site: https://danjohnsonnj.github.io/airplane-frame/ → API `https://api.danjnj.com`.
-4. Pi reboot/move checklist: [pi-worker.md](../../runbooks/pi-worker.md).
+2. **SHIP:** Plane silhouettes — execute `~/.cursor/plans/plane_silhouette_ship_81841268.plan.md` (NEC RexKramer corpus → `assets/planes/` → `js/plane-asset.js` → wire `createFlightPanel` + `css/poster.css`). Design locked in visual-direction.md (2026-08-02).
+3. **Deferred (do not start unless asked):** Phase 6 poster UAT/polish (carrier-brand-alias extras). Optional follow-ups: callsign enrichment cache; tune min-altitude default.
+4. Production site: https://danjohnsonnj.github.io/airplane-frame/ → API `https://api.danjnj.com`.
+5. Pi reboot/move checklist: [pi-worker.md](../../runbooks/pi-worker.md).
 
 **Hard invariants:** Free/trial data sources only; destination + carrier + plane type are non-negotiable on every displayed flight; no API secrets in the GitHub Pages front end; personal shared-secret gate on the Worker (or Pi API).
 
@@ -26,10 +27,11 @@
 - phases.md — phase status (6.5 DONE; Phase 6 polish deferred)
 - progress-log.md — dated history
 - docs/runbooks/local-dev.md / pages.md / deploy-worker.md / secrets.md
-- phase-6.plan.md / carrier-brand-alias.plan.md / visual-direction.md — deferred poster polish
+- phase-6.plan.md / carrier-brand-alias.plan.md / visual-direction.md — poster locks + deferred polish
 - spike/README.md — Phase 1 spike
 - .cursor/skills/airplane-frame-ops/SKILL.md — agent entry to runbooks
 - `~/.cursor/plans/enrich_efficiency_pool_355002fc.plan.md` — shipped plan (reference)
+- `~/.cursor/plans/plane_silhouette_ship_81841268.plan.md` — silhouette ship (NEC corpus)
 
 **Key facts (resume without re-discovery):**
 
@@ -58,6 +60,6 @@ cd worker && npm test
 
 **Open decisions:** Optional user-selectable N deferred; tune min-altitude default after more real traffic; settings tag-chip chrome explore later; callsign enrichment cache follow-up.
 
-**Open items:** **Deferred:** Phase 6 poster polish/UAT. Rotate secrets exposed in chat when convenient. Settings/geocoder/livery deferred. Carrier inventory: [airlines-seen-2026-08-01.md](../../design-reference/airlines-seen-2026-08-01.md).
+**Open items:** **Next:** silhouette ship plan. **Deferred:** Phase 6 poster polish/UAT. Rotate secrets exposed in chat when convenient. Settings/geocoder/livery deferred. Carrier inventory: [airlines-seen-2026-08-01.md](../../design-reference/airlines-seen-2026-08-01.md).
 
-**Last updated:** 2026-08-02 — enrich efficiency DONE (Pi smoke: pack 10 / candidates 19 / airlabsCalls 5)
+**Last updated:** 2026-08-02 — silhouette design LOCKED; next = plane_silhouette_ship plan

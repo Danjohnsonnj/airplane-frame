@@ -1,0 +1,5 @@
+{
+  "icao": ["A20N", "A320", "B738", "DH8D", "E170"],
+  "source": "https://github.com/RexKramer1/AircraftShapesSVG",
+  "note": "Exact ICAO filenames present in this folder (normalized). E75L/E175 absent — use family regional-jet."
+}

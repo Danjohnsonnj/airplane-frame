@@ -264,3 +264,10 @@
 - Verified: loopback `/health` ok; public `api.danjnj.com` fresh — count 10, candidates 19, pack.size 10, airlabsCalls 5; UI shows 10 flights.
 - Learned: env edit + cache clear required after sync or pack.size can stay on old PACK_SIZE until restart/cache miss.
 - Overwrote: HANDOFF — enrich efficiency DONE; next → deferred Phase 6 polish / optional callsign cache.
+
+## 2026-08-02 - Plane silhouette design locked; ship plan ready
+
+- Happened: Explored filled ICAO silhouettes in `docs/design-mocks/planes/` + `poster-ad-wall.html` (RexKramer GPL-3.0, resolve icao→family→generic). Locked Hero aircraft silhouette in visual-direction; mock header/README marked LOCKED. Authored ship plan `~/.cursor/plans/plane_silhouette_ship_81841268.plan.md` (NEC ~43 exact + family aliases; widebody from A333).
+- Verified: `node --test docs/design-mocks/planes/resolve.test.mjs` pass; browser mock shows filled silhouettes at opacity 0.18.
+- Learned: Inline SVG required for `currentColor`; outline→filled = keep main body path only; CSS stroke-width in px crushes viewBox units.
+- Overwrote: visual-direction staged fidelity + silhouette lock; HANDOFF next-action → silhouette SHIP plan; mock inventory.
