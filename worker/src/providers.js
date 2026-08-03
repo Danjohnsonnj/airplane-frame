@@ -2,6 +2,8 @@ import { normalizeCarrierName } from "./carrier-aliases.js";
 
 const USER_AGENT = "airplane-frame-worker/0.1 (personal)";
 const RETRY_DELAY_MS = 1200;
+/** Default outbound fetch budget (airplanes.live, hexdb, AirLabs). */
+export const FETCH_TIMEOUT_MS = 10_000;
 
 const AIRLABS_BREAKER_CODES = new Set([
   "month_limit_exceeded",
@@ -22,14 +24,46 @@ function isAirlineIsh(callsign) {
   return AIRLINE_ISH_RE.test((callsign || "").trim());
 }
 
+function isHexdbHardFailure(err) {
+  if (!err) return false;
+  if (err.name === "AbortError" || err.code === "TIMEOUT") return true;
+  const status = err.status;
+  if (status >= 500 && status < 600) return true;
+  // Network / DNS failures typically have no HTTP status.
+  if (status == null) return true;
+  return false;
+}
+
 export async function fetchJson(url, init = {}) {
+  const fetchImpl = init.fetch || fetch;
+  const timeoutMs = init.timeoutMs ?? FETCH_TIMEOUT_MS;
   const headers = {
     "User-Agent": USER_AGENT,
     Accept: "application/json",
     ...(init.headers || {}),
   };
-  const fetchImpl = init.fetch || fetch;
-  const res = await fetchImpl(url, { ...init, headers });
+  const timeoutSignal = AbortSignal.timeout(timeoutMs);
+  const callerSignal = init.signal;
+  const signal =
+    callerSignal && typeof AbortSignal.any === "function"
+      ? AbortSignal.any([callerSignal, timeoutSignal])
+      : timeoutSignal;
+
+  /** Omit fetch/timeoutMs/signal so they are not forwarded as RequestInit unknowns. */
+  const { fetch: _f, timeoutMs: _t, signal: _s, headers: _h, ...rest } = init;
+
+  let res;
+  try {
+    res = await fetchImpl(url, { ...rest, headers, signal });
+  } catch (err) {
+    if (err?.name === "AbortError" || signal.aborted) {
+      const timeoutErr = new Error(`timeout after ${timeoutMs}ms for ${url}`);
+      timeoutErr.name = "AbortError";
+      timeoutErr.code = "TIMEOUT";
+      throw timeoutErr;
+    }
+    throw err;
+  }
   if (!res.ok) {
     const err = new Error(`HTTP ${res.status} for ${url}`);
     err.status = res.status;
@@ -88,12 +122,18 @@ export async function enrichAirLabs(callsign, apiKey, deps = {}) {
 
 export async function enrichHexdb(callsign, deps = {}) {
   const fetchImpl = deps.fetch || fetch;
+  const init = { fetch: fetchImpl };
+  if (deps.timeoutMs != null) init.timeoutMs = deps.timeoutMs;
   try {
     return await fetchJson(
       `https://hexdb.io/api/v1/route/icao/${encodeURIComponent(callsign.trim().toUpperCase())}`,
-      { fetch: fetchImpl },
+      init,
     );
-  } catch {
+  } catch (err) {
+    if (isHexdbHardFailure(err)) {
+      return { _hexdbUnavailable: true };
+    }
+    // Soft miss (404 / other 4xx): keep trying hexdb for later callsigns.
     return null;
   }
 }
@@ -104,6 +144,8 @@ export function buildFlightRow(aircraft, airlabs, hexdb) {
   const planeType = (aircraft.desc || "").trim() || (aircraft.t || "").trim();
   if (!flight || !planeType) return null;
   if (aircraft.alt_baro == null || aircraft.alt_baro === "ground") return null;
+
+  const hexdbData = hexdb && !hexdb._hexdbUnavailable ? hexdb : null;
 
   let origin = null;
   let destination = null;
@@ -117,8 +159,13 @@ export function buildFlightRow(aircraft, airlabs, hexdb) {
     enrichmentSource = "airlabs";
   }
 
-  if (!destination && hexdb?.route && typeof hexdb.route === "string" && hexdb.route.includes("-")) {
-    const parts = hexdb.route.split("-");
+  if (
+    !destination &&
+    hexdbData?.route &&
+    typeof hexdbData.route === "string" &&
+    hexdbData.route.includes("-")
+  ) {
+    const parts = hexdbData.route.split("-");
     origin = origin || parts[0];
     destination = parts[parts.length - 1];
     enrichmentSource = enrichmentSource === "airlabs" ? "airlabs+hexdb" : "hexdb";
@@ -180,6 +227,7 @@ export async function enrichAircraftList(aircraftList, opts = {}) {
   let hexdbCalls = 0;
   let attempted = 0;
   let breakerTripped = false;
+  let hexdbUnavailable = false;
 
   for (const ac of slice) {
     if (candidates.length >= maxResults) break;
@@ -188,8 +236,16 @@ export async function enrichAircraftList(aircraftList, opts = {}) {
     const callsign = ac.flight.trim();
     const deps = { fetch: fetchImpl };
 
-    hexdbCalls += 1;
-    const hexdb = await enrichHexdb(callsign, deps);
+    let hexdb = null;
+    if (!hexdbUnavailable) {
+      hexdbCalls += 1;
+      hexdb = await enrichHexdb(callsign, deps);
+      if (hexdb?._hexdbUnavailable) {
+        hexdbUnavailable = true;
+        hexdb = null;
+      }
+    }
+
     let row = buildFlightRow(ac, null, hexdb);
 
     if (!row && airlabsKey && !breakerTripped && airlabsCalls < maxAirlabs) {
@@ -211,6 +267,7 @@ export async function enrichAircraftList(aircraftList, opts = {}) {
       attempted,
       airlabsCalls,
       hexdbCalls,
+      hexdbSkipped: hexdbUnavailable,
       complete: candidates.length,
       cached: false,
     },

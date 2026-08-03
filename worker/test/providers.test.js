@@ -4,7 +4,9 @@ import {
   buildFlightRow,
   enrichAircraftList,
   enrichAirLabs,
+  enrichHexdb,
   fetchAirplanesLive,
+  fetchJson,
 } from "../src/providers.js";
 
 describe("fetchAirplanesLive", () => {
@@ -43,6 +45,59 @@ describe("fetchAirplanesLive", () => {
         }),
       /HTTP 429/,
     );
+  });
+});
+
+describe("fetchJson", () => {
+  it("passes an AbortSignal to fetch", async () => {
+    let sawSignal = false;
+    const mockFetch = async (_url, init) => {
+      sawSignal = init.signal instanceof AbortSignal;
+      return { ok: true, status: 200, text: async () => "{}" };
+    };
+    await fetchJson("https://example.test/ok", {
+      fetch: mockFetch,
+      timeoutMs: 5_000,
+    });
+    assert.equal(sawSignal, true);
+  });
+
+  it("maps AbortError from fetch into TIMEOUT AbortError", async () => {
+    const mockFetch = async () => {
+      const err = new Error("The operation was aborted");
+      err.name = "AbortError";
+      throw err;
+    };
+    await assert.rejects(
+      () =>
+        fetchJson("https://example.test/slow", {
+          fetch: mockFetch,
+          timeoutMs: 5_000,
+        }),
+      (err) => err.name === "AbortError" && err.code === "TIMEOUT",
+    );
+  });
+});
+
+describe("enrichHexdb", () => {
+  it("returns soft null on 404", async () => {
+    const mockFetch = async () => ({
+      ok: false,
+      status: 404,
+      text: async () => "",
+    });
+    const result = await enrichHexdb("UAL1", { fetch: mockFetch });
+    assert.equal(result, null);
+  });
+
+  it("returns unavailable sentinel on 502", async () => {
+    const mockFetch = async () => ({
+      ok: false,
+      status: 502,
+      text: async () => "",
+    });
+    const result = await enrichHexdb("UAL1", { fetch: mockFetch });
+    assert.deepEqual(result, { _hexdbUnavailable: true });
   });
 });
 
@@ -282,6 +337,80 @@ describe("enrichAircraftList", () => {
     });
     assert.equal(airlabsCalls, 1);
     assert.equal(stats.airlabsCalls, 1);
+  });
+
+  it("keeps calling hexdb after soft 404 misses", async () => {
+    let hexdbCalls = 0;
+    const mockFetch = async (url) => {
+      if (String(url).includes("hexdb")) {
+        hexdbCalls += 1;
+        return { ok: false, status: 404, text: async () => "" };
+      }
+      return jsonOk({
+        response: {
+          airline_name: "United Airlines",
+          dep_iata: "BOS",
+          arr_iata: "EWR",
+        },
+      });
+    };
+    const list = [
+      ac("UAL801", { ownOp: "" }),
+      ac("UAL802", { ownOp: "" }),
+      ac("UAL803", { ownOp: "" }),
+    ];
+    const { stats } = await enrichAircraftList(list, {
+      airlabsKey: "key",
+      maxAttempt: 10,
+      maxAirlabs: 5,
+      maxResults: 20,
+      minAltitudeFt: 0,
+      fetch: mockFetch,
+    });
+    assert.equal(hexdbCalls, 3);
+    assert.equal(stats.hexdbCalls, 3);
+    assert.equal(stats.hexdbSkipped, false);
+    assert.equal(stats.airlabsCalls, 3);
+  });
+
+  it("skips further hexdb after hard 502 and still gap-fills AirLabs", async () => {
+    let hexdbCalls = 0;
+    let airlabsCalls = 0;
+    const mockFetch = async (url) => {
+      if (String(url).includes("hexdb")) {
+        hexdbCalls += 1;
+        return { ok: false, status: 502, text: async () => "" };
+      }
+      if (String(url).includes("airlabs")) {
+        airlabsCalls += 1;
+        return jsonOk({
+          response: {
+            airline_name: "United Airlines",
+            dep_iata: "BOS",
+            arr_iata: "EWR",
+          },
+        });
+      }
+      return jsonOk({});
+    };
+    const list = [
+      ac("UAL901", { ownOp: "" }),
+      ac("UAL902", { ownOp: "" }),
+      ac("UAL903", { ownOp: "" }),
+    ];
+    const { candidates, stats } = await enrichAircraftList(list, {
+      airlabsKey: "key",
+      maxAttempt: 10,
+      maxAirlabs: 5,
+      maxResults: 20,
+      minAltitudeFt: 0,
+      fetch: mockFetch,
+    });
+    assert.equal(hexdbCalls, 1);
+    assert.equal(stats.hexdbCalls, 1);
+    assert.equal(stats.hexdbSkipped, true);
+    assert.equal(airlabsCalls, 3);
+    assert.equal(candidates.length, 3);
   });
 
   it("early-stops when pool reaches maxResults", async () => {
