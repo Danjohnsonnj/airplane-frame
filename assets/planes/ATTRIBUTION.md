@@ -6,4 +6,4 @@ SVG outlines vendored from [RexKramer1/AircraftShapesSVG](https://github.com/Rex
 
 **Normalization:** Inkscape/sodipodi/RDF metadata stripped; detail stroke paths dropped; main body path uses `fill="currentColor"` (solid silhouette) for ink inheritance. Geometry (`d` / `viewBox`) from upstream outline.
 
-**Scope:** Production ship assets under `assets/planes/` for the poster SPA.
+**Scope:** Production ship assets under `assets/planes/` for the poster SPA. Family fallbacks live in `assets/planes/family/` (avoid `_`-prefixed dirs on GitHub Pages/Jekyll).

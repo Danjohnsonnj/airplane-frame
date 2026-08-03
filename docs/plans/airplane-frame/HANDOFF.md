@@ -47,7 +47,7 @@
 | Secrets | `/etc/airplane-frame/worker.env` root:root mode 600 |
 | Adapter | `worker/src/node/` — `npm run start:pi` |
 | Env (live) | `MAX_ATTEMPT=36`, `MAX_AIRLABS=5`, `PACK_SIZE=10`, `MAX_RESULTS=20` |
-| Last ship | Plane silhouettes (`assets/planes/` + `js/plane-asset.js`); prior `114fb12` enrich efficiency |
+| Last ship | Plane silhouettes (`assets/planes/` + `family/`); Pages `_family` 404 fix | prior `114fb12` enrich |
 
 **Verify before coding:**
 
@@ -61,4 +61,4 @@ cd worker && npm test
 
 **Open items:** **Deferred:** Phase 6 poster polish/UAT. Rotate secrets exposed in chat when convenient. Settings/geocoder/livery deferred. Carrier inventory: [airlines-seen-2026-08-01.md](../../design-reference/airlines-seen-2026-08-01.md).
 
-**Last updated:** 2026-08-02 — silhouette ship UAT approved; next = deferred Phase 6 polish
+**Last updated:** 2026-08-02 — family silhouette Pages 404 fixed (`family/` + `.nojekyll`)

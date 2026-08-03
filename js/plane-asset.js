@@ -25,14 +25,14 @@ export function resolvePlaneAsset(icao, manifest, familyMap) {
   if (familyKey) {
     return {
       tier: "family",
-      href: `assets/planes/_family/${familyKey}.svg`,
+      href: `assets/planes/family/${familyKey}.svg`,
       icao: code,
     };
   }
 
   return {
     tier: "generic",
-    href: "assets/planes/_family/generic-jet.svg",
+    href: "assets/planes/family/generic-jet.svg",
     icao: code,
   };
 }

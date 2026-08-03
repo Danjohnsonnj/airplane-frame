@@ -84,5 +84,11 @@ Worker returns ≤10 flights (`PACK_SIZE` default 10). Status line shows pack si
 ## Front-end unit tests
 
 ```bash
-node --test js/lib.test.js
+node --test js/lib.test.js js/plane-asset.test.js
 ```
+
+## Silhouette assets (Pages)
+
+Ship corpus: `assets/planes/` (exact ICAO SVGs) + `assets/planes/family/` (family/generic fallbacks).
+
+**Do not** put Pages-static assets under `_`-prefixed directories — GitHub Pages runs Jekyll by default and **skips** those paths (symptom: exact ICAO silhouettes load; `E75L` / family / generic stay blank). Root `.nojekyll` is present so Jekyll does not process the site.

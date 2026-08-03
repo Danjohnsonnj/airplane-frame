@@ -28,21 +28,21 @@ describe("resolvePlaneAsset", () => {
     const { manifest, familyMap } = await loadFixtures();
     const r = resolvePlaneAsset("E75L", manifest, familyMap);
     assert.equal(r.tier, "family");
-    assert.equal(r.href, "assets/planes/_family/regional-jet.svg");
+    assert.equal(r.href, "assets/planes/family/regional-jet.svg");
   });
 
   it("E190 falls back to regional-jet family", async () => {
     const { manifest, familyMap } = await loadFixtures();
     const r = resolvePlaneAsset("E190", manifest, familyMap);
     assert.equal(r.tier, "family");
-    assert.equal(r.href, "assets/planes/_family/regional-jet.svg");
+    assert.equal(r.href, "assets/planes/family/regional-jet.svg");
   });
 
   it("A319 falls back to narrowbody family", async () => {
     const { manifest, familyMap } = await loadFixtures();
     const r = resolvePlaneAsset("A319", manifest, familyMap);
     assert.equal(r.tier, "family");
-    assert.equal(r.href, "assets/planes/_family/narrowbody.svg");
+    assert.equal(r.href, "assets/planes/family/narrowbody.svg");
   });
 
   it("B77W exact widebody ICAO wins over family-map", async () => {
@@ -63,7 +63,7 @@ describe("resolvePlaneAsset", () => {
     const { manifest, familyMap } = await loadFixtures();
     const r = resolvePlaneAsset("ZZZZ", manifest, familyMap);
     assert.equal(r.tier, "generic");
-    assert.equal(r.href, "assets/planes/_family/generic-jet.svg");
+    assert.equal(r.href, "assets/planes/family/generic-jet.svg");
   });
 
   it("null/blank falls back to generic-jet", async () => {
@@ -71,6 +71,20 @@ describe("resolvePlaneAsset", () => {
     assert.equal(resolvePlaneAsset(null, manifest, familyMap).tier, "generic");
     assert.equal(resolvePlaneAsset("", manifest, familyMap).tier, "generic");
     assert.equal(resolvePlaneAsset(undefined, manifest, familyMap).tier, "generic");
+    assert.equal(
+      resolvePlaneAsset(null, manifest, familyMap).href,
+      "assets/planes/family/generic-jet.svg",
+    );
+  });
+
+  it("family and generic hrefs avoid underscore dirs (GitHub Pages/Jekyll)", async () => {
+    const { manifest, familyMap } = await loadFixtures();
+    const family = resolvePlaneAsset("E75L", manifest, familyMap);
+    const generic = resolvePlaneAsset("ZZZZ", manifest, familyMap);
+    assert.match(family.href, /\/family\//);
+    assert.doesNotMatch(family.href, /\/_/);
+    assert.match(generic.href, /\/family\//);
+    assert.doesNotMatch(generic.href, /\/_/);
   });
 
   it("lowercase icao normalizes", async () => {

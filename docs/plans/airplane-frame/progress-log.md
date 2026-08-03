@@ -285,3 +285,10 @@
 - Verified: Prior agent checks (43 assets, tests, browser tiers/CSS) + user approval.
 - Learned: n/a new.
 - Overwrote: HANDOFF / visual-direction / phases / design-mocks README + mock CSS comment; lessons silhouette SoT + normalize tip.
+
+## 2026-08-02 - Fix family silhouette 404 on GitHub Pages
+
+- Happened: E75L (and all family/generic tiers) showed no SVG on Pages. Root cause: Jekyll skips `_family/`. Renamed to `assets/planes/family/`, updated resolver/tests, added root `.nojekyll`.
+- Verified: prod `_family` 404 vs `B738` 200 (pre-fix); `node --test` 47 pass; local `family/regional-jet.svg` 200.
+- Learned: never ship Pages-static assets under `_`-prefixed directories without `.nojekyll`.
+- Overwrote: lessons silhouette SoT; ATTRIBUTION family path note.

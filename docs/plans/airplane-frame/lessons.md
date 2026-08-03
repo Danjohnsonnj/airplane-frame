@@ -150,8 +150,8 @@
 ## Plane silhouettes: ship SoT is assets/planes/
 
 - Context: Silhouette explore mock under `docs/design-mocks/planes/` then NEC ship.
-- Lesson: Mock probe may stay a small subset. Production resolve/load uses `assets/planes/` + `js/plane-asset.js`. Key is Worker `icaoType` only — never parse `planeType` English strings. Three tiers: manifest exact → family-map → generic-jet. Inline SVG required for `currentColor` ink.
-- Evidence: 2026-08-02 silhouette ship + user UAT.
+- Lesson: Mock probe may stay a small subset. Production resolve/load uses `assets/planes/` + `js/plane-asset.js`. Key is Worker `icaoType` only — never parse `planeType` English strings. Three tiers: manifest exact → family-map → generic-jet. Inline SVG required for `currentColor` ink. Family SVGs live under `assets/planes/family/` (**not** `_family` — GitHub Pages/Jekyll skips underscore directories). Keep root `.nojekyll` as belt-and-suspenders.
+- Evidence: 2026-08-02 silhouette ship; 2026-08-02 prod 404 on `_family/regional-jet.svg` while `B738.svg` 200 (E75L blank).
 - Crystallize?: Yes — visual-direction Hero aircraft silhouette row.
 
 ## RexKramer normalize: first path d is the body

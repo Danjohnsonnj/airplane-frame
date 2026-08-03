@@ -123,7 +123,7 @@
   right: 0;
   top: 0%;
   width: min(55%, 220px);
-  transform: translateX(-10%) translateY(0%) scale(2) rotateZ(90deg);
+  transform: translateX(-25%) translateY(0%) scale(1.5) rotateZ(90deg);
   opacity: 0.18;
   color: inherit;
   pointer-events: none;
