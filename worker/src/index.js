@@ -75,6 +75,10 @@ async function fetchFreshCandidates(parsed, env) {
     maxAirlabs,
     maxResults,
     minAltitudeFt: parsed.minAltitudeFt,
+    kv: env.FLIGHT_CACHE,
+    callsignCacheTtlSec: Number(env.CALLSIGN_CACHE_TTL_SECONDS || 900),
+    callsignNegAdsbdbTtlSec: Number(env.CALLSIGN_NEG_ADSBDB_TTL_SECONDS || 600),
+    callsignNegAirlabsTtlSec: Number(env.CALLSIGN_NEG_AIRLABS_TTL_SECONDS || 1800),
   });
   return { candidates, enrich: stats };
 }

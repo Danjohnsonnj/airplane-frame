@@ -320,3 +320,17 @@
 - Verified: UI status `· local Worker`; full pack with adsbdb enrichment (agent curl earlier: `count=10`, `adsbdbCalls=20`).
 - Learned: n/a.
 - Overwrote: HANDOFF next → merge + Pi UAT before callsign cache.
+
+## 2026-08-03 - adsbdb first-pass production UAT PASS
+
+- Happened: Merged `feature/adsbdb-first-pass` → `main` (`343882b`); Pi sync/restart; production `/flights` UAT at `api.danjnj.com` — user confirmed all passed.
+- Verified: Full packs via adsbdb on live Pi Tunnel path (local UAT had `count=10`, `adsbdbCalls` ≫ `airlabsCalls`).
+- Learned: n/a.
+- Overwrote: HANDOFF — adsbdb ship complete; next = callsign enrichment cache.
+
+## 2026-08-03 - callsign enrichment cache (exploration B)
+
+- Happened: Added `worker/src/callsign-cache.js`; wired into `enrichAircraftList` with unified positive cache (adsbdb + AirLabs display triples), source-tagged negatives (adsbdb 400/404 only; AirLabs null), `callsignCacheHits` stat. Config: `CALLSIGN_CACHE_TTL_SECONDS` / `CALLSIGN_NEG_ADSBDB_TTL_SECONDS` / `CALLSIGN_NEG_AIRLABS_TTL_SECONDS` in wrangler, `.pi.env.example`, exported `envFromProcess`. `enrichAdsbdb` soft 400/404 returns `{ _softMiss, status }`.
+- Verified: `cd worker && npm test` PASS (77); `node --test js/lib.test.js js/plane-asset.test.js` PASS (47). Provider cache tests: positive hit skips upstream; adsbdb miss allows AirLabs; AirLabs miss skips repeat; 403/hard fail not negative-cached.
+- Learned: Geo `cand:*` TTL and callsign TTL are independent — fresh geo fetch still benefits from callsign cache on overlapping traffic.
+- Overwrote: HANDOFF (exploration B DONE), tech-brief, phases, lessons.

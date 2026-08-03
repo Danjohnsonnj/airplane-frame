@@ -30,7 +30,7 @@ Prerequisite: [cloudflare-signup.md](./cloudflare-signup.md), then [secrets.md](
 | `destGroupMode` | off | `prefer` (fill metro dests first) or `exclude` |
 | `unique` | `1` | `1` prefer distinct carrier+destination; `0` score-only |
 
-Response includes `count` (pack length), `candidateCount` (enriched pool before pack), `stale` (boolean), `ageSeconds` (when stale), `cachedForSeconds` (always `CACHE_TTL_SECONDS`), `pack: { size, unique, destGroup, destGroupMode }`, and `enrich` (attempt/AirLabs/adsbdb stats; `cached: true` on cache hit — not stored in KV). Pipeline: airplanes.live → adsbdb/`ownOp` first → AirLabs gap-fill (`MAX_AIRLABS`, default 5) over up to `MAX_ATTEMPT` (default 36) aircraft. Enriched **candidates** are cached in **Workers KV** (`FLIGHT_CACHE`) ~10 min fresh for non-empty (`CACHE_TTL_SECONDS`); empty results use a shorter fresh window (`EMPTY_CACHE_TTL_SECONDS`, 60s); filters re-pack without re-enrich within TTL. On upstream failure or empty with a prior non-empty KV entry, returns **200** with `stale: true` and last good candidates.
+Response includes `count` (pack length), `candidateCount` (enriched pool before pack), `stale` (boolean), `ageSeconds` (when stale), `cachedForSeconds` (always `CACHE_TTL_SECONDS`), `pack: { size, unique, destGroup, destGroupMode }`, and `enrich` (`attempted`, `adsbdbCalls`, `adsbdbSkipped`, `airlabsCalls`, `callsignCacheHits`, `complete`, `cached` on geo hit — not stored in KV). Pipeline: airplanes.live → adsbdb/`ownOp` first → AirLabs gap-fill (`MAX_AIRLABS`, default 5) over up to `MAX_ATTEMPT` (default 36) aircraft. Enriched **candidates** are cached in **Workers KV** (`FLIGHT_CACHE`) ~10 min fresh for non-empty (`CACHE_TTL_SECONDS`); empty results use a shorter fresh window (`EMPTY_CACHE_TTL_SECONDS`, 60s); **callsign enrich cache** (same KV / Pi file) keys `cs:{CALLSIGN}` plus source-tagged misses — see tech-brief; filters re-pack without re-enrich within geo TTL. On upstream failure or empty with a prior non-empty KV entry, returns **200** with `stale: true` and last good candidates.
 
 ### KV namespace (one-time)
 
@@ -41,7 +41,7 @@ npx wrangler kv namespace create FLIGHT_CACHE --preview
 # paste id + preview_id into wrangler.toml [[kv_namespaces]]
 ```
 
-`STALE_TTL_SECONDS` (default 1800) controls KV entry expiry for stale fallback.
+`STALE_TTL_SECONDS` (default 3600) controls KV entry expiry for stale fallback.
 
 Pass bar: no/wrong Bearer → **401**; valid Bearer + JC pin → **200** with ≤10 flights each having `carrier`, `destination`, `planeType`.
 
@@ -102,6 +102,6 @@ See lessons.md: “Fresh workers.dev may briefly fail TLS”.
 
 ## Why a Worker
 
-GitHub Pages cannot hold `AIRLABS_API_KEY`. Browser calls to many flight APIs also hit CORS. The Worker holds secrets, enriches server-side (airplanes.live + adsbdb + AirLabs gap-fill), caches per lat/lon/radius bucket (10 min non-empty fresh, 60s empty fresh), and returns slim JSON.
+GitHub Pages cannot hold `AIRLABS_API_KEY`. Browser calls to many flight APIs also hit CORS. The Worker holds secrets, enriches server-side (airplanes.live + adsbdb + AirLabs gap-fill), caches per lat/lon/radius bucket (10 min non-empty fresh, 60s empty fresh) plus short-TTL per-callsign display fields in the same `FLIGHT_CACHE`, and returns slim JSON.
 
 Clients authenticate with **`APP_SHARED_SECRET`** only (see [secrets.md](./secrets.md)). Do not send the AirLabs key as the Bearer token.

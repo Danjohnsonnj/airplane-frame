@@ -1,4 +1,10 @@
 import { normalizeCarrierName } from "./carrier-aliases.js";
+import {
+  readMiss,
+  readPositive,
+  writeMiss,
+  writePositive,
+} from "./callsign-cache.js";
 
 const USER_AGENT = "airplane-frame-worker/0.1 (personal)";
 const RETRY_DELAY_MS = 1200;
@@ -55,6 +61,16 @@ export function parseAdsbdbPayload(payload) {
     (airline?.icao && String(airline.icao).trim()) ||
     null;
 
+  if (!destination) return null;
+  return { origin, destination, carrier };
+}
+
+/** Map AirLabs flight object to display triple for cache / row build. */
+export function displayTripleFromAirLabs(airlabs) {
+  if (!airlabs || airlabs._airlabsLimit) return null;
+  const origin = airlabs.dep_iata || airlabs.dep_icao || null;
+  const destination = airlabs.arr_iata || airlabs.arr_icao || null;
+  const carrier = airlabs.airline_name || airlabs.airline_icao || null;
   if (!destination) return null;
   return { origin, destination, carrier };
 }
@@ -161,7 +177,10 @@ export async function enrichAdsbdb(callsign, deps = {}) {
     if (isAdsbdbHardFailure(err)) {
       return { _adsbdbUnavailable: true };
     }
-    // Soft miss (400 invalid / 404 unknown / other 4xx): keep trying adsbdb.
+    const status = err.status;
+    if (status === 400 || status === 404) {
+      return { _softMiss: true, status };
+    }
     return null;
   }
 }
@@ -225,6 +244,11 @@ export async function enrichAircraftList(aircraftList, opts = {}) {
     maxResults = 20,
     minAltitudeFt = 0,
     fetch: fetchImpl = fetch,
+    kv = null,
+    callsignCacheTtlSec = 900,
+    callsignNegAdsbdbTtlSec = 600,
+    callsignNegAirlabsTtlSec = 1800,
+    nowMs = Date.now(),
   } = opts;
 
   const trimmed = [];
@@ -251,6 +275,7 @@ export async function enrichAircraftList(aircraftList, opts = {}) {
   let attempted = 0;
   let breakerTripped = false;
   let adsbdbUnavailable = false;
+  let callsignCacheHits = 0;
 
   for (const ac of slice) {
     if (candidates.length >= maxResults) break;
@@ -259,25 +284,57 @@ export async function enrichAircraftList(aircraftList, opts = {}) {
     const callsign = ac.flight.trim();
     const deps = { fetch: fetchImpl };
 
+    const cachedPositive = kv
+      ? await readPositive(kv, callsign, nowMs, callsignCacheTtlSec)
+      : null;
+    if (cachedPositive) {
+      callsignCacheHits += 1;
+      const row = buildFlightRow(ac, null, cachedPositive);
+      if (row) candidates.push(row);
+      continue;
+    }
+
     let adsbdb = null;
-    if (!adsbdbUnavailable) {
+    const adsbdbMissCached =
+      kv && (await readMiss(kv, "adsbdb", callsign, nowMs, callsignNegAdsbdbTtlSec));
+
+    if (!adsbdbUnavailable && !adsbdbMissCached) {
       adsbdbCalls += 1;
       adsbdb = await enrichAdsbdb(callsign, deps);
       if (adsbdb?._adsbdbUnavailable) {
         adsbdbUnavailable = true;
         adsbdb = null;
+      } else if (adsbdb?._softMiss) {
+        if (kv && (adsbdb.status === 400 || adsbdb.status === 404)) {
+          await writeMiss(kv, "adsbdb", callsign, nowMs);
+        }
+        adsbdb = null;
+      } else if (adsbdb?.destination && kv) {
+        await writePositive(kv, callsign, adsbdb, nowMs);
       }
     }
 
     let row = buildFlightRow(ac, null, adsbdb);
 
     if (!row && airlabsKey && !breakerTripped && airlabsCalls < maxAirlabs) {
-      airlabsCalls += 1;
-      const airlabs = await enrichAirLabs(callsign, airlabsKey, deps);
-      if (airlabs?._airlabsLimit) {
-        breakerTripped = true;
-      } else {
-        row = buildFlightRow(ac, airlabs, adsbdb);
+      const airlabsMissCached =
+        kv &&
+        (await readMiss(kv, "airlabs", callsign, nowMs, callsignNegAirlabsTtlSec));
+
+      if (!airlabsMissCached) {
+        airlabsCalls += 1;
+        const airlabs = await enrichAirLabs(callsign, airlabsKey, deps);
+        if (airlabs?._airlabsLimit) {
+          breakerTripped = true;
+        } else {
+          const triple = displayTripleFromAirLabs(airlabs);
+          if (triple && kv) {
+            await writePositive(kv, callsign, triple, nowMs);
+          } else if (!airlabs && kv) {
+            await writeMiss(kv, "airlabs", callsign, nowMs);
+          }
+          row = buildFlightRow(ac, airlabs, adsbdb);
+        }
       }
     }
 
@@ -291,6 +348,7 @@ export async function enrichAircraftList(aircraftList, opts = {}) {
       airlabsCalls,
       adsbdbCalls,
       adsbdbSkipped: adsbdbUnavailable,
+      callsignCacheHits,
       complete: candidates.length,
       cached: false,
     },

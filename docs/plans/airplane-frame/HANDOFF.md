@@ -2,42 +2,40 @@
 
 **Goal:** Personal web app showing up to **10** nearby commercial flights (carrier, destination, plane type) around a saved location, starting with Jersey City, NJ.
 
-**Current phase:** Plane silhouettes **DONE**. Enrich efficiency + pack size **DONE**. Phase 6.5 Pi Tunnel **DONE**. adsbdb first-pass **DONE** (2026-08-03, branch `feature/adsbdb-first-pass`). Phase 6 poster polish **deferred**.
+**Current phase:** Plane silhouettes **DONE**. Enrich efficiency + pack size **DONE**. Phase 6.5 Pi Tunnel **DONE**. adsbdb first-pass **DONE**. **Exploration B callsign enrichment cache DONE** (2026-08-03). Phase 6 poster polish **deferred**.
 
 **Next action (cold-start executable):**
 
 1. Read process.md (before any commit).
-2. **Merge `feature/adsbdb-first-pass` → `main`**, Pi sync/restart, production `/flights` UAT at `api.danjnj.com` (clear file cache if packs look stale).
-3. **Exploration B remainder: short-TTL callsign enrichment cache** — after production UAT. Keyed by callsign → `{origin, destination, carrier}` with value-embedded TTL (FileKv-safe); short negative cache for 404; display fields only; no route DB mirror. Closes exploration B.
-4. **Deferred (do not start unless asked):** Phase 6 poster UAT/polish; tune min-altitude default.
-5. Production: https://danjohnsonnj.github.io/airplane-frame/ → `https://api.danjnj.com`. Pi ops: [pi-worker.md](../../runbooks/pi-worker.md).
+2. **Deferred (do not start unless asked):** Phase 6 poster UAT/polish; tune min-altitude default.
+3. Production: https://danjohnsonnj.github.io/airplane-frame/ → `https://api.danjnj.com`. Pi ops: [pi-worker.md](../../runbooks/pi-worker.md).
 
 **Hard invariants:** Free/trial data sources only; destination + carrier + plane type are non-negotiable on every displayed flight; no API secrets in the GitHub Pages front end; personal shared-secret gate on the Worker (or Pi API).
 
 **Required reading (idle / next ask):**
 
 - process.md — before committing
-- tech-brief.md — pipeline, adsbdb attribution
+- tech-brief.md — pipeline, adsbdb attribution, callsign cache
 - docs/runbooks/pi-worker.md — ops / reboot / sync PATH
-- lessons.md — adsbdb skip semantics + FileKv TTL
+- lessons.md — adsbdb skip semantics + FileKv TTL + callsign cache
 
 **Index (load on demand):**
 
 - product-brief.md — background (may still say 3–5 historically)
-- phases.md — phase status (6.5 DONE; adsbdb shipped; callsign cache next)
+- phases.md — phase status (exploration B DONE; poster deferred)
 - progress-log.md — dated history
 - docs/runbooks/local-dev.md / pages.md / deploy-worker.md / secrets.md
 - phase-6.plan.md / carrier-brand-alias.plan.md / visual-direction.md — poster locks + deferred polish
 - spike/README.md / spike/CREDENTIALS.md — data APIs
 - .cursor/skills/airplane-frame-ops/SKILL.md — agent entry to runbooks
-- `~/.cursor/plans/adsbdb_first-pass_a6560b8c.plan.md` — adsbdb ship (this branch)
-- `~/.cursor/plans/fetch_timeout_hexdb_skip_16e530b6.plan.md` — timeout + skip (superseded by adsbdb)
+- `~/.cursor/plans/adsbdb_first-pass_a6560b8c.plan.md` — adsbdb ship (DONE)
+- `~/.cursor/plans/callsign_enrich_cache_d8dc61ab.plan.md` — callsign cache (DONE)
 
 **Key facts (resume without re-discovery):**
 
 | Fact | Value |
 |------|--------|
-| Branch | `feature/adsbdb-first-pass` (merge to `main` for Pi sync); Pi checkout: `/opt/airplane-frame` on `main` |
+| Branch | `main` (Pi checkout: `/opt/airplane-frame` on `main`) |
 | Target API | `https://api.danjnj.com` |
 | Rollback | `?worker=cloudflare` → `workers.dev` (often EMPTY/429 — expected) |
 | Cloudflare zone | `danjnj.com` **Active**; Squarespace `www` = **DNS only** |
@@ -49,21 +47,23 @@
 | Secrets | `/etc/airplane-frame/worker.env` root:root mode 600 |
 | Adapter | `worker/src/node/` — `npm run start:pi` |
 | Env (live) | `MAX_ATTEMPT=36`, `MAX_AIRLABS=5`, `PACK_SIZE=10`, `MAX_RESULTS=20` |
+| Callsign cache TTLs | positive `900s`; adsbdb 400/404 miss `600s`; AirLabs miss `1800s` (value-embedded in `FLIGHT_CACHE`) |
 | Outbound fetch | `FETCH_TIMEOUT_MS=10000`; adsbdb hard-fail → request-scoped skip (`enrich.adsbdbSkipped`) |
-| Enrich path | airplanes.live → **adsbdb** first → AirLabs gap-fill (hexdb removed) |
+| Enrich path | airplanes.live → **adsbdb** first → AirLabs gap-fill; callsign cache skips repeat upstream per key |
 | File cache | `/var/lib/airplane-frame/cache.json` — ignores KV `expirationTtl`; clear manually if stuck stale |
-| Last ship | adsbdb first-pass on `feature/adsbdb-first-pass`; local UAT PASS (UI + Worker, 2026-08-03) |
+| Cache policy | Short-TTL display fields only (`origin`/`destination`/`carrier`); no route DB mirror; risk accepted (exploration B) |
+| Last ship | callsign enrichment cache; local unit UAT PASS (2026-08-03); Pi production UAT pending sync |
 
 **Verify before coding:**
 
 ```bash
-git branch --show-current   # expect feature/adsbdb-first-pass or main after merge
+git branch --show-current   # expect main
 node --test js/lib.test.js js/plane-asset.test.js
 cd worker && npm test
 ```
 
-**Open decisions:** callsign cache TTLs (hit vs negative); optional user-selectable N deferred; tune min-altitude default; settings tag-chip chrome.
+**Open decisions:** optional user-selectable N deferred; tune min-altitude default; settings tag-chip chrome.
 
 **Open items:** **Deferred:** Phase 6 poster polish/UAT. Rotate secrets exposed in chat when convenient. Settings/geocoder/livery deferred. Carrier inventory: [airlines-seen-2026-08-01.md](../../design-reference/airlines-seen-2026-08-01.md).
 
-**Last updated:** 2026-08-03 — adsbdb first-pass local UAT PASS; next = merge + Pi UAT, then callsign cache
+**Last updated:** 2026-08-03 — exploration B callsign enrichment cache shipped; next = deferred Phase 6 polish

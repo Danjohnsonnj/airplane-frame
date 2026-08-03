@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { createServer } from "../src/node/server.js";
+import { createServer, envFromProcess } from "../src/node/server.js";
 
 function mockKv() {
   return {
@@ -54,5 +54,32 @@ describe("createServer", () => {
       assert.equal(res.status, 401);
       assert.deepEqual(await res.json(), { error: "unauthorized" });
     });
+  });
+});
+
+describe("envFromProcess", () => {
+  it("includes callsign cache TTL defaults when unset", () => {
+    const keys = [
+      "CALLSIGN_CACHE_TTL_SECONDS",
+      "CALLSIGN_NEG_ADSBDB_TTL_SECONDS",
+      "CALLSIGN_NEG_AIRLABS_TTL_SECONDS",
+    ];
+    /** @type {Record<string, string|undefined>} */
+    const saved = {};
+    for (const key of keys) {
+      saved[key] = process.env[key];
+      delete process.env[key];
+    }
+    try {
+      const env = envFromProcess();
+      assert.equal(env.CALLSIGN_CACHE_TTL_SECONDS, "900");
+      assert.equal(env.CALLSIGN_NEG_ADSBDB_TTL_SECONDS, "600");
+      assert.equal(env.CALLSIGN_NEG_AIRLABS_TTL_SECONDS, "1800");
+    } finally {
+      for (const key of keys) {
+        if (saved[key] === undefined) delete process.env[key];
+        else process.env[key] = saved[key];
+      }
+    }
   });
 });

@@ -9,7 +9,7 @@ Full plan: `~/.cursor/plans/pi_hosted_worker_cloudflare_tunnel_9f3a7c2d.plan.md`
 | Path | Owner | Purpose |
 |------|-------|---------|
 | `/opt/airplane-frame` | `airplane-frame` | Git checkout |
-| `/var/lib/airplane-frame/cache.json` | `airplane-frame` | File-backed flight cache (`FLIGHT_CACHE_PATH`) |
+| `/var/lib/airplane-frame/cache.json` | `airplane-frame` | File-backed `FLIGHT_CACHE` (`FLIGHT_CACHE_PATH`) — geo `cand:*` and callsign `cs:*` keys share this file; clear manually if stuck stale (FileKv ignores KV `expirationTtl`) |
 | `/etc/airplane-frame/worker.env` | `root:root` mode `600` | Secrets + runtime env (never in git) |
 | `/etc/systemd/system/airplane-frame-worker.service` | root | Node API on `127.0.0.1:8788` |
 | `/etc/systemd/system/airplane-frame-sync.service` | root | Oneshot sync from `origin/main` |
@@ -23,7 +23,7 @@ Stay on **`main`**. The sync timer fast-forwards `origin/main` only.
 
 ## Secrets
 
-Create `/etc/airplane-frame/worker.env` (see [secrets.md](./secrets.md) — Pi section). Required: `AIRLABS_API_KEY`, `APP_SHARED_SECRET`. Defaults: `HOST=127.0.0.1`, `PORT=8788`, `FLIGHT_CACHE_PATH=/var/lib/airplane-frame/cache.json`.
+Create `/etc/airplane-frame/worker.env` (see [secrets.md](./secrets.md) — Pi section). Required: `AIRLABS_API_KEY`, `APP_SHARED_SECRET`. Defaults: `HOST=127.0.0.1`, `PORT=8788`, `FLIGHT_CACHE_PATH=/var/lib/airplane-frame/cache.json`, callsign cache TTLs per `worker/.pi.env.example`.
 
 ```bash
 sudo chown root:root /etc/airplane-frame/worker.env

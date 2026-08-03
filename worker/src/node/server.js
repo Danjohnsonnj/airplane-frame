@@ -108,12 +108,19 @@ function envFromProcess() {
     CACHE_TTL_SECONDS: process.env.CACHE_TTL_SECONDS || "600",
     EMPTY_CACHE_TTL_SECONDS: process.env.EMPTY_CACHE_TTL_SECONDS || "60",
     STALE_TTL_SECONDS: process.env.STALE_TTL_SECONDS || "3600",
+    CALLSIGN_CACHE_TTL_SECONDS: process.env.CALLSIGN_CACHE_TTL_SECONDS || "900",
+    CALLSIGN_NEG_ADSBDB_TTL_SECONDS:
+      process.env.CALLSIGN_NEG_ADSBDB_TTL_SECONDS || "600",
+    CALLSIGN_NEG_AIRLABS_TTL_SECONDS:
+      process.env.CALLSIGN_NEG_AIRLABS_TTL_SECONDS || "1800",
     MAX_ATTEMPT: process.env.MAX_ATTEMPT || process.env.MAX_ENRICH || "36",
     MAX_AIRLABS: process.env.MAX_AIRLABS || "5",
     MAX_RESULTS: process.env.MAX_RESULTS || "20",
     PACK_SIZE: process.env.PACK_SIZE || "10",
   };
 }
+
+export { envFromProcess };
 
 async function main() {
   const env = envFromProcess();

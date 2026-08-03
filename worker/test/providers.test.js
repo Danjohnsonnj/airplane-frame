@@ -139,23 +139,33 @@ describe("enrichAdsbdb", () => {
     });
   });
 
-  it("returns soft null on 404", async () => {
+  it("returns soft miss sentinel on 404", async () => {
     const mockFetch = async () => ({
       ok: false,
       status: 404,
       text: async () => "",
     });
     const result = await enrichAdsbdb("UAL1", { fetch: mockFetch });
-    assert.equal(result, null);
+    assert.deepEqual(result, { _softMiss: true, status: 404 });
   });
 
-  it("returns soft null on 400", async () => {
+  it("returns soft miss sentinel on 400", async () => {
     const mockFetch = async () => ({
       ok: false,
       status: 400,
       text: async () => "",
     });
     const result = await enrichAdsbdb("UA1", { fetch: mockFetch });
+    assert.deepEqual(result, { _softMiss: true, status: 400 });
+  });
+
+  it("returns null on other soft 4xx without negative-cache sentinel", async () => {
+    const mockFetch = async () => ({
+      ok: false,
+      status: 403,
+      text: async () => "",
+    });
+    const result = await enrichAdsbdb("UAL1", { fetch: mockFetch });
     assert.equal(result, null);
   });
 
@@ -532,5 +542,183 @@ describe("enrichAircraftList", () => {
     assert.equal(stats.complete, 3);
     assert.equal(adsbdbCalls, 3);
     assert.equal(stats.attempted, 3);
+  });
+});
+
+function memoryKv() {
+  /** @type {Record<string, string>} */
+  const store = Object.create(null);
+  return {
+    async get(key) {
+      return store[key] ?? null;
+    },
+    async put(key, value) {
+      store[key] = String(value);
+    },
+    store,
+  };
+}
+
+describe("enrichAircraftList callsign cache", () => {
+  it("positive hit skips adsbdb and AirLabs on second pass", async () => {
+    const kv = memoryKv();
+    const nowMs = 5_000_000;
+    let adsbdbCalls = 0;
+    let airlabsCalls = 0;
+    const mockFetch = async (url) => {
+      if (String(url).includes("adsbdb")) {
+        adsbdbCalls += 1;
+        return adsbdbOk();
+      }
+      if (String(url).includes("airlabs")) {
+        airlabsCalls += 1;
+        return jsonOk({ response: null });
+      }
+      return adsbdbOk();
+    };
+    const opts = {
+      airlabsKey: "key",
+      maxAttempt: 10,
+      maxAirlabs: 5,
+      maxResults: 20,
+      minAltitudeFt: 0,
+      fetch: mockFetch,
+      kv,
+      nowMs,
+    };
+
+    const first = await enrichAircraftList([ac("UAL400")], opts);
+    assert.equal(first.stats.adsbdbCalls, 1);
+    assert.equal(first.stats.callsignCacheHits, 0);
+
+    const second = await enrichAircraftList([ac("UAL400")], opts);
+    assert.equal(second.stats.callsignCacheHits, 1);
+    assert.equal(second.stats.adsbdbCalls, 0);
+    assert.equal(second.stats.airlabsCalls, 0);
+    assert.equal(adsbdbCalls, 1);
+    assert.equal(airlabsCalls, 0);
+    assert.equal(second.candidates[0].enrichmentSource, "adsbdb");
+  });
+
+  it("adsbdb 404 negative cache still allows AirLabs", async () => {
+    const kv = memoryKv();
+    const nowMs = 6_000_000;
+    let adsbdbCalls = 0;
+    let airlabsCalls = 0;
+    const mockFetch = async (url) => {
+      if (String(url).includes("adsbdb")) {
+        adsbdbCalls += 1;
+        return { ok: false, status: 404, text: async () => "" };
+      }
+      if (String(url).includes("airlabs")) {
+        airlabsCalls += 1;
+        return jsonOk({
+          response: {
+            airline_name: "United Airlines",
+            dep_iata: "BOS",
+            arr_iata: "EWR",
+          },
+        });
+      }
+      return adsbdbOk();
+    };
+    const opts = {
+      airlabsKey: "key",
+      maxAttempt: 10,
+      maxAirlabs: 5,
+      maxResults: 20,
+      minAltitudeFt: 0,
+      fetch: mockFetch,
+      kv,
+      nowMs,
+      callsignNegAdsbdbTtlSec: 600,
+    };
+
+    const first = await enrichAircraftList([ac("UAL501", { ownOp: "" })], opts);
+    assert.equal(first.stats.adsbdbCalls, 1);
+    assert.equal(first.stats.airlabsCalls, 1);
+    assert.equal(first.candidates.length, 1);
+
+    const second = await enrichAircraftList([ac("UAL501", { ownOp: "" })], opts);
+    assert.equal(second.stats.adsbdbCalls, 0);
+    assert.equal(second.stats.airlabsCalls, 0);
+    assert.equal(adsbdbCalls, 1);
+    assert.equal(airlabsCalls, 1);
+  });
+
+  it("AirLabs miss negative cache skips repeat AirLabs calls", async () => {
+    const kv = memoryKv();
+    const nowMs = 7_000_000;
+    let airlabsCalls = 0;
+    const mockFetch = async (url) => {
+      if (String(url).includes("adsbdb")) {
+        return { ok: false, status: 404, text: async () => "" };
+      }
+      if (String(url).includes("airlabs")) {
+        airlabsCalls += 1;
+        return jsonOk({ response: null });
+      }
+      return adsbdbOk();
+    };
+    const opts = {
+      airlabsKey: "key",
+      maxAttempt: 10,
+      maxAirlabs: 5,
+      maxResults: 20,
+      minAltitudeFt: 0,
+      fetch: mockFetch,
+      kv,
+      nowMs,
+      callsignNegAirlabsTtlSec: 1800,
+    };
+
+    await enrichAircraftList([ac("UAL601", { ownOp: "" })], opts);
+    assert.equal(airlabsCalls, 1);
+
+    await enrichAircraftList([ac("UAL601", { ownOp: "" })], opts);
+    assert.equal(airlabsCalls, 1);
+  });
+
+  it("does not write adsbdb negative on 403", async () => {
+    const kv = memoryKv();
+    const nowMs = 8_000_000;
+    const mockFetch = async () => ({
+      ok: false,
+      status: 403,
+      text: async () => "",
+    });
+    await enrichAircraftList([ac("UAL701", { ownOp: "" })], {
+      airlabsKey: "",
+      maxAttempt: 10,
+      maxAirlabs: 5,
+      maxResults: 20,
+      minAltitudeFt: 0,
+      fetch: mockFetch,
+      kv,
+      nowMs,
+    });
+    assert.equal(kv.store["cs:miss:adsbdb:UAL701"], undefined);
+  });
+
+  it("does not write negative cache on hard adsbdb fail or AirLabs breaker", async () => {
+    const kv = memoryKv();
+    const nowMs = 9_000_000;
+    await enrichAircraftList([ac("UAL901", { ownOp: "" })], {
+      airlabsKey: "key",
+      maxAttempt: 10,
+      maxAirlabs: 5,
+      maxResults: 20,
+      minAltitudeFt: 0,
+      fetch: async (url) => {
+        if (String(url).includes("adsbdb")) {
+          return { ok: false, status: 502, text: async () => "" };
+        }
+        return jsonOk({ error: { code: "hour_limit_exceeded" } });
+      },
+      kv,
+      nowMs,
+    });
+    assert.equal(kv.store["cs:miss:adsbdb:UAL901"], undefined);
+    assert.equal(kv.store["cs:miss:airlabs:UAL901"], undefined);
   });
 });

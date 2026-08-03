@@ -165,7 +165,7 @@
 
 - Context: Replaced hexdb with adsbdb `GET /v0/callsign/{cs}` (2026-08-03).
 - Lesson: `enrichAdsbdb` maps nested `response.flightroute` (prefer IATA). Soft miss: HTTP 400 (invalid callsign) or 404 (unknown) → keep trying. Hard fail: timeout, network, 5xx, **429** → `_adsbdbUnavailable` and skip further adsbdb for that request. AirLabs gap-fill unchanged. Stats: `adsbdbCalls` / `adsbdbSkipped`. Route data: Taylor/Mason — public GET only; no DB mirror.
-- Evidence: `feature/adsbdb-first-pass` + worker tests.
+- Evidence: `343882b` on `main`; local + Pi production UAT PASS (2026-08-03).
 - Crystallize?: Yes — tech-brief / HANDOFF.
 
 ## Outbound fetch must timeout; hard-fail skips rest of request (historical: hexdb)
@@ -181,3 +181,10 @@
 - Lesson: `airplane-frame-sync.service` `Environment=PATH` must include `/usr/sbin:/sbin`. Without it, `runuser` is “command not found”.
 - Evidence: 2026-08-03 journal; fix `59690a5` + Pi unit.
 - Crystallize?: Yes — `docs/runbooks/pi-worker.md`.
+
+## Callsign enrich cache: value-embedded TTL; 400/404-only adsbdb negatives
+
+- Context: Exploration B remainder (2026-08-03); shares `FLIGHT_CACHE` / Pi `cache.json` with geo `cand:*` keys.
+- Lesson: Positive key `cs:{CS}` stores `{origin,destination,carrier,fetchedAt}` from adsbdb or AirLabs; hit → `buildFlightRow(ac, null, cached)`. Negatives: `cs:miss:adsbdb:{CS}` only on HTTP 400/404; `cs:miss:airlabs:{CS}` on null response (not breaker). Hard fails (`_adsbdbUnavailable`, `_airlabsLimit`) never cached. TTLs: positive 900s, adsbdb miss 600s, AirLabs miss 1800s — all value-embedded (`isFresh`); FileKv ignores `expirationTtl`. Stats: `callsignCacheHits` (upstream `adsbdbCalls`/`airlabsCalls` unchanged semantics). Policy: display fields only, no route DB mirror; short-TTL risk accepted for personal use.
+- Evidence: `worker/src/callsign-cache.js`; 77 worker tests green (2026-08-03).
+- Crystallize?: Yes — tech-brief / HANDOFF.

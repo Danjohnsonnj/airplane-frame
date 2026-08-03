@@ -61,7 +61,6 @@
 
 ## Later (out of current phase plan)
 
-- **Next (HANDOFF):** short-TTL **callsign enrichment cache** — closes exploration B after adsbdb first-pass merge/UAT.
 - **Deferred:** Phase 6 poster UAT / polish (egress no longer blocks; polish parked)
 - Plane/livery illustration source decision
 - Live browser geolocation
