@@ -28,6 +28,7 @@ export const SWATCH_ORDER = [
 
 export const DEFAULTS = {
   radiusMi: 25,
+  autoRefresh: false,
   refreshSeconds: 300,
   minAltitudeFt: 5000,
   carrierAllow: "",
@@ -42,6 +43,7 @@ export const STORAGE_KEYS = {
   lat: "af_lat",
   lon: "af_lon",
   radiusMi: "af_radiusMi",
+  autoRefresh: "af_autoRefresh",
   refreshSeconds: "af_refreshSeconds",
   minAltitudeFt: "af_minAltitudeFt",
   carrierAllow: "af_carrierAllow",

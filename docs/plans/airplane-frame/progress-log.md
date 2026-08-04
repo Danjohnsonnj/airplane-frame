@@ -334,3 +334,17 @@
 - Verified: `cd worker && npm test` PASS (77); `node --test js/lib.test.js js/plane-asset.test.js` PASS (47). Provider cache tests: positive hit skips upstream; adsbdb miss allows AirLabs; AirLabs miss skips repeat; 403/hard fail not negative-cached.
 - Learned: Geo `cand:*` TTL and callsign TTL are independent — fresh geo fetch still benefits from callsign cache on overlapping traffic.
 - Overwrote: HANDOFF (exploration B DONE), tech-brief, phases, lessons.
+
+## 2026-08-03 - Backlog: design spikes + refresh UX
+
+- Happened: Noted potential next work (not started): old-paper article texture; CSS scroll-driven `.plane-silhouette` animations (row L→R / column bottom→top, viewport-center arrival); airport names alongside codes; auto-refresh optional with default OFF.
+- Verified: n/a (backlog capture only).
+- Learned: n/a.
+- Overwrote: HANDOFF open/potential-next; phases Later list.
+
+## 2026-08-03 - Auto-refresh optional (default off)
+
+- Happened: Added Auto-refresh checkbox in settings (default off for all users, including existing localStorage). Interval field disabled when off; `scheduleRefresh` gated on `autoRefresh`. Boot still fetches once; manual Refresh unchanged; 401 still pauses timer.
+- Verified: `node --test js/lib.test.js js/plane-asset.test.js` PASS.
+- Learned: n/a.
+- Overwrote: tech-brief localStorage list; HANDOFF/phases backlog; `js/config.js`, `index.html`, `js/app.js`.

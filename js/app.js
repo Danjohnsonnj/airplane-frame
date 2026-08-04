@@ -37,6 +37,7 @@ const els = {
   form: document.getElementById("settings-form"),
   secret: document.getElementById("secret"),
   radiusMi: document.getElementById("radiusMi"),
+  autoRefresh: document.getElementById("autoRefresh"),
   refreshSeconds: document.getElementById("refreshSeconds"),
   minAltitudeFt: document.getElementById("minAltitudeFt"),
   carrierAllow: document.getElementById("carrierAllow"),
@@ -97,6 +98,10 @@ function loadSettings() {
       localStorage.getItem(STORAGE_KEYS.refreshSeconds),
       DEFAULTS.refreshSeconds,
     ),
+    autoRefresh: parseStoredBool(
+      localStorage.getItem(STORAGE_KEYS.autoRefresh),
+      DEFAULTS.autoRefresh,
+    ),
     minAltitudeFt: parseStoredNumber(
       localStorage.getItem(STORAGE_KEYS.minAltitudeFt),
       DEFAULTS.minAltitudeFt,
@@ -114,6 +119,7 @@ function savePrefs(s) {
   localStorage.setItem(STORAGE_KEYS.lon, String(s.lon));
   localStorage.setItem(STORAGE_KEYS.radiusMi, String(s.radiusMi));
   localStorage.setItem(STORAGE_KEYS.refreshSeconds, String(s.refreshSeconds));
+  localStorage.setItem(STORAGE_KEYS.autoRefresh, s.autoRefresh ? "1" : "0");
   localStorage.setItem(STORAGE_KEYS.minAltitudeFt, String(s.minAltitudeFt));
   localStorage.setItem(STORAGE_KEYS.carrierAllow, s.carrierAllow || "");
   localStorage.setItem(STORAGE_KEYS.carrierDeny, s.carrierDeny || "");
@@ -144,6 +150,7 @@ function readFormSettings() {
     lon: parseStoredNumber(els.lon.value, JC_DEFAULT.lon),
     radiusMi: parseStoredNumber(els.radiusMi.value, DEFAULTS.radiusMi),
     refreshSeconds: parseStoredNumber(els.refreshSeconds.value, DEFAULTS.refreshSeconds),
+    autoRefresh: els.autoRefresh.checked,
     minAltitudeFt: parseStoredNumber(els.minAltitudeFt.value, DEFAULTS.minAltitudeFt),
     carrierAllow: els.carrierAllow.value.trim(),
     carrierDeny: els.carrierDeny.value.trim(),
@@ -156,6 +163,7 @@ function readFormSettings() {
 function fillForm(s) {
   els.secret.value = s.secret;
   els.radiusMi.value = String(s.radiusMi);
+  els.autoRefresh.checked = Boolean(s.autoRefresh);
   els.refreshSeconds.value = String(s.refreshSeconds);
   els.minAltitudeFt.value = String(s.minAltitudeFt);
   els.carrierAllow.value = s.carrierAllow || "";
@@ -164,6 +172,11 @@ function fillForm(s) {
   els.unique.checked = Boolean(s.unique);
   els.lat.value = String(s.lat);
   els.lon.value = String(s.lon);
+  syncRefreshIntervalEnabled();
+}
+
+function syncRefreshIntervalEnabled() {
+  els.refreshSeconds.disabled = !els.autoRefresh.checked;
 }
 
 function setStatus(message, kind = "") {
@@ -600,7 +613,9 @@ async function fetchFlights({ boot = false } = {}) {
 
 function scheduleRefresh() {
   pauseRefresh();
-  const seconds = Math.max(30, readFormSettings().refreshSeconds);
+  const s = readFormSettings();
+  if (!s.autoRefresh) return;
+  const seconds = Math.max(30, s.refreshSeconds);
   refreshTimer = setInterval(() => {
     fetchFlights();
   }, seconds * 1000);
@@ -703,6 +718,10 @@ async function boot() {
     saveAll(next);
     scheduleRefresh();
     setStatus("Settings saved.", "ok");
+  });
+
+  els.autoRefresh.addEventListener("change", () => {
+    syncRefreshIntervalEnabled();
   });
 
   els.refreshBtn.addEventListener("click", () => {

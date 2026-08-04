@@ -52,7 +52,8 @@
 | Enrich path | airplanes.live → **adsbdb** first → AirLabs gap-fill; callsign cache skips repeat upstream per key |
 | File cache | `/var/lib/airplane-frame/cache.json` — ignores KV `expirationTtl`; clear manually if stuck stale |
 | Cache policy | Short-TTL display fields only (`origin`/`destination`/`carrier`); no route DB mirror; risk accepted (exploration B) |
-| Last ship | callsign enrichment cache; local unit UAT PASS (2026-08-03); Pi production UAT pending sync |
+| Front-end refresh | Auto-refresh **off** by default (`af_autoRefresh`); boot fetch once; manual Refresh always |
+| Last ship | auto-refresh optional (default off); unit tests PASS (2026-08-03) |
 
 **Verify before coding:**
 
@@ -66,4 +67,9 @@ cd worker && npm test
 
 **Open items:** **Deferred:** Phase 6 poster polish/UAT. Rotate secrets exposed in chat when convenient. Settings/geocoder/livery deferred. Carrier inventory: [airlines-seen-2026-08-01.md](../../design-reference/airlines-seen-2026-08-01.md).
 
-**Last updated:** 2026-08-03 — exploration B callsign enrichment cache shipped; next = deferred Phase 6 polish
+**Potential next (backlog, not started):**
+- Design spike: old-paper texture on articles
+- Design spike: CSS scroll-driven animations for `.plane-silhouette` (row: L→R to current `translateX` when article hits vertical viewport center; column: bottom→top until article hits horizontal center) — [MDN `scroll()`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/animation-timeline/scroll)
+- Design spike: show airport names in addition to codes
+
+**Last updated:** 2026-08-03 — auto-refresh optional (default off); boot fetch once; manual Refresh always available

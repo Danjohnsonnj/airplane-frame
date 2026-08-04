@@ -53,7 +53,8 @@ Full table: [secrets.md](./secrets.md).
 1. Open the Pages (or local) URL.
 2. Paste `APP_SHARED_SECRET` into the labeled field.
 3. **Save settings**, then **Refresh flights**. On **200**, the secret is kept in `localStorage` (`af_secret`) on that browser only.
-4. On **401**, the app removes the stored secret, pauses auto-refresh, and shows a hint that the AirLabs key is the wrong value.
+4. **Auto-refresh** is off by default; enable the checkbox in settings if you want repeating fetches on the interval. One fetch still runs on each page load when a secret is set.
+5. On **401**, the app removes the stored secret, pauses auto-refresh, and shows a hint that the AirLabs key is the wrong value.
 
 Never commit secrets. Never put `AIRLABS_API_KEY` in front-end source or the browser field.
 

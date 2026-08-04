@@ -66,3 +66,5 @@
 - Live browser geolocation
 - Optional widen of sky-watcher filters (min altitude, widebody bias strength)
 - Deferred: settings period polish; geocoder UX polish; settings tag-chip chrome fork
+- **Design spikes (noted 2026-08-03):** old-paper article texture; scroll-driven `.plane-silhouette` motion (row L→R / column bottom→top, center-viewport arrival); airport names alongside codes
+- **UX (DONE 2026-08-03):** auto-refresh optional, default OFF
