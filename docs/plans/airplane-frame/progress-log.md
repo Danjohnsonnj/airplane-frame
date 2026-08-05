@@ -362,3 +362,10 @@
 - Verified: user sign-off; automated suite already green (`js/paper-texture.test.js`, lib, plane-asset; worker 77).
 - Learned: n/a.
 - Overwrote: HANDOFF last-ship line (unit + manual UAT PASS).
+
+## 2026-08-05 - Silhouette scroll-motion probe + ship
+
+- Happened: Interview locked one-shot arrivals (hard latch, trailing-edge-in-view for rows, 1s timed stagger after settle). Built explore mock `docs/design-mocks/silhouette-scroll-motion.html` (dual review frames). User UAT PASS; probe tweaks: row animation ends at trailing edge; 2× timed duration; split row/column frames (toggle removed). Shipped `css/poster-silhouette-motion.css` + `js/silhouette-motion.js`; wired from `renderPosterWall`.
+- Verified: `node --test js/lib.test.js js/plane-asset.test.js js/paper-texture.test.js` PASS; mock browser check rows/columns latch at scroll end.
+- Learned: Column motion needs separate scroll frame (toggle/hidden broke `view()`); row latch must use trailing edge not viewport center for bottom panels.
+- Overwrote: visual-direction Motion lock, HANDOFF, phases, design-mocks README, lessons.

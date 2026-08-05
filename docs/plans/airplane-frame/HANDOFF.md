@@ -2,7 +2,7 @@
 
 **Goal:** Personal web app showing up to **10** nearby commercial flights (carrier, destination, plane type) around a saved location, starting with Jersey City, NJ.
 
-**Current phase:** Plane silhouettes **DONE**. Enrich efficiency + pack size **DONE**. Phase 6.5 Pi Tunnel **DONE**. adsbdb first-pass **DONE**. **Exploration B callsign enrichment cache DONE** (2026-08-03). Paper texture on flight panels **DONE** (2026-08-05). Phase 6 poster polish **deferred**.
+**Current phase:** Plane silhouettes **DONE**. Silhouette scroll-motion **DONE** (2026-08-05). Enrich efficiency + pack size **DONE**. Phase 6.5 Pi Tunnel **DONE**. adsbdb first-pass **DONE**. **Exploration B callsign enrichment cache DONE** (2026-08-03). Paper texture on flight panels **DONE** (2026-08-05). Phase 6 poster polish **deferred**.
 
 **Next action (cold-start executable):**
 
@@ -68,7 +68,6 @@ cd worker && npm test
 **Open items:** **Deferred:** Phase 6 poster polish/UAT. Rotate secrets exposed in chat when convenient. Settings/geocoder/livery deferred. Carrier inventory: [airlines-seen-2026-08-01.md](../../design-reference/airlines-seen-2026-08-01.md).
 
 **Potential next (backlog, not started):**
-- Design spike: CSS scroll-driven animations for `.plane-silhouette` (row: L→R to current `translateX` when article hits vertical viewport center; column: bottom→top until article hits horizontal center) — [MDN `scroll()`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/animation-timeline/scroll)
 - Design spike: show airport names in addition to codes
 
-**Last updated:** 2026-08-05 — paper texture shipped + user UAT passed; Phase 6 poster polish still deferred unless asked
+**Last updated:** 2026-08-05 — silhouette scroll-motion shipped; Phase 6 poster polish still deferred unless asked

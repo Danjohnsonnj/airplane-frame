@@ -1,0 +1,788 @@
+<!doctype html>
+<!--
+  EXPLORE mock — silhouette scroll-motion probe (2026-08-05).
+  Provisional motion only; NOT locked in visual-direction until probe UAT + Phase B.
+  Plan: docs/plans/airplane-frame/silhouette-scroll-motion.plan.md
+  Serve: python3 -m http.server 8765 --directory docs/design-mocks
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Airplane Frame — Silhouette scroll-motion (EXPLORE)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@500;600;700&family=Oswald:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --sun: #f2c84b;
+      --navy: #17324d;
+      --rose: #d98c8c;
+      --teal: #167d7a;
+      --coral: #e85d44;
+      --mint: #a7d8c5;
+      --ink: #171a18;
+      --cream: #f7f0de;
+      --review: #232522;
+      --review-ink: #eae4d7;
+      --hairline: 1.5px;
+      --display: "Oswald", "Arial Narrow", sans-serif;
+      --heavy: "Archivo Black", "Arial Black", sans-serif;
+      --utility: "Archivo", sans-serif;
+      --type-0: 11px;
+      --type-1: 12px;
+      --type-5: 32px;
+      --type-6: 40px;
+      --silhouette-duration: 1s;
+      --silhouette-stagger: 110ms;
+      --settle-duration: 0.48s;
+      --silhouette-rest-rows: translateX(-25%) translateY(0%) scale(1.5) rotateZ(90deg);
+      --silhouette-start-rows: translateX(-130%) translateY(0%) scale(1.5) rotateZ(90deg);
+      --silhouette-rest-cols: translateX(-50%) translateY(-70%) scale(3) rotateZ(0deg);
+      --silhouette-start-cols: translateX(-50%) translateY(55%) scale(3) rotateZ(0deg);
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      background: var(--review);
+      color: var(--review-ink);
+      font-family: var(--utility);
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background:
+        linear-gradient(rgba(255, 255, 255, .025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, .025) 1px, transparent 1px),
+        var(--review);
+      background-size: 24px 24px;
+    }
+
+    .review-shell {
+      width: min(1480px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 44px 0 72px;
+    }
+
+    .review-header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 32px;
+      margin: 0 0 30px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(234, 228, 215, .3);
+    }
+
+    .review-kicker,
+    .frame-label,
+    .review-note {
+      text-transform: uppercase;
+      letter-spacing: .16em;
+      font-size: var(--type-0);
+      font-weight: 700;
+    }
+
+    .review-kicker {
+      margin: 0 0 7px;
+      color: var(--sun);
+    }
+
+    .review-title {
+      margin: 0;
+      font-family: var(--display);
+      font-size: clamp(var(--type-5), 5vw, 40px);
+      font-weight: 500;
+      line-height: .95;
+      text-transform: uppercase;
+    }
+
+    .review-note {
+      max-width: 420px;
+      margin: 0;
+      color: rgba(234, 228, 215, .6);
+      line-height: 1.55;
+      text-align: right;
+    }
+
+    .review-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
+      gap: 48px 38px;
+    }
+
+    .review-frame { min-width: 0; }
+    .review-frame.wide { grid-column: 1 / -1; }
+
+    .frame-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0 0 12px;
+      color: rgba(234, 228, 215, .78);
+    }
+
+    .frame-label::before {
+      content: "";
+      width: 18px;
+      height: 3px;
+      background: var(--coral);
+    }
+
+    .device {
+      position: relative;
+      overflow: hidden;
+      margin: 0 auto;
+      background: var(--ink);
+      border: 6px solid #10110f;
+      box-shadow: 0 22px 48px rgba(0, 0, 0, .34);
+    }
+
+    .device.mobile {
+      width: min(100%, 387px);
+      aspect-ratio: 375 / 812;
+      border-radius: 28px;
+    }
+
+    .device.wide {
+      width: 100%;
+      aspect-ratio: 1120 / 650;
+      min-height: clamp(420px, 58vw, 650px);
+      border-radius: 14px;
+    }
+
+    /* Scroll root mirrors #view-poster — one per device frame */
+    .mock-scroller {
+      position: absolute;
+      inset: 0;
+      overflow: scroll;
+      background: var(--ink);
+    }
+
+    .poster-wall {
+      position: relative;
+      display: flex;
+      background: var(--ink);
+      min-height: 100%;
+      min-width: 100%;
+    }
+
+    .poster-wall.rows {
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .poster-wall.columns {
+      flex-direction: row;
+      height: 100%;
+      width: max-content;
+    }
+
+    .flight-panel {
+      position: relative;
+      display: flex;
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
+      color: var(--panel-ink, var(--ink));
+      animation: settle var(--settle-duration) cubic-bezier(0.2, 0.8, 0.25, 1) both;
+      animation-delay: var(--delay, 0ms);
+      view-timeline-name: --panel-in;
+    }
+
+    .rows .flight-panel {
+      flex: 0 0 auto;
+      flex-direction: column;
+      border-bottom: 3px solid var(--ink);
+      min-height: 40vh;
+      view-timeline-axis: block;
+    }
+
+    .columns .flight-panel {
+      flex: 0 0 auto;
+      flex-direction: column;
+      min-width: 30vw;
+      min-height: 100%;
+      border-right: 4px solid var(--ink);
+      view-timeline-axis: inline;
+    }
+
+    .rows .flight-panel:last-child { border-bottom: 0; }
+    .columns .flight-panel:last-child { border-right: 0; }
+
+    .ground-sun { --panel-ground: var(--sun); --panel-ink: var(--ink); background: var(--sun); }
+    .ground-navy { --panel-ground: var(--navy); --panel-ink: var(--cream); background: var(--navy); }
+    .ground-rose { --panel-ground: var(--rose); --panel-ink: var(--ink); background: var(--rose); }
+    .ground-teal { --panel-ground: var(--teal); --panel-ink: var(--cream); background: var(--teal); }
+    .ground-coral { --panel-ground: var(--coral); --panel-ink: var(--ink); background: var(--coral); }
+    .ground-mint { --panel-ground: var(--mint); --panel-ink: var(--ink); background: var(--mint); }
+
+    .hero {
+      position: relative;
+      display: flex;
+      flex: 3 1 60%;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 0;
+      overflow: hidden;
+      padding: 8px 17px 7px;
+      color: var(--panel-ink);
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: 10px;
+      left: 17px;
+      width: 20px;
+      border-top: 2px solid currentColor;
+      opacity: 0.58;
+      z-index: 1;
+    }
+
+    .hero .plane-silhouette {
+      position: absolute;
+      right: 0;
+      top: 0%;
+      width: min(55%, 220px);
+      opacity: 0.18;
+      color: inherit;
+      pointer-events: none;
+      z-index: 0;
+      transform: var(--silhouette-start-rows);
+    }
+
+    .columns .hero .plane-silhouette {
+      left: 50%;
+      top: 50%;
+      right: auto;
+      transform: var(--silhouette-start-cols);
+    }
+
+    .plane-silhouette.arrived.rows-motion {
+      transform: var(--silhouette-rest-rows);
+      animation: none !important;
+    }
+
+    .plane-silhouette.arrived.cols-motion {
+      transform: var(--silhouette-rest-cols);
+      animation: none !important;
+    }
+
+    .hero .airline,
+    .hero .flight-number {
+      position: relative;
+      z-index: 1;
+    }
+
+    .plane-silhouette svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      overflow: visible;
+    }
+
+    .plane-silhouette svg path {
+      fill: currentColor;
+      stroke: none;
+    }
+
+    .airline {
+      max-width: 95%;
+      margin: 0;
+      font-family: var(--display);
+      font-size: clamp(var(--type-5), 8.3vw, var(--type-6));
+      font-weight: 600;
+      line-height: 0.88;
+      letter-spacing: -0.035em;
+      text-transform: uppercase;
+    }
+
+    .flight-number {
+      margin-top: 5px;
+      font-family: var(--display);
+      font-size: var(--type-1);
+      font-weight: 500;
+      letter-spacing: 0.19em;
+      text-transform: uppercase;
+      opacity: 0.72;
+    }
+
+    .tag {
+      position: relative;
+      display: grid;
+      flex: 2 1 40%;
+      min-height: 0;
+      border-top: var(--hairline) solid currentColor;
+      color: var(--panel-ink);
+    }
+
+    .horizontal-tag {
+      grid-template-columns: 1.04fr 1.96fr;
+      padding: 7px 14px 8px;
+    }
+
+    .vertical-tag {
+      grid-template-rows: auto 1fr;
+      padding: 7px 12px 8px;
+    }
+
+    .tag-code-wrap {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-width: 0;
+      border-right: var(--hairline) solid currentColor;
+    }
+
+    .vertical-tag .tag-code-wrap {
+      border-right: 0;
+      border-bottom: var(--hairline) solid currentColor;
+      padding-bottom: 6px;
+    }
+
+    .tag-kicker {
+      margin: 0 0 1px;
+      font-size: var(--type-0);
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      opacity: 0.68;
+    }
+
+    .tag-code {
+      margin: 0;
+      font-family: var(--heavy);
+      font-size: clamp(var(--type-5), 9.2vw, var(--type-6));
+      line-height: 0.82;
+      letter-spacing: -0.075em;
+    }
+
+    .tag-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-content: center;
+      min-width: 0;
+      padding-left: 10px;
+    }
+
+    .vertical-tag .tag-fields {
+      padding-left: 0;
+      padding-top: 6px;
+    }
+
+    .field {
+      min-width: 0;
+      padding: 3px 4px;
+    }
+
+    .field-label {
+      display: block;
+      margin-bottom: 1px;
+      font-size: var(--type-0);
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      opacity: 0.62;
+    }
+
+    .field-value {
+      display: block;
+      font-size: var(--type-0);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    @keyframes settle {
+      from { opacity: 0; transform: translateY(9px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes silhouette-arrive-rows {
+      from { transform: var(--silhouette-start-rows); }
+      to { transform: var(--silhouette-rest-rows); }
+    }
+
+    @keyframes silhouette-arrive-cols {
+      from { transform: var(--silhouette-start-cols); }
+      to { transform: var(--silhouette-rest-cols); }
+    }
+
+    @supports (animation-timeline: view()) {
+      /* Rows: finish when trailing (bottom) edge enters scrollport */
+      .plane-silhouette.scroll-driven.rows-motion {
+        animation: silhouette-arrive-rows linear both;
+        animation-timeline: --panel-in;
+        animation-range: entry 0% entry 100%;
+      }
+
+      /* Columns: finish when trailing (right) edge enters scrollport */
+      .plane-silhouette.scroll-driven.cols-motion {
+        animation: silhouette-arrive-cols linear both;
+        animation-timeline: --panel-in;
+        animation-range: entry 0% entry 100%;
+      }
+
+      .plane-silhouette.timed-arrival.rows-motion {
+        animation: silhouette-arrive-rows var(--silhouette-duration) cubic-bezier(0.2, 0.8, 0.25, 1) both;
+        animation-delay: var(--silhouette-delay, 0ms);
+        animation-timeline: auto;
+      }
+
+      .plane-silhouette.timed-arrival.cols-motion {
+        animation: silhouette-arrive-cols var(--silhouette-duration) cubic-bezier(0.2, 0.8, 0.25, 1) both;
+        animation-delay: var(--silhouette-delay, 0ms);
+        animation-timeline: auto;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .flight-panel { animation: none; }
+      .plane-silhouette { animation: none !important; }
+      .plane-silhouette.rows-motion { transform: var(--silhouette-rest-rows); }
+      .plane-silhouette.cols-motion { transform: var(--silhouette-rest-cols); }
+    }
+
+    @media (max-width: 860px) {
+      .review-grid { grid-template-columns: 1fr; }
+      .review-frame.wide { grid-column: auto; }
+      .device.wide { width: 100%; }
+    }
+
+    @media (max-width: 619px) {
+      .review-shell {
+        width: min(100% - 20px, 1480px);
+        padding-top: 26px;
+      }
+
+      .review-header { display: block; }
+
+      .review-note {
+        margin-top: 14px;
+        text-align: left;
+      }
+
+      .review-grid { gap: 38px; }
+
+      .device.wide {
+        width: min(100%, 387px);
+        aspect-ratio: 375 / 812;
+        border-radius: 28px;
+      }
+
+      .poster-wall.columns { flex-direction: column; }
+
+      .columns .flight-panel {
+        min-width: 0;
+        min-height: 40vh;
+        border-right: 0;
+        border-bottom: 3px solid var(--ink);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="review-shell">
+    <header class="review-header">
+      <div>
+        <p class="review-kicker">Airplane Frame · Silhouette scroll-motion probe</p>
+        <h1 class="review-title">One-shot arrivals</h1>
+      </div>
+      <p class="review-note">Motion reference for ship — see visual-direction Motion lock. Rows: L→R when trailing edge enters view. Columns: bottom→top. Scroll each frame to test latch.</p>
+    </header>
+
+    <div class="review-grid">
+      <section class="review-frame" aria-labelledby="rows-label">
+        <h2 class="frame-label" id="rows-label">Mobile · row wall</h2>
+        <div class="device mobile">
+          <div class="mock-scroller" data-mode="rows" aria-label="Row wall scroll probe">
+            <div class="poster-wall rows"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="review-frame wide" aria-labelledby="cols-label">
+        <h2 class="frame-label" id="cols-label">Wide · column wall</h2>
+        <div class="device wide">
+          <div class="mock-scroller" data-mode="columns" aria-label="Column wall scroll probe">
+            <div class="poster-wall columns"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script type="module">
+    import { resolvePlaneAsset } from './planes/resolve.mjs';
+
+    const SETTLE_MS = 480;
+    const SILHOUETTE_MS = 1000;
+    const STAGGER_MS = 110;
+
+    const FLIGHTS = [
+      { carrier: 'Endeavor Air', flight: 'EDV 5128', dest: 'CVG', icao: 'E75L', ground: 'ground-sun' },
+      { carrier: 'Southwest Airlines', flight: 'SWA 1892', dest: 'BWI', icao: 'B738', ground: 'ground-navy' },
+      { carrier: 'United Airlines', flight: 'UAL 412', dest: 'ORD', icao: 'B38M', ground: 'ground-rose' },
+      { carrier: 'JetBlue Airways', flight: 'JBU 816', dest: 'FLL', icao: 'A321', ground: 'ground-teal' },
+      { carrier: 'Delta Air Lines', flight: 'DAL 2210', dest: 'ATL', icao: 'B752', ground: 'ground-coral' },
+      { carrier: 'American Airlines', flight: 'AAL 302', dest: 'DFW', icao: 'B77W', ground: 'ground-mint' },
+      { carrier: 'Spirit Airlines', flight: 'NKS 104', dest: 'MCO', icao: 'A320', ground: 'ground-sun' },
+      { carrier: 'Alaska Airlines', flight: 'ASA 18', dest: 'SEA', icao: 'B739', ground: 'ground-navy' },
+    ];
+
+    const base = new URL('./', import.meta.url);
+    const motionControllers = new Map();
+
+    const prefersReducedMotion = () =>
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const supportsScrollTimeline = () =>
+      CSS.supports('animation-timeline', 'view()') ||
+      CSS.supports('animation-timeline', '--panel-in');
+
+    async function loadJson(rel) {
+      const res = await fetch(new URL(rel, base), { cache: 'no-store' });
+      if (!res.ok) throw new Error(`Failed to load ${rel}: ${res.status}`);
+      return res.json();
+    }
+
+    async function inlineSilhouette(host, href, tier) {
+      const res = await fetch(new URL(href, base), { cache: 'no-store' });
+      if (!res.ok) throw new Error(`Failed to load ${href}: ${res.status}`);
+      const svgText = await res.text();
+      const doc = new DOMParser().parseFromString(svgText, 'image/svg+xml');
+      const svg = doc.querySelector('svg');
+      if (!svg) throw new Error(`No svg root in ${href}`);
+      host.replaceChildren(document.importNode(svg, true));
+      host.dataset.tier = tier;
+    }
+
+    function panelDelayMs(panel) {
+      const raw = getComputedStyle(panel).getPropertyValue('--delay').trim();
+      if (!raw) return 0;
+      if (raw.endsWith('ms')) return parseFloat(raw);
+      if (raw.endsWith('s')) return parseFloat(raw) * 1000;
+      return parseFloat(raw) || 0;
+    }
+
+    function viewCenter(scrollerEl) {
+      const r = scrollerEl.getBoundingClientRect();
+      return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+    }
+
+    function isPastCenter(panel, scrollerEl, mode) {
+      const pr = panel.getBoundingClientRect();
+      const vc = viewCenter(scrollerEl);
+      if (mode === 'rows') {
+        return pr.top + pr.height / 2 <= vc.y;
+      }
+      return pr.left + pr.width / 2 <= vc.x;
+    }
+
+    /** Trailing edge has entered the scrollport (bottom/right visible). */
+    function isTrailingEdgeInView(panel, scrollerEl, mode) {
+      const pr = panel.getBoundingClientRect();
+      const sr = scrollerEl.getBoundingClientRect();
+      if (mode === 'rows') {
+        return pr.bottom <= sr.bottom + 1 && pr.top < sr.bottom;
+      }
+      return pr.right <= sr.right + 1 && pr.left < sr.right;
+    }
+
+    function isSilhouetteMotionAnim(animation) {
+      return (
+        animation.animationName === 'silhouette-arrive-rows' ||
+        animation.animationName === 'silhouette-arrive-cols'
+      );
+    }
+
+    function timedMotionFinished(silhouette) {
+      const motionAnims = silhouette.getAnimations().filter(isSilhouetteMotionAnim);
+      if (motionAnims.length === 0) return false;
+      return motionAnims.every((a) => a.playState === 'finished');
+    }
+
+    function shouldUseTimedArrival(panel, scrollerEl, mode) {
+      if (mode === 'rows') {
+        return isTrailingEdgeInView(panel, scrollerEl, mode);
+      }
+      return isPastCenter(panel, scrollerEl, mode);
+    }
+
+    function latchSilhouette(silhouette) {
+      if (silhouette.classList.contains('arrived')) return;
+      silhouette.classList.remove('scroll-driven', 'timed-arrival');
+      silhouette.classList.add('arrived');
+    }
+
+    function latchIfTrailingEdge(panel, silhouette, scroller, mode) {
+      if (silhouette.classList.contains('arrived')) return;
+      if (!isTrailingEdgeInView(panel, scroller, mode)) return;
+      latchSilhouette(silhouette);
+    }
+
+    function shouldLatchScrollDriven(panel, silhouette, scroller, mode) {
+      if (!silhouette.classList.contains('scroll-driven')) return false;
+      return isTrailingEdgeInView(panel, scroller, mode);
+    }
+
+    function createPanelMarkup(f, index, mode) {
+      const tagClass = mode === 'columns' ? 'tag vertical-tag' : 'tag horizontal-tag';
+      const delay = 40 + index * 60;
+      const motionClass = mode === 'columns' ? 'cols-motion' : 'rows-motion';
+      return `
+        <article class="flight-panel ${f.ground}" data-icao="${f.icao}" style="--delay: ${delay}ms">
+          <div class="hero">
+            <div class="plane-silhouette ${motionClass}" aria-hidden="true"></div>
+            <h3 class="airline">${f.carrier}</h3>
+            <span class="flight-number">${f.flight}</span>
+          </div>
+          <div class="${tagClass}">
+            <div class="tag-code-wrap">
+              <span class="tag-kicker">Destination</span>
+              <strong class="tag-code">${f.dest}</strong>
+            </div>
+            <div class="tag-fields">
+              <span class="field"><b class="field-label">Route</b><span class="field-value">LGA → ${f.dest}</span></span>
+              <span class="field"><b class="field-label">Aircraft</b><span class="field-value">${f.icao}</span></span>
+              <span class="field"><b class="field-label">Altitude</b><span class="field-value">21,600 ft</span></span>
+              <span class="field"><b class="field-label">Distance</b><span class="field-value">7.8 nm</span></span>
+            </div>
+          </div>
+        </article>`;
+    }
+
+    async function loadSilhouettes(wall) {
+      const [manifest, familyMap] = await Promise.all([
+        loadJson('planes/manifest.json'),
+        loadJson('planes/family-map.json'),
+      ]);
+      await Promise.all(
+        [...wall.querySelectorAll('.flight-panel[data-icao]')].map(async (panel) => {
+          const host = panel.querySelector('.plane-silhouette');
+          if (!host) return;
+          const resolved = resolvePlaneAsset(panel.dataset.icao, manifest, familyMap);
+          try {
+            await inlineSilhouette(host, resolved.href, resolved.tier);
+          } catch (err) {
+            console.warn('[plane-silhouette]', panel.dataset.icao, err);
+          }
+        }),
+      );
+    }
+
+    function initSilhouetteMotion(scroller, wall, mode) {
+      const key = scroller;
+      const prev = motionControllers.get(key);
+      if (prev) prev.abort();
+      const controller = new AbortController();
+      motionControllers.set(key, controller);
+      const { signal } = controller;
+
+      const silhouettes = [...wall.querySelectorAll('.plane-silhouette')];
+      const panels = [...wall.querySelectorAll('.flight-panel')];
+
+      if (prefersReducedMotion() || !supportsScrollTimeline()) {
+        silhouettes.forEach(latchSilhouette);
+        return;
+      }
+
+      let staggerIndex = 0;
+      let maxTimedEndMs = 0;
+
+      panels.forEach((panel) => {
+        const silhouette = panel.querySelector('.plane-silhouette');
+        if (!silhouette) return;
+
+        silhouette.classList.remove('arrived', 'scroll-driven', 'timed-arrival');
+
+        if (shouldUseTimedArrival(panel, scroller, mode)) {
+          const settleEnd = SETTLE_MS + panelDelayMs(panel);
+          const delay = settleEnd + staggerIndex * STAGGER_MS;
+          staggerIndex += 1;
+          maxTimedEndMs = Math.max(maxTimedEndMs, delay + SILHOUETTE_MS);
+          silhouette.style.setProperty('--silhouette-delay', `${delay}ms`);
+          silhouette.classList.add('timed-arrival');
+
+          const onEnd = (ev) => {
+            if (ev.target !== silhouette || !isSilhouetteMotionAnim(ev)) return;
+            latchSilhouette(silhouette);
+          };
+          silhouette.addEventListener('animationend', onEnd, { signal });
+
+          setTimeout(() => {
+            if (signal.aborted) return;
+            latchIfTrailingEdge(panel, silhouette, scroller, mode);
+          }, delay + SILHOUETTE_MS + 80);
+        } else {
+          silhouette.classList.add('scroll-driven');
+        }
+      });
+
+      const checkScrollLatch = () => {
+        panels.forEach((panel) => {
+          const silhouette = panel.querySelector('.plane-silhouette');
+          if (!silhouette || silhouette.classList.contains('arrived')) return;
+
+          if (shouldLatchScrollDriven(panel, silhouette, scroller, mode)) {
+            latchSilhouette(silhouette);
+            return;
+          }
+
+          if (
+            silhouette.classList.contains('timed-arrival') &&
+            isTrailingEdgeInView(panel, scroller, mode) &&
+            timedMotionFinished(silhouette)
+          ) {
+            latchSilhouette(silhouette);
+          }
+        });
+      };
+
+      const scheduleLatchChecks = () => {
+        checkScrollLatch();
+        requestAnimationFrame(checkScrollLatch);
+        requestAnimationFrame(() => requestAnimationFrame(checkScrollLatch));
+      };
+
+      scroller.addEventListener('scroll', checkScrollLatch, { passive: true, signal });
+      window.addEventListener('resize', checkScrollLatch, { signal });
+
+      const observer = new IntersectionObserver(() => checkScrollLatch(), {
+        root: scroller,
+        threshold: [0, 0.01, 0.1, 0.25, 0.5, 0.75, 1],
+      });
+      panels.forEach((panel) => observer.observe(panel));
+      signal.addEventListener('abort', () => observer.disconnect(), { once: true });
+
+      scheduleLatchChecks();
+      setTimeout(checkScrollLatch, SETTLE_MS + 50);
+      if (maxTimedEndMs > 0) {
+        setTimeout(checkScrollLatch, maxTimedEndMs + 80);
+      }
+    }
+
+    async function buildWall(scroller) {
+      const mode = scroller.dataset.mode;
+      const wall = scroller.querySelector('.poster-wall');
+      wall.innerHTML = FLIGHTS.map((f, i) => createPanelMarkup(f, i, mode)).join('');
+      scroller.scrollTop = 0;
+      scroller.scrollLeft = 0;
+      await loadSilhouettes(wall);
+      requestAnimationFrame(() => initSilhouetteMotion(scroller, wall, mode));
+    }
+
+    async function init() {
+      const scrollers = [...document.querySelectorAll('.mock-scroller')];
+      await Promise.all(scrollers.map((scroller) => buildWall(scroller)));
+    }
+
+    init();
+  </script>
+</body>
+</html>

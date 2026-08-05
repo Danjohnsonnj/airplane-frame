@@ -154,6 +154,13 @@
 - Evidence: 2026-08-02 silhouette ship; 2026-08-02 prod 404 on `_family/regional-jet.svg` while `B738.svg` 200 (E75L blank).
 - Crystallize?: Yes — visual-direction Hero aircraft silhouette row.
 
+## Silhouette scroll-motion: latch + separate CSS module
+
+- Context: One-shot scroll-driven silhouette arrivals (2026-08-05).
+- Lesson: Scroll `view()` timelines need the real scroll root (`#view-poster`); hard latch requires JS (`.arrived` kills timeline). Rows complete at **trailing edge in view** (`entry 100%`), not viewport center — bottom panels otherwise never finish. Past-center panels: time-based fly-in after panel settle (~1s, 110ms stagger). Ship in `css/poster-silhouette-motion.css` + `js/silhouette-motion.js` — do not append to `poster.css`. Unsupported/reduced-motion → static rest from `.arrived` / poster base transforms.
+- Evidence: probe UAT + ship 2026-08-05.
+- Crystallize?: Yes — visual-direction Motion row.
+
 ## RexKramer normalize: first path d is the body
 
 - Context: Upstream AircraftShapesSVG outlines have stroke paths (body + detail).

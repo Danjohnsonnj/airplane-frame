@@ -1,0 +1,97 @@
+/* One-shot silhouette arrivals — see docs/plans/airplane-frame/silhouette-scroll-motion.plan.md */
+
+:root {
+  --silhouette-duration: 1s;
+  --silhouette-rest-rows: translateX(-25%) translateY(0%) scale(1.5) rotateZ(90deg);
+  --silhouette-start-rows: translateX(-130%) translateY(0%) scale(1.5) rotateZ(90deg);
+  --silhouette-rest-cols: translateX(-50%) translateY(-70%) scale(3) rotateZ(0deg);
+  --silhouette-start-cols: translateX(-50%) translateY(55%) scale(3) rotateZ(0deg);
+}
+
+.flight-panel {
+  view-timeline-name: --panel-in;
+}
+
+.rows .flight-panel {
+  view-timeline-axis: block;
+}
+
+.columns .flight-panel {
+  view-timeline-axis: inline;
+}
+
+.plane-silhouette.arrived.rows-motion {
+  transform: var(--silhouette-rest-rows);
+  animation: none !important;
+}
+
+.plane-silhouette.arrived.cols-motion {
+  transform: var(--silhouette-rest-cols);
+  animation: none !important;
+}
+
+@supports (animation-timeline: view()) {
+  .hero .plane-silhouette.rows-motion:not(.arrived) {
+    transform: var(--silhouette-start-rows);
+  }
+
+  .columns .hero .plane-silhouette.cols-motion:not(.arrived) {
+    transform: var(--silhouette-start-cols);
+  }
+
+  @keyframes silhouette-arrive-rows {
+    from {
+      transform: var(--silhouette-start-rows);
+    }
+    to {
+      transform: var(--silhouette-rest-rows);
+    }
+  }
+
+  @keyframes silhouette-arrive-cols {
+    from {
+      transform: var(--silhouette-start-cols);
+    }
+    to {
+      transform: var(--silhouette-rest-cols);
+    }
+  }
+
+  .plane-silhouette.scroll-driven.rows-motion {
+    animation: silhouette-arrive-rows linear both;
+    animation-timeline: --panel-in;
+    animation-range: entry 0% entry 100%;
+  }
+
+  .plane-silhouette.scroll-driven.cols-motion {
+    animation: silhouette-arrive-cols linear both;
+    animation-timeline: --panel-in;
+    animation-range: entry 0% entry 100%;
+  }
+
+  .plane-silhouette.timed-arrival.rows-motion {
+    animation: silhouette-arrive-rows var(--silhouette-duration) cubic-bezier(0.2, 0.8, 0.25, 1) both;
+    animation-delay: var(--silhouette-delay, 0ms);
+    animation-timeline: auto;
+  }
+
+  .plane-silhouette.timed-arrival.cols-motion {
+    animation: silhouette-arrive-cols var(--silhouette-duration) cubic-bezier(0.2, 0.8, 0.25, 1) both;
+    animation-delay: var(--silhouette-delay, 0ms);
+    animation-timeline: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plane-silhouette {
+    animation: none !important;
+  }
+
+  .plane-silhouette.rows-motion {
+    transform: var(--silhouette-rest-rows);
+  }
+
+  .plane-silhouette.cols-motion {
+    transform: var(--silhouette-rest-cols);
+  }
+}

@@ -25,6 +25,7 @@ import {
   unauthorizedStatusMessage,
 } from "./lib.js";
 import { resolvePlaneAsset } from "./plane-asset.js";
+import { initSilhouetteMotion } from "./silhouette-motion.js";
 
 const GEOCODE_URL = "https://geocoding-api.open-meteo.com/v1/search";
 const LANDSCAPE_MQ = window.matchMedia("(orientation: landscape)");
@@ -378,11 +379,10 @@ function createFlightPanel(f, ground, index, wallMode) {
   const hero = document.createElement("div");
   hero.className = "hero";
   const silhouette = document.createElement("div");
-  silhouette.className = "plane-silhouette";
+  silhouette.className = `plane-silhouette ${wallMode === "columns" ? "cols-motion" : "rows-motion"}`;
   silhouette.setAttribute("aria-hidden", "true");
   const icao = f.icaoType == null ? "" : String(f.icaoType);
   if (icao) silhouette.dataset.icao = icao;
-  void fillPlaneSilhouette(silhouette, f.icaoType);
   const airline = document.createElement("h3");
   airline.className = "airline";
   airline.textContent = f.carrier;
@@ -415,6 +415,7 @@ function createFlightPanel(f, ground, index, wallMode) {
 
   tag.append(codeWrap, fields);
   article.append(paper, wear, hero, tag);
+  article._silhouetteFill = fillPlaneSilhouette(silhouette, f.icaoType);
   return article;
 }
 
@@ -483,9 +484,17 @@ function renderPosterWall(flights, meta = {}) {
   if (kind === "ok") {
     void loadPlaneMaps();
     const grounds = assignPanelGrounds(flights, CARRIER_BRAND_NAMES, SWATCH_ORDER);
+    const silhouetteFills = [];
     for (let i = 0; i < flights.length; i += 1) {
-      els.posterWall.append(createFlightPanel(flights[i], grounds[i], i, wallMode));
+      const panel = createFlightPanel(flights[i], grounds[i], i, wallMode);
+      silhouetteFills.push(panel._silhouetteFill);
+      els.posterWall.append(panel);
     }
+    void Promise.all(silhouetteFills).then(() => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => initSilhouetteMotion(els.viewPoster, els.posterWall, wallMode));
+      });
+    });
     lastPosterFlights = flights;
     lastPosterMeta = { ...meta, stale: meta.stale };
     return;
