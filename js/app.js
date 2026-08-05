@@ -8,6 +8,7 @@ import {
 } from "./config.js";
 import { CARRIER_BRAND_NAMES } from "./carrier-brands.js";
 import {
+  assignPaperSlot,
   assignPanelGrounds,
   buildFlightsUrl,
   buildPosterStatusCopy,
@@ -361,6 +362,19 @@ function createFlightPanel(f, ground, index, wallMode) {
   if (ground.groundClass) article.classList.add(ground.groundClass);
   article.style.setProperty("--delay", `${40 + index * 60}ms`);
 
+  const slot = assignPaperSlot(index);
+  const paper = document.createElement("img");
+  paper.className = "paper-surface";
+  paper.src = "assets/textures/paper-texture-size-medium.jpg";
+  paper.alt = "";
+  paper.setAttribute("aria-hidden", "true");
+  paper.dataset.paperSlot = String(slot);
+  paper.dataset.warp = String(slot);
+
+  const wear = document.createElement("div");
+  wear.className = "paper-wear-layer";
+  wear.setAttribute("aria-hidden", "true");
+
   const hero = document.createElement("div");
   hero.className = "hero";
   const silhouette = document.createElement("div");
@@ -400,7 +414,7 @@ function createFlightPanel(f, ground, index, wallMode) {
   );
 
   tag.append(codeWrap, fields);
-  article.append(hero, tag);
+  article.append(paper, wear, hero, tag);
   return article;
 }
 

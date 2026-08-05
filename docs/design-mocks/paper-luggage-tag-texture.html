@@ -1,0 +1,707 @@
+<!doctype html>
+<!--
+  EXPLORE DESIGN MOCK — paper luggage-tag texture probe (visual reference only).
+  Do not port literal DOM/CSS into the shipped Pages app without explicit green light.
+
+  Dial knobs (:root — tweak in DevTools):
+    --paper-opacity   overall paper overlay strength (0–1)
+    --paper-blend-mode  mix-blend-mode for photo overlay (default color-burn on .paper-surface)
+    --paper-wrinkle   warp/skew intensity on photo layer (0–1)
+    --paper-wear      contrast/aging on photo layer (0–1)
+
+  Serve: python3 -m http.server 8765 --directory docs/design-mocks
+    → http://localhost:8765/paper-luggage-tag-texture.html
+-->
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Airplane Frame — Paper Luggage Tag Texture Probe</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@500;600;700&family=Oswald:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../../css/carriers.css">
+  <style>
+    :root {
+      --sun: #f2c84b;
+      --navy: #17324d;
+      --rose: #d98c8c;
+      --teal: #167d7a;
+      --coral: #e85d44;
+      --mint: #a7d8c5;
+      --ink: #171a18;
+      --cream: #f7f0de;
+      --review: #232522;
+      --review-ink: #eae4d7;
+      --hairline: 1.5px;
+      --display: "Oswald", "Arial Narrow", sans-serif;
+      --heavy: "Archivo Black", "Arial Black", sans-serif;
+      --utility: "Archivo", sans-serif;
+      --type-0: 11px;
+      --type-1: 12px;
+      --type-5: 32px;
+      --type-6: 40px;
+
+      /* Paper dial knobs — edit on :root in DevTools */
+      --paper-texture: url("textures/paper-texture-size-medium.jpg");
+      --paper-opacity: 0.65;
+      --paper-blend-mode: color-burn;
+      --paper-wrinkle: 0.45;
+      --paper-wear: 0.42;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--utility);
+      background: var(--review);
+      color: var(--review-ink);
+    }
+
+    .probe-shell {
+      width: min(100% - 32px, 1180px);
+      margin: 0 auto;
+      padding: 28px 0 56px;
+    }
+
+    .probe-header h1 {
+      margin: 0 0 8px;
+      font-family: var(--display);
+      font-size: 28px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .probe-header p {
+      margin: 0;
+      max-width: 62ch;
+      line-height: 1.55;
+      color: rgba(234, 228, 215, .78);
+    }
+
+    .probe-knobs {
+      margin: 18px 0 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(234, 228, 215, .18);
+      font-size: 12px;
+      line-height: 1.5;
+      color: rgba(234, 228, 215, .72);
+    }
+
+    .probe-knobs code {
+      color: var(--cream);
+    }
+
+    .probe-section {
+      margin-top: 40px;
+    }
+
+    .frame-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0 0 12px;
+      font-family: var(--display);
+      font-size: 14px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: rgba(234, 228, 215, .78);
+    }
+
+    .frame-label::before {
+      content: "";
+      width: 18px;
+      height: 3px;
+      background: var(--coral);
+    }
+
+    .frame-note {
+      margin: 0 0 14px;
+      max-width: 58ch;
+      font-size: 13px;
+      line-height: 1.5;
+      color: rgba(234, 228, 215, .65);
+    }
+
+    .device {
+      position: relative;
+      overflow: hidden;
+      margin: 0 auto;
+      background: var(--ink);
+      border: 6px solid #10110f;
+      box-shadow: 0 22px 48px rgba(0, 0, 0, .34);
+      width: min(100%, 387px);
+      max-height: 90vh;
+      border-radius: 28px;
+    }
+
+    .poster-wall {
+      display: flex;
+      flex-direction: column;
+      max-height: 90vh;
+      overflow-y: auto;
+      background: var(--ink);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .flight-panel {
+      --panel-color: var(--carrier-color, var(--panel-ground, var(--sun)));
+      position: relative;
+      display: flex;
+      flex: 0 0 auto;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 40vh;
+      overflow: hidden;
+      color: var(--panel-ink, var(--ink));
+      background: var(--panel-color);
+      border-bottom: 3px solid var(--ink);
+      isolation: isolate;
+    }
+
+    .flight-panel:last-child {
+      border-bottom: 0;
+    }
+
+    .ground-sun {
+      --panel-ground: var(--sun);
+      --panel-ink: var(--ink);
+    }
+
+    .ground-navy {
+      --panel-ground: var(--navy);
+      --panel-ink: var(--cream);
+    }
+
+    .ground-rose {
+      --panel-ground: var(--rose);
+      --panel-ink: var(--ink);
+    }
+
+    .ground-teal {
+      --panel-ground: var(--teal);
+      --panel-ink: var(--cream);
+    }
+
+    .ground-coral {
+      --panel-ground: var(--coral);
+      --panel-ink: var(--ink);
+    }
+
+    .ground-mint {
+      --panel-ground: var(--mint);
+      --panel-ink: var(--ink);
+    }
+
+    @supports (color: contrast-color(red)) {
+      .flight-panel[data-carrier] {
+        --panel-ink: contrast-color(var(--panel-color));
+      }
+    }
+
+    @supports (color: oklch(from red l c calc(h + 180))) and (color: color-mix(in oklch, red 52%, black 48%)) and (color: contrast-color(red)) {
+      .flight-panel[data-carrier] {
+        --tag-complement: oklch(from var(--panel-color) clamp(0.1, calc((1 - l) + (0.5 - l) * 0.25), 0.9) c calc(h + 180));
+        --tag-ink: color-mix(in oklch, var(--tag-complement) 52%, contrast-color(var(--panel-color)) 48%);
+      }
+    }
+
+    .panel-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      min-height: 0;
+      color: var(--panel-ink, var(--ink));
+    }
+
+    .flight-panel[data-carrier] .panel-content {
+      color: var(--tag-ink, var(--panel-ink, var(--ink)));
+    }
+
+    /* Paper surface img — photo + per-panel SVG warp; direct child of .flight-panel */
+    .paper-surface {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      z-index: 1;
+      display: block;
+      width: 130%;
+      height: 130%;
+      max-width: none;
+      object-fit: cover;
+      object-position: var(--panel-paper-pos, center);
+      mix-blend-mode: color-burn;
+      opacity: 0.65;
+      transform: translate(-50%, -50%)
+        scaleX(calc(var(--panel-paper-scale, 1.35) * var(--panel-paper-flip-x, 1)))
+        scaleY(var(--panel-paper-scale-y, 1))
+        rotate(calc(var(--panel-paper-rotate, 0deg) + (var(--paper-wrinkle) * var(--panel-warp, 1) * 4deg)))
+        skewX(calc(var(--panel-paper-skew-x, 0deg) + (var(--paper-wrinkle) * var(--panel-warp, 1) * 2.5deg)))
+        skewY(var(--panel-paper-skew-y, 0deg));
+      transform-origin: center;
+      filter: contrast(calc(0.92 + var(--paper-wear) * 0.35))
+        brightness(calc(1.02 - var(--paper-wear) * 0.22));
+      pointer-events: none;
+    }
+
+    /* Unique crop + scale per panel — avoids visible tiling across the wall */
+    .paper-surface[data-paper-slot="1"] { --panel-paper-pos: 7% 9%; --panel-paper-scale: 1.38; --panel-paper-scale-y: 1.07; --panel-paper-flip-x: 1; --panel-paper-rotate: -1.7deg; --panel-paper-skew-x: -1.1deg; --panel-paper-skew-y: 0.4deg; --panel-warp: -1; }
+    .paper-surface[data-paper-slot="2"] { --panel-paper-pos: 89% 12%; --panel-paper-scale: 1.52; --panel-paper-scale-y: 0.96; --panel-paper-flip-x: -1; --panel-paper-rotate: 2.8deg; --panel-paper-skew-x: 1.2deg; --panel-paper-skew-y: -0.7deg; --panel-warp: 1; }
+    .paper-surface[data-paper-slot="3"] { --panel-paper-pos: 24% 71%; --panel-paper-scale: 1.28; --panel-paper-scale-y: 1.11; --panel-paper-flip-x: 1; --panel-paper-rotate: -3.2deg; --panel-paper-skew-x: -0.6deg; --panel-paper-skew-y: 0.9deg; --panel-warp: -0.6; }
+    .paper-surface[data-paper-slot="4"] { --panel-paper-pos: 67% 39%; --panel-paper-scale: 1.46; --panel-paper-scale-y: 1.03; --panel-paper-flip-x: -1; --panel-paper-rotate: 1.3deg; --panel-paper-skew-x: 1.7deg; --panel-paper-skew-y: -0.4deg; --panel-warp: 0.8; }
+    .paper-surface[data-paper-slot="5"] { --panel-paper-pos: 11% 55%; --panel-paper-scale: 1.61; --panel-paper-scale-y: 0.94; --panel-paper-flip-x: 1; --panel-paper-rotate: -2.4deg; --panel-paper-skew-x: -1.8deg; --panel-paper-skew-y: 0.2deg; --panel-warp: -0.4; }
+    .paper-surface[data-paper-slot="6"] { --panel-paper-pos: 76% 19%; --panel-paper-scale: 1.33; --panel-paper-scale-y: 1.09; --panel-paper-flip-x: -1; --panel-paper-rotate: 3.4deg; --panel-paper-skew-x: 0.5deg; --panel-paper-skew-y: -1.0deg; --panel-warp: 0.5; }
+    .paper-surface[data-paper-slot="7"] { --panel-paper-pos: 41% 86%; --panel-paper-scale: 1.55; --panel-paper-scale-y: 1.01; --panel-paper-flip-x: 1; --panel-paper-rotate: -0.9deg; --panel-paper-skew-x: -2.0deg; --panel-paper-skew-y: 0.7deg; --panel-warp: -0.9; }
+    .paper-surface[data-paper-slot="8"] { --panel-paper-pos: 3% 78%; --panel-paper-scale: 1.41; --panel-paper-scale-y: 1.12; --panel-paper-flip-x: -1; --panel-paper-rotate: 2.1deg; --panel-paper-skew-x: 1.1deg; --panel-paper-skew-y: -0.6deg; --panel-warp: 0.7; }
+
+    .paper-surface[data-warp="1"] {
+      filter: url(#paper-warp-1) contrast(calc(0.92 + var(--paper-wear) * 0.35)) brightness(calc(1.02 - var(--paper-wear) * 0.22));
+    }
+
+    .paper-surface[data-warp="2"] {
+      filter: url(#paper-warp-2) contrast(calc(0.92 + var(--paper-wear) * 0.35)) brightness(calc(1.02 - var(--paper-wear) * 0.22));
+    }
+
+    .paper-surface[data-warp="3"] {
+      filter: url(#paper-warp-3) contrast(calc(0.92 + var(--paper-wear) * 0.35)) brightness(calc(1.02 - var(--paper-wear) * 0.22));
+    }
+
+    .paper-surface[data-warp="4"] {
+      filter: url(#paper-warp-4) contrast(calc(0.92 + var(--paper-wear) * 0.35)) brightness(calc(1.02 - var(--paper-wear) * 0.22));
+    }
+
+    .paper-surface[data-warp="5"] {
+      filter: url(#paper-warp-5) contrast(calc(0.92 + var(--paper-wear) * 0.35)) brightness(calc(1.02 - var(--paper-wear) * 0.22));
+    }
+
+    .paper-surface[data-warp="6"] {
+      filter: url(#paper-warp-6) contrast(calc(0.92 + var(--paper-wear) * 0.35)) brightness(calc(1.02 - var(--paper-wear) * 0.22));
+    }
+
+    .paper-surface[data-warp="7"] {
+      filter: url(#paper-warp-7) contrast(calc(0.92 + var(--paper-wear) * 0.35)) brightness(calc(1.02 - var(--paper-wear) * 0.22));
+    }
+
+    .paper-surface[data-warp="8"] {
+      filter: url(#paper-warp-8) contrast(calc(0.92 + var(--paper-wear) * 0.35)) brightness(calc(1.02 - var(--paper-wear) * 0.22));
+    }
+
+    .paper-wear-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      opacity: calc(var(--paper-wear) * 0.85);
+      mix-blend-mode: multiply;
+      background:
+        radial-gradient(ellipse 80% 60% at 18% 22%, rgba(40, 28, 18, 0.34), transparent 58%),
+        radial-gradient(ellipse 55% 45% at 82% 78%, rgba(30, 22, 14, 0.28), transparent 52%),
+        linear-gradient(145deg, rgba(255, 248, 230, 0.12), transparent 42%, rgba(40, 28, 18, 0.14));
+    }
+
+    .hero {
+      position: relative;
+      display: flex;
+      flex: 3 1 58%;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 0;
+      padding: 8px 14px 6px;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: 10px;
+      left: 14px;
+      width: 20px;
+      border-top: 2px solid currentColor;
+      opacity: .58;
+    }
+
+    .airline {
+      margin: 0;
+      max-width: 95%;
+      font-family: var(--display);
+      font-size: clamp(22px, 7vw, 30px);
+      font-weight: 600;
+      line-height: .88;
+      letter-spacing: -.035em;
+      text-transform: uppercase;
+    }
+
+    .flight-number {
+      margin-top: 4px;
+      font-family: var(--display);
+      font-size: var(--type-1);
+      font-weight: 500;
+      letter-spacing: .19em;
+      text-transform: uppercase;
+      opacity: .72;
+    }
+
+    .tag {
+      position: relative;
+      display: grid;
+      flex: 2 1 42%;
+      grid-template-columns: 1.04fr 1.96fr;
+      min-height: 0;
+      padding: 6px 12px 7px;
+      border-top: var(--hairline) solid currentColor;
+    }
+
+    .tag::before,
+    .tag::after {
+      content: "";
+      position: absolute;
+      top: -5px;
+      z-index: 2;
+      width: 8px;
+      height: 8px;
+      background: currentColor;
+      border-radius: 50%;
+    }
+
+    .tag::before {
+      left: 7px;
+    }
+
+    .tag::after {
+      right: 7px;
+    }
+
+    .tag-code-wrap {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-width: 0;
+      border-right: var(--hairline) solid currentColor;
+    }
+
+    .tag-kicker {
+      margin: 0;
+      font-size: var(--type-0);
+      font-weight: 700;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      opacity: .68;
+    }
+
+    .tag-code {
+      margin: 0;
+      font-family: var(--heavy);
+      font-size: clamp(var(--type-5), 8vw, var(--type-6));
+      line-height: .82;
+      letter-spacing: -.075em;
+    }
+
+    .tag-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-content: center;
+      min-width: 0;
+      padding-left: 8px;
+    }
+
+    .field {
+      min-width: 0;
+      padding: 2px 4px;
+    }
+
+    .field-label {
+      display: block;
+      margin: 0;
+      font-size: var(--type-0);
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      opacity: .7;
+    }
+
+    .field-value {
+      display: block;
+      font-size: var(--type-0);
+      font-weight: 500;
+    }
+
+    .svg-defs {
+      position: absolute;
+      width: 0;
+      height: 0;
+      overflow: hidden;
+    }
+
+    @media (max-width: 520px) {
+      .probe-shell {
+        width: min(100% - 20px, 1180px);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <svg class="svg-defs" aria-hidden="true" focusable="false">
+    <defs>
+      <!-- Per-panel warp filters — unique seeds avoid tiling across the wall -->
+      <filter id="paper-warp-1" x="-8%" y="-8%" width="116%" height="116%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.014 0.022" numOctaves="3" seed="11" result="noise" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="12" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+      <filter id="paper-warp-2" x="-8%" y="-8%" width="116%" height="116%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.018 0.011" numOctaves="3" seed="27" result="noise" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="14" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+      <filter id="paper-warp-3" x="-8%" y="-8%" width="116%" height="116%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.012 0.019" numOctaves="4" seed="43" result="noise" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="10" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+      <filter id="paper-warp-4" x="-8%" y="-8%" width="116%" height="116%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.021 0.015" numOctaves="3" seed="58" result="noise" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="16" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+      <filter id="paper-warp-5" x="-8%" y="-8%" width="116%" height="116%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.016 0.024" numOctaves="3" seed="71" result="noise" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="12" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+      <filter id="paper-warp-6" x="-8%" y="-8%" width="116%" height="116%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.019 0.013" numOctaves="4" seed="89" result="noise" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="14" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+      <filter id="paper-warp-7" x="-8%" y="-8%" width="116%" height="116%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.013 0.017" numOctaves="3" seed="104" result="noise" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="10" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+      <filter id="paper-warp-8" x="-8%" y="-8%" width="116%" height="116%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.022 0.016" numOctaves="3" seed="127" result="noise" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="18" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </defs>
+  </svg>
+
+  <main class="probe-shell">
+    <header class="probe-header">
+      <h1>Paper luggage tag texture</h1>
+      <p>Explore-only probe: crumpled paper photo with per-panel SVG warp. Carrier grounds and ink rules
+        preserved from visual-direction. Not a ship candidate until a lock pass.</p>
+      <p class="probe-knobs">
+        Dial in DevTools on <code>html</code> / <code>:root</code> (not the shipped poster app):
+        <code>--paper-opacity</code>,
+        <code>--paper-blend-mode</code> (e.g. multiply, soft-light, overlay),
+        <code>--paper-wrinkle</code> (skew/rotate on paper),
+        <code>--paper-wear</code>.
+        Per panel: unique <code>data-paper-slot</code> on each <code>.paper-surface</code> (crop + scale in CSS).
+      </p>
+    </header>
+
+    <section class="probe-section" aria-labelledby="panels-label">
+      <h2 class="frame-label" id="panels-label">Rectangular panels · paper texture</h2>
+      <p class="frame-note">Each panel is min 40vh. One warped paper <code>img</code> per panel with unique
+        <code>data-paper-slot</code> (offset + scale in CSS).</p>
+      <div class="device">
+        <div class="poster-wall" aria-label="Eight flights with paper texture on rectangular panels">
+          <article class="flight-panel ground-sun" data-carrier="Endeavor Air">
+            <img class="paper-surface" data-paper-slot="1" data-warp="1" src="textures/paper-texture-size-medium.jpg" alt="" aria-hidden="true">
+            <div class="paper-wear-layer" aria-hidden="true"></div>
+            <div class="panel-content">
+              <div class="hero">
+                <h3 class="airline">Endeavor Air</h3>
+                <span class="flight-number">EDV 5128</span>
+              </div>
+              <div class="tag">
+                <div class="tag-code-wrap">
+                  <span class="tag-kicker">Destination</span>
+                  <strong class="tag-code">CVG</strong>
+                </div>
+                <div class="tag-fields">
+                  <span class="field"><b class="field-label">Route</b><span class="field-value">LGA → CVG</span></span>
+                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">E175</span></span>
+                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">21,600
+                      ft</span></span>
+                  <span class="field"><b class="field-label">Distance</b><span class="field-value">7.8 nm</span></span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="flight-panel" data-carrier="Southwest Airlines">
+            <img class="paper-surface" data-paper-slot="2" data-warp="2" src="textures/paper-texture-size-medium.jpg" alt="" aria-hidden="true">
+            <div class="paper-wear-layer" aria-hidden="true"></div>
+            <div class="panel-content">
+              <div class="hero">
+                <h3 class="airline">Southwest Airlines</h3>
+                <span class="flight-number">SWA 1892</span>
+              </div>
+              <div class="tag">
+                <div class="tag-code-wrap">
+                  <span class="tag-kicker">Destination</span>
+                  <strong class="tag-code">MDW</strong>
+                </div>
+                <div class="tag-fields">
+                  <span class="field"><b class="field-label">Route</b><span class="field-value">BWI → MDW</span></span>
+                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">737-800</span></span>
+                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">29,500
+                      ft</span></span>
+                  <span class="field"><b class="field-label">Distance</b><span class="field-value">10.4 nm</span></span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="flight-panel" data-carrier="Jetblue Airways">
+            <img class="paper-surface" data-paper-slot="3" data-warp="3" src="textures/paper-texture-size-medium.jpg" alt="" aria-hidden="true">
+            <div class="paper-wear-layer" aria-hidden="true"></div>
+            <div class="panel-content">
+              <div class="hero">
+                <h3 class="airline">Jetblue Airways</h3>
+                <span class="flight-number">JBU 423</span>
+              </div>
+              <div class="tag">
+                <div class="tag-code-wrap">
+                  <span class="tag-kicker">Destination</span>
+                  <strong class="tag-code">FLL</strong>
+                </div>
+                <div class="tag-fields">
+                  <span class="field"><b class="field-label">Route</b><span class="field-value">JFK → FLL</span></span>
+                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">A320</span></span>
+                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">31,200
+                      ft</span></span>
+                  <span class="field"><b class="field-label">Distance</b><span class="field-value">12.9 nm</span></span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="flight-panel" data-carrier="Frontier Airlines">
+            <img class="paper-surface" data-paper-slot="4" data-warp="4" src="textures/paper-texture-size-medium.jpg" alt="" aria-hidden="true">
+            <div class="paper-wear-layer" aria-hidden="true"></div>
+            <div class="panel-content">
+              <div class="hero">
+                <h3 class="airline">Frontier Airlines</h3>
+                <span class="flight-number">FFT 982</span>
+              </div>
+              <div class="tag">
+                <div class="tag-code-wrap">
+                  <span class="tag-kicker">Destination</span>
+                  <strong class="tag-code">DEN</strong>
+                </div>
+                <div class="tag-fields">
+                  <span class="field"><b class="field-label">Route</b><span class="field-value">EWR → DEN</span></span>
+                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">A320neo</span></span>
+                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">35,800
+                      ft</span></span>
+                  <span class="field"><b class="field-label">Distance</b><span class="field-value">15.6 nm</span></span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="flight-panel" data-carrier="Delta Air Lines">
+            <img class="paper-surface" data-paper-slot="5" data-warp="5" src="textures/paper-texture-size-medium.jpg" alt="" aria-hidden="true">
+            <div class="paper-wear-layer" aria-hidden="true"></div>
+            <div class="panel-content">
+              <div class="hero">
+                <h3 class="airline">Delta Air Lines</h3>
+                <span class="flight-number">DAL 884</span>
+              </div>
+              <div class="tag">
+                <div class="tag-code-wrap">
+                  <span class="tag-kicker">Destination</span>
+                  <strong class="tag-code">ATL</strong>
+                </div>
+                <div class="tag-fields">
+                  <span class="field"><b class="field-label">Route</b><span class="field-value">JFK → ATL</span></span>
+                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">A321</span></span>
+                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">33,100
+                      ft</span></span>
+                  <span class="field"><b class="field-label">Distance</b><span class="field-value">9.2 nm</span></span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="flight-panel" data-carrier="United Airlines">
+            <img class="paper-surface" data-paper-slot="6" data-warp="6" src="textures/paper-texture-size-medium.jpg" alt="" aria-hidden="true">
+            <div class="paper-wear-layer" aria-hidden="true"></div>
+            <div class="panel-content">
+              <div class="hero">
+                <h3 class="airline">United Airlines</h3>
+                <span class="flight-number">UAL 412</span>
+              </div>
+              <div class="tag">
+                <div class="tag-code-wrap">
+                  <span class="tag-kicker">Destination</span>
+                  <strong class="tag-code">ORD</strong>
+                </div>
+                <div class="tag-fields">
+                  <span class="field"><b class="field-label">Route</b><span class="field-value">EWR → ORD</span></span>
+                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">737-900</span></span>
+                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">28,400
+                      ft</span></span>
+                  <span class="field"><b class="field-label">Distance</b><span class="field-value">11.1 nm</span></span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="flight-panel ground-rose" data-carrier="Unknown Regional">
+            <img class="paper-surface" data-paper-slot="7" data-warp="7" src="textures/paper-texture-size-medium.jpg" alt="" aria-hidden="true">
+            <div class="paper-wear-layer" aria-hidden="true"></div>
+            <div class="panel-content">
+              <div class="hero">
+                <h3 class="airline">Unknown Regional</h3>
+                <span class="flight-number">RPA 3310</span>
+              </div>
+              <div class="tag">
+                <div class="tag-code-wrap">
+                  <span class="tag-kicker">Destination</span>
+                  <strong class="tag-code">CMH</strong>
+                </div>
+                <div class="tag-fields">
+                  <span class="field"><b class="field-label">Route</b><span class="field-value">LGA → CMH</span></span>
+                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">E170</span></span>
+                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">19,800
+                      ft</span></span>
+                  <span class="field"><b class="field-label">Distance</b><span class="field-value">6.4 nm</span></span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="flight-panel ground-teal" data-carrier="Unknown Charter">
+            <img class="paper-surface" data-paper-slot="8" data-warp="8" src="textures/paper-texture-size-medium.jpg" alt="" aria-hidden="true">
+            <div class="paper-wear-layer" aria-hidden="true"></div>
+            <div class="panel-content">
+              <div class="hero">
+                <h3 class="airline">Unknown Charter</h3>
+                <span class="flight-number">N123AB</span>
+              </div>
+              <div class="tag">
+                <div class="tag-code-wrap">
+                  <span class="tag-kicker">Destination</span>
+                  <strong class="tag-code">BOS</strong>
+                </div>
+                <div class="tag-fields">
+                  <span class="field"><b class="field-label">Route</b><span class="field-value">→ BOS</span></span>
+                  <span class="field"><b class="field-label">Aircraft</b><span class="field-value">G550</span></span>
+                  <span class="field"><b class="field-label">Altitude</b><span class="field-value">41,000
+                      ft</span></span>
+                  <span class="field"><b class="field-label">Distance</b><span class="field-value">14.8 nm</span></span>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+
+</html>

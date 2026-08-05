@@ -36,6 +36,7 @@ Compass for later poster UI work and for `design-mock-probe`. Not an implementat
 | Status tag fields (mock-provisional) | Dominant state word (`EMPTY` / `STALE` / `WAIT` / `ERR`); labeled rows: **status**, **detail**, **action**, **updated**. Exact sentences refined in mock |
 | Empty / error / updating (sticky on poster) | Single full-bleed panel: hero strip **“Nearby flights”** + status luggage tag; settings control remains (escape to settings on error) |
 | API field contract (display) | Use shipped Worker row fields as-is. Gaps acked: nullable `origin`; no city-name field; `flight` is callsign; distance is nm from pin (not remaining to dest) |
+| Panel paper texture | Flight panels only. Photo [`assets/textures/paper-texture-size-medium.jpg`](../../../assets/textures/paper-texture-size-medium.jpg) on `<img class="paper-surface">` with per-slot SVG warp (`paper-warp-1`…`10`), blend via `--paper-blend-mode` (default **color-burn**) at `--paper-opacity` (default **0.65**). Wear gradients on `.paper-wear-layer`. Dial: `--paper-opacity`, `--paper-blend-mode`, `--paper-wrinkle`, `--paper-wear` on `:root`. Slot assignment `assignPaperSlot(index)` → 1–10. Status panel excluded. Ship CSS: [`css/poster-paper.css`](../../../css/poster-paper.css). Reference: [`paper-luggage-tag-texture.html`](../../design-mocks/paper-luggage-tag-texture.html) + [`paper-texture-ship.plan.md`](./paper-texture-ship.plan.md). |
 
 ## Reference intake
 
@@ -75,6 +76,7 @@ Confirmed 2026-08-01 from `docs/design-reference/`. Takeaways remain compass for
 | Surface | Canonical mock | Frames | Status |
 |---------|----------------|--------|--------|
 | Poster wall | `docs/design-mocks/poster-ad-wall.html` | Mobile row + wide column; populated + empty/error status; carrier/swatch grounds + complementary hero/tag ink; filled ICAO silhouettes | **LOCKED** 2026-08-01 (grounds/ink); silhouette **LOCKED** 2026-08-02 — ship **DONE** (SoT `assets/planes/`) |
+| Paper texture | `docs/design-mocks/paper-luggage-tag-texture.html` | Rectangular flight panels; photo + per-slot SVG warp | **EXPLORE** mock (visual reference) → production port **DONE** 2026-08-05 (`css/poster-paper.css`, `paper-texture-ship.plan.md`) |
 
 Pointer: [docs/agents/design-mock-probe-pointer.md](../../agents/design-mock-probe-pointer.md)
 
@@ -85,4 +87,5 @@ Pointer: [docs/agents/design-mock-probe-pointer.md](../../agents/design-mock-pro
 3. ~~**design-mock-probe** — poster wall~~ (DONE 2026-08-01 — carrier ground, complementary ink, unique swatch per pack).
 4. ~~Silhouette explore + design lock~~ (DONE 2026-08-02 — filled ICAO silhouettes locked).
 5. ~~Ship silhouettes~~ (DONE 2026-08-02 — NEC corpus in `assets/planes/`, `js/plane-asset.js`, poster SPA; user UAT approved).
-6. **Deferred:** Phase 6 poster polish / livery (see Explicitly deferred).
+6. ~~Ship paper texture~~ (DONE 2026-08-05 — flight-panel paper overlay; see [`paper-texture-ship.plan.md`](./paper-texture-ship.plan.md)).
+7. **Deferred:** Phase 6 poster polish / livery (see Explicitly deferred).

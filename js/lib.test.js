@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  assignPaperSlot,
   assignPanelGrounds,
   buildFlightsUrl,
   buildPosterStatusCopy,
@@ -339,5 +340,29 @@ describe("resolveWorkerBase", () => {
       resolveWorkerBase({ hostname: "192.168.1.50", search: "" }),
       "http://192.168.1.50:8788",
     );
+  });
+});
+
+describe("assignPaperSlot", () => {
+  it("maps pack indices to slots 1..slotCount", () => {
+    assert.equal(assignPaperSlot(0), 1);
+    assert.equal(assignPaperSlot(9), 10);
+    assert.equal(assignPaperSlot(10), 1);
+  });
+
+  it("handles negative indices modulo slotCount", () => {
+    assert.equal(assignPaperSlot(-1), 10);
+    assert.equal(assignPaperSlot(-11), 10);
+  });
+
+  it("falls back to slot 1 for invalid slotCount", () => {
+    assert.equal(assignPaperSlot(3, 0), 1);
+    assert.equal(assignPaperSlot(3, -2), 1);
+    assert.equal(assignPaperSlot(3, NaN), 1);
+  });
+
+  it("falls back to slot 1 for non-finite index", () => {
+    assert.equal(assignPaperSlot(NaN), 1);
+    assert.equal(assignPaperSlot(undefined), 1);
   });
 });

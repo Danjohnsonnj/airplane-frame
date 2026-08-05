@@ -348,3 +348,17 @@
 - Verified: `node --test js/lib.test.js js/plane-asset.test.js` PASS.
 - Learned: n/a.
 - Overwrote: tech-brief localStorage list; HANDOFF/phases backlog; `js/config.js`, `index.html`, `js/app.js`.
+
+## 2026-08-05 - Paper texture ship to production poster
+
+- Happened: Ported explore mock paper system to live poster: `css/poster-paper.css`, `assets/textures/paper-texture-size-medium.jpg` + ATTRIBUTION, SVG warp filters 1–10 in `index.html`, `assignPaperSlot` + DOM injection in `createFlightPanel`, visual-direction lock, `js/paper-texture.test.js`.
+- Verified: `node --test js/lib.test.js js/plane-asset.test.js js/paper-texture.test.js` PASS; `cd worker && npm test` PASS (77).
+- Learned: Production `.paper-surface` must use `var(--paper-opacity)` / `var(--paper-blend-mode)` — mock hardcoded literals; SVG warp needs `<img>` not `background-image`.
+- Overwrote: HANDOFF (paper DONE; Phase 6 UAT still deferred), visual-direction, phases, lessons, design-mocks README, probe plan status; plan `paper-texture-ship.plan.md` SHIPPED.
+
+## 2026-08-05 - Paper texture manual UAT PASS
+
+- Happened: User confirmed manual UAT pass on local poster stack (paper on flight panels, readability, no status-panel paper).
+- Verified: user sign-off; automated suite already green (`js/paper-texture.test.js`, lib, plane-asset; worker 77).
+- Learned: n/a.
+- Overwrote: HANDOFF last-ship line (unit + manual UAT PASS).

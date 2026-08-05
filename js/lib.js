@@ -163,7 +163,18 @@ export const DEFAULT_SWATCH_ORDER = [
 ];
 
 /**
- * Assign panel grounds per pack order.
+ * @param {number} index Panel index in the current pack
+ * @param {number} [slotCount] Number of distinct paper slots (default 10)
+ */
+export function assignPaperSlot(index, slotCount = 10) {
+  const count = Number(slotCount);
+  const n = Number(index);
+  if (!Number.isFinite(count) || count < 1) return 1;
+  if (!Number.isFinite(n)) return 1;
+  return (((Math.floor(n) % count) + count) % count) + 1;
+}
+
+/**
  * Brand-book carriers always get data-carrier (duplicates share the same brand color).
  * Unknown carriers get unique ground-* swatches (no repeated --sun, --navy, etc.).
  * @param {Array<{ carrier?: string }>} flights

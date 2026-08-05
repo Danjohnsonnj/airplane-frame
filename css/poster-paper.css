@@ -1,0 +1,122 @@
+/* Paper luggage-tag texture — flight panels only. Visual reference: docs/design-mocks/paper-luggage-tag-texture.html */
+
+:root {
+  --paper-opacity: 0.65;
+  --paper-blend-mode: color-burn;
+  --paper-wrinkle: 0.45;
+  --paper-wear: 0.42;
+}
+
+.svg-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.flight-panel {
+  isolation: isolate;
+}
+
+.paper-surface {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  display: block;
+  width: 130%;
+  height: 130%;
+  max-width: none;
+  object-fit: cover;
+  object-position: var(--panel-paper-pos, center);
+  opacity: var(--paper-opacity);
+  mix-blend-mode: var(--paper-blend-mode);
+  transform: translate(-50%, -50%)
+    scaleX(calc(var(--panel-paper-scale, 1.35) * var(--panel-paper-flip-x, 1)))
+    scaleY(var(--panel-paper-scale-y, 1))
+    rotate(calc(var(--panel-paper-rotate, 0deg) + (var(--paper-wrinkle) * var(--panel-warp, 1) * 4deg)))
+    skewX(calc(var(--panel-paper-skew-x, 0deg) + (var(--paper-wrinkle) * var(--panel-warp, 1) * 2.5deg)))
+    skewY(var(--panel-paper-skew-y, 0deg));
+  transform-origin: center;
+  filter: contrast(calc(0.92 + var(--paper-wear) * 0.35))
+    brightness(calc(1.02 - var(--paper-wear) * 0.22));
+  pointer-events: none;
+}
+
+/* Unique crop + scale per panel — avoids visible tiling across the wall */
+.paper-surface[data-paper-slot="1"] { --panel-paper-pos: 7% 9%; --panel-paper-scale: 1.38; --panel-paper-scale-y: 1.07; --panel-paper-flip-x: 1; --panel-paper-rotate: -1.7deg; --panel-paper-skew-x: -1.1deg; --panel-paper-skew-y: 0.4deg; --panel-warp: -1; }
+.paper-surface[data-paper-slot="2"] { --panel-paper-pos: 89% 12%; --panel-paper-scale: 1.52; --panel-paper-scale-y: 0.96; --panel-paper-flip-x: -1; --panel-paper-rotate: 2.8deg; --panel-paper-skew-x: 1.2deg; --panel-paper-skew-y: -0.7deg; --panel-warp: 1; }
+.paper-surface[data-paper-slot="3"] { --panel-paper-pos: 24% 71%; --panel-paper-scale: 1.28; --panel-paper-scale-y: 1.11; --panel-paper-flip-x: 1; --panel-paper-rotate: -3.2deg; --panel-paper-skew-x: -0.6deg; --panel-paper-skew-y: 0.9deg; --panel-warp: -0.6; }
+.paper-surface[data-paper-slot="4"] { --panel-paper-pos: 67% 39%; --panel-paper-scale: 1.46; --panel-paper-scale-y: 1.03; --panel-paper-flip-x: -1; --panel-paper-rotate: 1.3deg; --panel-paper-skew-x: 1.7deg; --panel-paper-skew-y: -0.4deg; --panel-warp: 0.8; }
+.paper-surface[data-paper-slot="5"] { --panel-paper-pos: 11% 55%; --panel-paper-scale: 1.61; --panel-paper-scale-y: 0.94; --panel-paper-flip-x: 1; --panel-paper-rotate: -2.4deg; --panel-paper-skew-x: -1.8deg; --panel-paper-skew-y: 0.2deg; --panel-warp: -0.4; }
+.paper-surface[data-paper-slot="6"] { --panel-paper-pos: 76% 19%; --panel-paper-scale: 1.33; --panel-paper-scale-y: 1.09; --panel-paper-flip-x: -1; --panel-paper-rotate: 3.4deg; --panel-paper-skew-x: 0.5deg; --panel-paper-skew-y: -1.0deg; --panel-warp: 0.5; }
+.paper-surface[data-paper-slot="7"] { --panel-paper-pos: 41% 86%; --panel-paper-scale: 1.55; --panel-paper-scale-y: 1.01; --panel-paper-flip-x: 1; --panel-paper-rotate: -0.9deg; --panel-paper-skew-x: -2.0deg; --panel-paper-skew-y: 0.7deg; --panel-warp: -0.9; }
+.paper-surface[data-paper-slot="8"] { --panel-paper-pos: 3% 78%; --panel-paper-scale: 1.41; --panel-paper-scale-y: 1.12; --panel-paper-flip-x: -1; --panel-paper-rotate: 2.1deg; --panel-paper-skew-x: 1.1deg; --panel-paper-skew-y: -0.6deg; --panel-warp: 0.7; }
+.paper-surface[data-paper-slot="9"] { --panel-paper-pos: 58% 4%; --panel-paper-scale: 1.47; --panel-paper-scale-y: 0.98; --panel-paper-flip-x: -1; --panel-paper-rotate: -2.6deg; --panel-paper-skew-x: 0.9deg; --panel-paper-skew-y: 0.5deg; --panel-warp: 0.6; }
+.paper-surface[data-paper-slot="10"] { --panel-paper-pos: 33% 44%; --panel-paper-scale: 1.36; --panel-paper-scale-y: 1.08; --panel-paper-flip-x: 1; --panel-paper-rotate: 1.9deg; --panel-paper-skew-x: -1.4deg; --panel-paper-skew-y: -0.8deg; --panel-warp: -0.5; }
+
+.paper-surface[data-warp="1"] {
+  filter: url(#paper-warp-1) contrast(calc(0.92 + var(--paper-wear) * 0.35)) brightness(calc(1.02 - var(--paper-wear) * 0.22));
+}
+
+.paper-surface[data-warp="2"] {
+  filter: url(#paper-warp-2) contrast(calc(0.92 + var(--paper-wear) * 0.35)) brightness(calc(1.02 - var(--paper-wear) * 0.22));
+}
+
+.paper-surface[data-warp="3"] {
+  filter: url(#paper-warp-3) contrast(calc(0.92 + var(--paper-wear) * 0.35)) brightness(calc(1.02 - var(--paper-wear) * 0.22));
+}
+
+.paper-surface[data-warp="4"] {
+  filter: url(#paper-warp-4) contrast(calc(0.92 + var(--paper-wear) * 0.35)) brightness(calc(1.02 - var(--paper-wear) * 0.22));
+}
+
+.paper-surface[data-warp="5"] {
+  filter: url(#paper-warp-5) contrast(calc(0.92 + var(--paper-wear) * 0.35)) brightness(calc(1.02 - var(--paper-wear) * 0.22));
+}
+
+.paper-surface[data-warp="6"] {
+  filter: url(#paper-warp-6) contrast(calc(0.92 + var(--paper-wear) * 0.35)) brightness(calc(1.02 - var(--paper-wear) * 0.22));
+}
+
+.paper-surface[data-warp="7"] {
+  filter: url(#paper-warp-7) contrast(calc(0.92 + var(--paper-wear) * 0.35)) brightness(calc(1.02 - var(--paper-wear) * 0.22));
+}
+
+.paper-surface[data-warp="8"] {
+  filter: url(#paper-warp-8) contrast(calc(0.92 + var(--paper-wear) * 0.35)) brightness(calc(1.02 - var(--paper-wear) * 0.22));
+}
+
+.paper-surface[data-warp="9"] {
+  filter: url(#paper-warp-9) contrast(calc(0.92 + var(--paper-wear) * 0.35)) brightness(calc(1.02 - var(--paper-wear) * 0.22));
+}
+
+.paper-surface[data-warp="10"] {
+  filter: url(#paper-warp-10) contrast(calc(0.92 + var(--paper-wear) * 0.35)) brightness(calc(1.02 - var(--paper-wear) * 0.22));
+}
+
+.paper-wear-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: calc(var(--paper-wear) * 0.85);
+  mix-blend-mode: multiply;
+  background:
+    radial-gradient(ellipse 80% 60% at 18% 22%, rgba(40, 28, 18, 0.34), transparent 58%),
+    radial-gradient(ellipse 55% 45% at 82% 78%, rgba(30, 22, 14, 0.28), transparent 52%),
+    linear-gradient(145deg, rgba(255, 248, 230, 0.12), transparent 42%, rgba(40, 28, 18, 0.14));
+}
+
+.flight-panel > .hero,
+.flight-panel > .tag {
+  position: relative;
+  z-index: 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .paper-surface[data-warp] {
+    filter: contrast(calc(0.92 + var(--paper-wear) * 0.35))
+      brightness(calc(1.02 - var(--paper-wear) * 0.22));
+  }
+}

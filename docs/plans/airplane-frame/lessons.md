@@ -188,3 +188,10 @@
 - Lesson: Positive key `cs:{CS}` stores `{origin,destination,carrier,fetchedAt}` from adsbdb or AirLabs; hit → `buildFlightRow(ac, null, cached)`. Negatives: `cs:miss:adsbdb:{CS}` only on HTTP 400/404; `cs:miss:airlabs:{CS}` on null response (not breaker). Hard fails (`_adsbdbUnavailable`, `_airlabsLimit`) never cached. TTLs: positive 900s, adsbdb miss 600s, AirLabs miss 1800s — all value-embedded (`isFresh`); FileKv ignores `expirationTtl`. Stats: `callsignCacheHits` (upstream `adsbdbCalls`/`airlabsCalls` unchanged semantics). Policy: display fields only, no route DB mirror; short-TTL risk accepted for personal use.
 - Evidence: `worker/src/callsign-cache.js`; 77 worker tests green (2026-08-03).
 - Crystallize?: Yes — tech-brief / HANDOFF.
+
+## Paper texture: SVG displacement needs `<img>`, not background-image
+
+- Context: Paper luggage-tag texture probe (2026-08-05) and production ship.
+- Lesson: SVG `feDisplacementMap` filters apply reliably to `<img>` pixels in Chrome; `background-image` on empty divs does not displace consistently. Ship hybrid photo + warp via `<img class="paper-surface">` per flight panel; dial knobs on `:root`.
+- Evidence: `docs/design-mocks/paper-luggage-tag-texture.html` probe; ship in `css/poster-paper.css` + `js/app.js`.
+- Crystallize?: Yes — visual-direction Panel paper texture row + paper-texture-ship.plan.md.
