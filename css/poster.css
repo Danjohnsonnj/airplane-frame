@@ -128,6 +128,7 @@
   color: inherit;
   pointer-events: none;
   z-index: 0;
+  will-change: transform, animation;
 }
 
 .hero .airline,
