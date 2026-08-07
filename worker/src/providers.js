@@ -1,3 +1,4 @@
+import { lookupAirportCity } from "./airport-cities.js";
 import { normalizeCarrierName } from "./carrier-aliases.js";
 import {
   readMiss,
@@ -217,11 +218,16 @@ export function buildFlightRow(aircraft, airlabs, adsbdb) {
 
   carrier = normalizeCarrierName(carrier);
 
+  const originCity = lookupAirportCity(origin);
+  const destinationCity = lookupAirportCity(destination);
+
   return {
     flight,
     carrier,
     destination,
     origin,
+    originCity,
+    destinationCity,
     planeType,
     icaoType: aircraft.t || null,
     altitudeFt: aircraft.alt_baro,

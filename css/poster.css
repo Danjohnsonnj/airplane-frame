@@ -305,7 +305,7 @@
   font-weight: 700;
   line-height: 1.15;
   text-overflow: ellipsis;
-  text-transform: uppercase;
+  text-transform: capitalize;
   white-space: nowrap;
 }
 

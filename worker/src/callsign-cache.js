@@ -1,3 +1,4 @@
+import { lookupAirportCity } from "./airport-cities.js";
 import { isFresh } from "./cache.js";
 
 /** @param {string} callsign */
@@ -38,7 +39,7 @@ async function readKvJson(kv, key) {
  * @param {string} callsign
  * @param {number} nowMs
  * @param {number} ttlSec
- * @returns {Promise<{ origin: string|null, destination: string, carrier: string|null }|null>}
+ * @returns {Promise<{ origin: string|null, destination: string, carrier: string|null, originCity: string|null, destinationCity: string|null }|null>}
  */
 export async function readPositive(kv, callsign, nowMs, ttlSec) {
   if (!kv) return null;
@@ -47,27 +48,49 @@ export async function readPositive(kv, callsign, nowMs, ttlSec) {
   if (!isFresh(record.fetchedAt, nowMs, ttlSec)) return null;
   const destination = record.destination && String(record.destination).trim();
   if (!destination) return null;
+  const origin = record.origin ? String(record.origin).trim() : null;
+  const originCity =
+    record.originCity != null && String(record.originCity).trim()
+      ? String(record.originCity).trim()
+      : lookupAirportCity(origin);
+  const destinationCity =
+    record.destinationCity != null && String(record.destinationCity).trim()
+      ? String(record.destinationCity).trim()
+      : lookupAirportCity(destination);
   return {
-    origin: record.origin ? String(record.origin).trim() : null,
+    origin,
     destination,
     carrier: record.carrier ? String(record.carrier).trim() : null,
+    originCity: originCity || null,
+    destinationCity: destinationCity || null,
   };
 }
 
 /**
  * @param {{ put: Function }} kv
  * @param {string} callsign
- * @param {{ origin?: string|null, destination: string, carrier?: string|null }} fields
+ * @param {{ origin?: string|null, destination: string, carrier?: string|null, originCity?: string|null, destinationCity?: string|null }} fields
  * @param {number} nowMs
  */
 export async function writePositive(kv, callsign, fields, nowMs) {
   if (!kv) return;
   const destination = fields.destination && String(fields.destination).trim();
   if (!destination) return;
+  const origin = fields.origin ? String(fields.origin).trim() : null;
+  const originCity =
+    fields.originCity != null && String(fields.originCity).trim()
+      ? String(fields.originCity).trim()
+      : lookupAirportCity(origin);
+  const destinationCity =
+    fields.destinationCity != null && String(fields.destinationCity).trim()
+      ? String(fields.destinationCity).trim()
+      : lookupAirportCity(destination);
   const payload = {
-    origin: fields.origin ? String(fields.origin).trim() : null,
+    origin,
     destination,
     carrier: fields.carrier ? String(fields.carrier).trim() : null,
+    originCity: originCity || null,
+    destinationCity: destinationCity || null,
     fetchedAt: nowMs,
   };
   await kv.put(positiveCacheKey(callsign), JSON.stringify(payload));

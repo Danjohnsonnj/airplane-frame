@@ -243,6 +243,17 @@ export function formatRoute(origin, destination) {
   return "—";
 }
 
+/** Poster route labels: city per endpoint, falling back to airport code. */
+export function formatCityRoute(origin, originCity, destination, destinationCity) {
+  const destCode = String(destination || "").trim();
+  const origCode = String(origin || "").trim();
+  const destLabel = String(destinationCity || "").trim() || destCode;
+  const origLabel = String(originCity || "").trim() || origCode;
+  if (origLabel && destLabel) return `${origLabel} → ${destLabel}`;
+  if (destLabel) return `→ ${destLabel}`;
+  return "—";
+}
+
 /**
  * @param {'wait'|'empty'|'stale'|'err'} kind
  * @param {{ radiusMi?: number, updatedLabel?: string, errorDetail?: string, unauthorized?: boolean }} opts

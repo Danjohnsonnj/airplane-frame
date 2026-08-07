@@ -10,6 +10,7 @@ import {
   formatDistanceNm,
   formatPackStatus,
   formatRoute,
+  formatCityRoute,
   isCompleteFlight,
   parseStoredNumber,
   pickGeocodeResult,
@@ -301,6 +302,24 @@ describe("formatDistanceNm", () => {
   it("formats nautical miles", () => {
     assert.equal(formatDistanceNm(12.34), "12.3 nm");
     assert.equal(formatDistanceNm(null), "—");
+  });
+});
+
+describe("formatCityRoute", () => {
+  it("uses cities when present", () => {
+    assert.equal(
+      formatCityRoute("BOS", "Boston", "LAX", "Los Angeles"),
+      "Boston → Los Angeles",
+    );
+  });
+
+  it("falls back per endpoint to airport code", () => {
+    assert.equal(formatCityRoute("BOS", null, "LAX", "Los Angeles"), "BOS → Los Angeles");
+    assert.equal(formatCityRoute("BOS", "Boston", "ZZZ", null), "Boston → ZZZ");
+  });
+
+  it("matches formatRoute shape for code-only labels", () => {
+    assert.equal(formatCityRoute("SFO", null, "EWR", null), formatRoute("SFO", "EWR"));
   });
 });
 

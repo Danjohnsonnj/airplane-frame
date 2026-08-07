@@ -49,6 +49,8 @@ describe("readPositive / writePositive", () => {
       origin: "SFO",
       destination: "EWR",
       carrier: "United Airlines",
+      originCity: "San Francisco",
+      destinationCity: "Newark",
     });
 
     const expired = await readPositive(kv, "UAL1", nowMs + 901_000, 900);
@@ -59,6 +61,20 @@ describe("readPositive / writePositive", () => {
     const kv = memoryKv();
     await kv.put(positiveCacheKey("UAL2"), "{not json");
     assert.equal(await readPositive(kv, "UAL2", Date.now(), 900), null);
+  });
+
+  it("stores resolved city fields on write", async () => {
+    const kv = memoryKv();
+    const nowMs = 3_000_000;
+    await writePositive(
+      kv,
+      "DAL1",
+      { origin: "BOS", destination: "LAX", carrier: "Delta Air Lines" },
+      nowMs,
+    );
+    const raw = JSON.parse(kv.store[positiveCacheKey("DAL1")]);
+    assert.equal(raw.originCity, "Boston");
+    assert.equal(raw.destinationCity, "Los Angeles");
   });
 });
 
