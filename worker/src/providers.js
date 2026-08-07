@@ -243,6 +243,7 @@ export async function enrichAircraftList(aircraftList, opts = {}) {
     maxAirlabs = 5,
     maxResults = 20,
     minAltitudeFt = 0,
+    sortByDistance = false,
     fetch: fetchImpl = fetch,
     kv = null,
     callsignCacheTtlSec = 900,
@@ -261,10 +262,19 @@ export async function enrichAircraftList(aircraftList, opts = {}) {
     trimmed.push(ac);
   }
 
+  function distanceSortKey(dst) {
+    if (dst == null || dst === "") return Infinity;
+    const n = Number(dst);
+    return Number.isFinite(n) && n >= 0 ? n : Infinity;
+  }
+
   trimmed.sort((a, b) => {
     const aIsh = isAirlineIsh(a.flight) ? 0 : 1;
     const bIsh = isAirlineIsh(b.flight) ? 0 : 1;
     if (aIsh !== bIsh) return aIsh - bIsh;
+    if (sortByDistance) {
+      return distanceSortKey(a.dst) - distanceSortKey(b.dst);
+    }
     return (a.dst ?? 999) - (b.dst ?? 999);
   });
 

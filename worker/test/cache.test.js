@@ -9,11 +9,32 @@ import {
 
 describe("candidateCacheKey", () => {
   it("rounds lat/lon to 3 decimals and radius to integer nm", () => {
-    assert.equal(candidateCacheKey(40.728, -74.078, 21.7), "cand:40.728:-74.078:22");
+    assert.equal(
+      candidateCacheKey(40.728, -74.078, 21.7),
+      "cand:v2:40.728:-74.078:22:distance-0",
+    );
   });
 
   it("handles negative longitude and trailing zeros", () => {
-    assert.equal(candidateCacheKey(40.7, -74.07, 43), "cand:40.700:-74.070:43");
+    assert.equal(
+      candidateCacheKey(40.7, -74.07, 43),
+      "cand:v2:40.700:-74.070:43:distance-0",
+    );
+  });
+
+  it("includes sort mode in key", () => {
+    assert.equal(
+      candidateCacheKey(40.728, -74.078, 22, false),
+      "cand:v2:40.728:-74.078:22:distance-0",
+    );
+    assert.equal(
+      candidateCacheKey(40.728, -74.078, 22, true),
+      "cand:v2:40.728:-74.078:22:distance-1",
+    );
+    assert.notEqual(
+      candidateCacheKey(40.728, -74.078, 22, false),
+      candidateCacheKey(40.728, -74.078, 22, true),
+    );
   });
 });
 
@@ -43,7 +64,7 @@ function mockKv(store = {}) {
 
 describe("resolveCandidates", () => {
   const pin = { lat: 40.728, lon: -74.078, radiusMi: 25, radiusNm: 22 };
-  const key = candidateCacheKey(pin.lat, pin.lon, pin.radiusNm);
+  const key = candidateCacheKey(pin.lat, pin.lon, pin.radiusNm, false);
   const freshTtlSec = 300;
   const emptyFreshTtlSec = 60;
   const staleTtlSec = 1800;

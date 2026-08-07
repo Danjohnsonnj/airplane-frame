@@ -36,6 +36,7 @@ export const DEFAULTS = {
   destGroup: "",
   destGroupMode: "",
   unique: true,
+  sortByDistance: false,
 };
 
 export const STORAGE_KEYS = {
@@ -51,6 +52,7 @@ export const STORAGE_KEYS = {
   destGroup: "af_destGroup",
   destGroupMode: "af_destGroupMode",
   unique: "af_unique",
+  sortByDistance: "af_sortByDistance",
   viewSticky: "af_viewSticky",
 };
 

@@ -53,12 +53,13 @@ describe("milesToNm / parseFlightsQuery", () => {
     assert.equal(q.destGroup, null);
     assert.equal(q.destGroupMode, null);
     assert.equal(q.unique, true);
+    assert.equal(q.sortByDistance, false);
   });
   it("parses filter query params", () => {
     const url = new URL(
       "https://x/flights?lat=40.7&lon=-74&minAltitudeFt=5000" +
         "&carrierAllow=United,Delta&carrierDeny=Spirit" +
-        "&destGroup=nyc&destGroupMode=prefer&unique=0",
+        "&destGroup=nyc&destGroupMode=prefer&unique=0&sortByDistance=1",
     );
     const q = parseFlightsQuery(url);
     assert.equal(q.minAltitudeFt, 5000);
@@ -67,6 +68,11 @@ describe("milesToNm / parseFlightsQuery", () => {
     assert.equal(q.destGroup, "nyc");
     assert.equal(q.destGroupMode, "prefer");
     assert.equal(q.unique, false);
+    assert.equal(q.sortByDistance, true);
+  });
+  it("errors on invalid sortByDistance", () => {
+    const url = new URL("https://x/flights?lat=40.7&lon=-74&sortByDistance=2");
+    assert.match(parseFlightsQuery(url).error || "", /sortByDistance/);
   });
   it("errors when destGroup set without destGroupMode", () => {
     const url = new URL("https://x/flights?lat=40.7&lon=-74&destGroup=nyc");

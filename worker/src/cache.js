@@ -2,11 +2,12 @@
  * KV candidate cache: key helpers, freshness, and resolveCandidates.
  */
 
-export function candidateCacheKey(lat, lon, radiusNm) {
+export function candidateCacheKey(lat, lon, radiusNm, sortByDistance = false) {
   const la = Number(lat).toFixed(3);
   const lo = Number(lon).toFixed(3);
   const r = String(Math.round(Number(radiusNm)));
-  return `cand:${la}:${lo}:${r}`;
+  const mode = sortByDistance ? "1" : "0";
+  return `cand:v2:${la}:${lo}:${r}:distance-${mode}`;
 }
 
 export function isFresh(fetchedAt, nowMs, freshTtlSec) {

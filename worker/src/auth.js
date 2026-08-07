@@ -84,6 +84,17 @@ export function parseFlightsQuery(url) {
     return { error: "unique must be 0 or 1" };
   }
 
+  const sortByDistanceRaw = url.searchParams.get("sortByDistance");
+  const sortByDistance =
+    sortByDistanceRaw == null || sortByDistanceRaw === "" || sortByDistanceRaw === "0"
+      ? false
+      : sortByDistanceRaw === "1"
+        ? true
+        : null;
+  if (sortByDistance === null) {
+    return { error: "sortByDistance must be 0 or 1" };
+  }
+
   return {
     lat,
     lon,
@@ -95,5 +106,6 @@ export function parseFlightsQuery(url) {
     destGroup,
     destGroupMode,
     unique,
+    sortByDistance,
   };
 }
