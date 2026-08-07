@@ -6,6 +6,7 @@
   Serve: python3 -m http.server 8765 --directory docs/design-mocks
 -->
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -38,13 +39,15 @@
       --silhouette-duration: 1s;
       --silhouette-stagger: 110ms;
       --settle-duration: 0.48s;
-      --silhouette-rest-rows: translateX(-25%) translateY(0%) scale(1.5) rotateZ(90deg);
+      --silhouette-rest-rows: translateX(0%) translateY(0%) scale(1.5) rotateZ(90deg);
       --silhouette-start-rows: translateX(-130%) translateY(0%) scale(1.5) rotateZ(90deg);
       --silhouette-rest-cols: translateX(-50%) translateY(-70%) scale(3) rotateZ(0deg);
       --silhouette-start-cols: translateX(-50%) translateY(55%) scale(3) rotateZ(0deg);
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     html {
       background: var(--review);
@@ -116,8 +119,13 @@
       gap: 48px 38px;
     }
 
-    .review-frame { min-width: 0; }
-    .review-frame.wide { grid-column: 1 / -1; }
+    .review-frame {
+      min-width: 0;
+    }
+
+    .review-frame.wide {
+      grid-column: 1 / -1;
+    }
 
     .frame-label {
       display: flex;
@@ -212,15 +220,49 @@
       view-timeline-axis: inline;
     }
 
-    .rows .flight-panel:last-child { border-bottom: 0; }
-    .columns .flight-panel:last-child { border-right: 0; }
+    .rows .flight-panel:last-child {
+      border-bottom: 0;
+    }
 
-    .ground-sun { --panel-ground: var(--sun); --panel-ink: var(--ink); background: var(--sun); }
-    .ground-navy { --panel-ground: var(--navy); --panel-ink: var(--cream); background: var(--navy); }
-    .ground-rose { --panel-ground: var(--rose); --panel-ink: var(--ink); background: var(--rose); }
-    .ground-teal { --panel-ground: var(--teal); --panel-ink: var(--cream); background: var(--teal); }
-    .ground-coral { --panel-ground: var(--coral); --panel-ink: var(--ink); background: var(--coral); }
-    .ground-mint { --panel-ground: var(--mint); --panel-ink: var(--ink); background: var(--mint); }
+    .columns .flight-panel:last-child {
+      border-right: 0;
+    }
+
+    .ground-sun {
+      --panel-ground: var(--sun);
+      --panel-ink: var(--ink);
+      background: var(--sun);
+    }
+
+    .ground-navy {
+      --panel-ground: var(--navy);
+      --panel-ink: var(--cream);
+      background: var(--navy);
+    }
+
+    .ground-rose {
+      --panel-ground: var(--rose);
+      --panel-ink: var(--ink);
+      background: var(--rose);
+    }
+
+    .ground-teal {
+      --panel-ground: var(--teal);
+      --panel-ink: var(--cream);
+      background: var(--teal);
+    }
+
+    .ground-coral {
+      --panel-ground: var(--coral);
+      --panel-ink: var(--ink);
+      background: var(--coral);
+    }
+
+    .ground-mint {
+      --panel-ground: var(--mint);
+      --panel-ink: var(--ink);
+      background: var(--mint);
+    }
 
     .hero {
       position: relative;
@@ -399,21 +441,39 @@
     }
 
     @keyframes settle {
-      from { opacity: 0; transform: translateY(9px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(9px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     @keyframes silhouette-arrive-rows {
-      from { transform: var(--silhouette-start-rows); }
-      to { transform: var(--silhouette-rest-rows); }
+      from {
+        transform: var(--silhouette-start-rows);
+      }
+
+      to {
+        transform: var(--silhouette-rest-rows);
+      }
     }
 
     @keyframes silhouette-arrive-cols {
-      from { transform: var(--silhouette-start-cols); }
-      to { transform: var(--silhouette-rest-cols); }
+      from {
+        transform: var(--silhouette-start-cols);
+      }
+
+      to {
+        transform: var(--silhouette-rest-cols);
+      }
     }
 
     @supports (animation-timeline: view()) {
+
       /* Rows: finish when trailing (bottom) edge enters scrollport */
       .plane-silhouette.scroll-driven.rows-motion {
         animation: silhouette-arrive-rows linear both;
@@ -442,16 +502,35 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .flight-panel { animation: none; }
-      .plane-silhouette { animation: none !important; }
-      .plane-silhouette.rows-motion { transform: var(--silhouette-rest-rows); }
-      .plane-silhouette.cols-motion { transform: var(--silhouette-rest-cols); }
+      .flight-panel {
+        animation: none;
+      }
+
+      .plane-silhouette {
+        animation: none !important;
+      }
+
+      .plane-silhouette.rows-motion {
+        transform: var(--silhouette-rest-rows);
+      }
+
+      .plane-silhouette.cols-motion {
+        transform: var(--silhouette-rest-cols);
+      }
     }
 
     @media (max-width: 860px) {
-      .review-grid { grid-template-columns: 1fr; }
-      .review-frame.wide { grid-column: auto; }
-      .device.wide { width: 100%; }
+      .review-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .review-frame.wide {
+        grid-column: auto;
+      }
+
+      .device.wide {
+        width: 100%;
+      }
     }
 
     @media (max-width: 619px) {
@@ -460,14 +539,18 @@
         padding-top: 26px;
       }
 
-      .review-header { display: block; }
+      .review-header {
+        display: block;
+      }
 
       .review-note {
         margin-top: 14px;
         text-align: left;
       }
 
-      .review-grid { gap: 38px; }
+      .review-grid {
+        gap: 38px;
+      }
 
       .device.wide {
         width: min(100%, 387px);
@@ -475,7 +558,9 @@
         border-radius: 28px;
       }
 
-      .poster-wall.columns { flex-direction: column; }
+      .poster-wall.columns {
+        flex-direction: column;
+      }
 
       .columns .flight-panel {
         min-width: 0;
@@ -486,6 +571,7 @@
     }
   </style>
 </head>
+
 <body>
   <main class="review-shell">
     <header class="review-header">
@@ -493,7 +579,8 @@
         <p class="review-kicker">Airplane Frame · Silhouette scroll-motion probe</p>
         <h1 class="review-title">One-shot arrivals</h1>
       </div>
-      <p class="review-note">Motion reference for ship — see visual-direction Motion lock. Rows: L→R when trailing edge enters view. Columns: bottom→top. Scroll each frame to test latch.</p>
+      <p class="review-note">Motion reference for ship — see visual-direction Motion lock. Rows: L→R when trailing edge
+        enters view. Columns: bottom→top. Scroll each frame to test latch.</p>
     </header>
 
     <div class="review-grid">
@@ -785,4 +872,5 @@
     init();
   </script>
 </body>
+
 </html>

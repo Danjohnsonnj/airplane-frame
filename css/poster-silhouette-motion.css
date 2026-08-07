@@ -2,7 +2,7 @@
 
 :root {
   --silhouette-duration: 1s;
-  --silhouette-rest-rows: translateX(-25%) translateY(0%) scale(1.5) rotateZ(90deg);
+  --silhouette-rest-rows: translateX(0%) translateY(0%) scale(1.5) rotateZ(90deg);
   --silhouette-start-rows: translateX(-130%) translateY(0%) scale(1.5) rotateZ(90deg);
   --silhouette-rest-cols: translateX(-50%) translateY(-70%) scale(3) rotateZ(0deg);
   --silhouette-start-cols: translateX(-50%) translateY(55%) scale(3) rotateZ(0deg);
