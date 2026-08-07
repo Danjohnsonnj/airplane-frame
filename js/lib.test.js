@@ -101,6 +101,28 @@ describe("buildFlightsUrl", () => {
     assert.equal(u.searchParams.get("destGroupMode"), "exclude");
     assert.equal(u.searchParams.get("unique"), "0");
   });
+
+  it("includes sortByDistance when enabled", () => {
+    const url = buildFlightsUrl("https://example.workers.dev", {
+      lat: 40.728,
+      lon: -74.078,
+      radiusMi: 25,
+      sortByDistance: true,
+    });
+    const u = new URL(url);
+    assert.equal(u.searchParams.get("sortByDistance"), "1");
+  });
+
+  it("omits sortByDistance when disabled", () => {
+    const url = buildFlightsUrl("https://example.workers.dev", {
+      lat: 40.728,
+      lon: -74.078,
+      radiusMi: 25,
+      sortByDistance: false,
+    });
+    const u = new URL(url);
+    assert.equal(u.searchParams.get("sortByDistance"), null);
+  });
 });
 
 describe("pickGeocodeResult", () => {

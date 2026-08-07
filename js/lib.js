@@ -51,6 +51,7 @@ export function parseStoredBool(raw, fallback) {
  *   destGroup?: string,
  *   destGroupMode?: string,
  *   unique?: boolean,
+ *   sortByDistance?: boolean,
  * }} q
  */
 export function buildFlightsUrl(base, q) {
@@ -73,6 +74,7 @@ export function buildFlightsUrl(base, q) {
   }
   if (q.unique === false) u.searchParams.set("unique", "0");
   else if (q.unique === true) u.searchParams.set("unique", "1");
+  if (q.sortByDistance === true) u.searchParams.set("sortByDistance", "1");
   return u.toString();
 }
 

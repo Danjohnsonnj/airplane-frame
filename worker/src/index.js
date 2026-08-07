@@ -29,6 +29,7 @@ function packEcho(parsed, packSize) {
     unique: parsed.unique,
     destGroup: parsed.destGroup,
     destGroupMode: parsed.destGroupMode,
+    sortByDistance: parsed.sortByDistance,
   };
 }
 
@@ -36,6 +37,7 @@ function packedResponse(parsed, candidates, packSize, cacheTtl, meta = {}) {
   const flights = selectPack(candidates, {
     size: packSize,
     unique: parsed.unique,
+    sortByDistance: parsed.sortByDistance,
     minAltitudeFt: parsed.minAltitudeFt,
     carrierAllow: parsed.carrierAllow,
     carrierDeny: parsed.carrierDeny,
@@ -75,6 +77,7 @@ async function fetchFreshCandidates(parsed, env) {
     maxAirlabs,
     maxResults,
     minAltitudeFt: parsed.minAltitudeFt,
+    sortByDistance: parsed.sortByDistance,
     kv: env.FLIGHT_CACHE,
     callsignCacheTtlSec: Number(env.CALLSIGN_CACHE_TTL_SECONDS || 900),
     callsignNegAdsbdbTtlSec: Number(env.CALLSIGN_NEG_ADSBDB_TTL_SECONDS || 600),
@@ -115,7 +118,12 @@ export default {
       radiusMi: parsed.radiusMi,
       radiusNm: parsed.radiusNm,
     };
-    const key = candidateCacheKey(parsed.lat, parsed.lon, parsed.radiusNm);
+    const key = candidateCacheKey(
+      parsed.lat,
+      parsed.lon,
+      parsed.radiusNm,
+      parsed.sortByDistance,
+    );
 
     try {
       const kv = env.FLIGHT_CACHE;

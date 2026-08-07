@@ -2,10 +2,12 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   NYC_METRO,
+  distanceRank,
   filterCandidates,
   interestScore,
   matchesCarrierToken,
   selectPack,
+  sortFlightsByDistanceAsc,
 } from "../src/pack.js";
 
 function flight(overrides) {
@@ -102,6 +104,31 @@ describe("interestScore", () => {
     const neither = interestScore(flight({ destination: "ORD", origin: "LAX", distanceNm: 50 }));
     assert.ok(metroDest > metroOrig);
     assert.ok(metroOrig > neither);
+  });
+});
+
+describe("distanceRank / sortFlightsByDistanceAsc", () => {
+  it("ranks valid distances and pushes invalid last", () => {
+    assert.equal(distanceRank(5), 5);
+    assert.equal(distanceRank("10.5"), 10.5);
+    assert.equal(distanceRank(null), Infinity);
+    assert.equal(distanceRank(-1), Infinity);
+    assert.equal(distanceRank("bad"), Infinity);
+  });
+
+  it("sorts ascending with nulls last and stable ties", () => {
+    const rows = [
+      flight({ flight: "B", distanceNm: 20 }),
+      flight({ flight: "A", distanceNm: 5 }),
+      flight({ flight: "C", distanceNm: "10.5" }),
+      flight({ flight: "D", distanceNm: 20 }),
+      flight({ flight: "E", distanceNm: null }),
+    ];
+    const sorted = sortFlightsByDistanceAsc(rows);
+    assert.deepEqual(
+      sorted.map((f) => f.flight),
+      ["A", "C", "B", "D", "E"],
+    );
   });
 });
 
@@ -203,5 +230,51 @@ describe("selectPack", () => {
     assert.equal(pack[0].destination, "EWR");
     assert.equal(pack[1].destination, "JFK");
     assert.ok(!NYC_METRO.has(pack[2].destination.toUpperCase()));
+  });
+
+  it("with sortByDistance picks closest when unique=0", () => {
+    const rows = [
+      flight({ carrier: "A", destination: "AA", flight: "1", distanceNm: 30 }),
+      flight({ carrier: "B", destination: "BB", flight: "2", distanceNm: 5 }),
+      flight({ carrier: "C", destination: "CC", flight: "3", distanceNm: 15 }),
+    ];
+    const pack = selectPack(rows, {
+      size: 2,
+      unique: false,
+      sortByDistance: true,
+      minAltitudeFt: 0,
+      carrierAllow: [],
+      carrierDeny: [],
+      destGroup: null,
+      destGroupMode: null,
+    });
+    assert.equal(pack.length, 2);
+    assert.deepEqual(
+      pack.map((f) => f.distanceNm),
+      [5, 15],
+    );
+  });
+
+  it("with sortByDistance returns pack sorted closest-first", () => {
+    const rows = [
+      flight({ carrier: "Metro1", destination: "EWR", flight: "M1", distanceNm: 40 }),
+      flight({ carrier: "Far1", destination: "LAX", flight: "F1", distanceNm: 5 }),
+      flight({ carrier: "Far2", destination: "ORD", flight: "F2", distanceNm: 6 }),
+    ];
+    const pack = selectPack(rows, {
+      size: 3,
+      unique: true,
+      sortByDistance: true,
+      minAltitudeFt: 0,
+      carrierAllow: [],
+      carrierDeny: [],
+      destGroup: "nyc",
+      destGroupMode: "prefer",
+    });
+    assert.equal(pack.length, 3);
+    assert.deepEqual(
+      pack.map((f) => f.distanceNm),
+      [5, 6, 40],
+    );
   });
 });

@@ -359,6 +359,56 @@ describe("enrichAircraftList", () => {
     assert.deepEqual(attempted, ["UAL300", "N123AB"]);
   });
 
+  it("with sortByDistance orders airline-ish by closest distance first", async () => {
+    const attempted = [];
+    const mockFetch = async (url) => {
+      const m = String(url).match(/callsign\/([^/?]+)/i);
+      if (m) attempted.push(m[1]);
+      return adsbdbOk();
+    };
+    await enrichAircraftList(
+      [
+        ac("UAL100", { dst: 20 }),
+        ac("UAL200", { dst: 5 }),
+      ],
+      {
+        airlabsKey: "",
+        maxAttempt: 10,
+        maxAirlabs: 5,
+        maxResults: 20,
+        minAltitudeFt: 0,
+        sortByDistance: true,
+        fetch: mockFetch,
+      },
+    );
+    assert.deepEqual(attempted, ["UAL200", "UAL100"]);
+  });
+
+  it("with sortByDistance keeps airline-ish ahead of closer N-numbers", async () => {
+    const attempted = [];
+    const mockFetch = async (url) => {
+      const m = String(url).match(/callsign\/([^/?]+)/i);
+      if (m) attempted.push(m[1]);
+      return adsbdbOk();
+    };
+    await enrichAircraftList(
+      [
+        ac("N123AB", { dst: 1, ownOp: "PRIVATE OWNER" }),
+        ac("UAL300", { dst: 50 }),
+      ],
+      {
+        airlabsKey: "",
+        maxAttempt: 10,
+        maxAirlabs: 5,
+        maxResults: 20,
+        minAltitudeFt: 0,
+        sortByDistance: true,
+        fetch: mockFetch,
+      },
+    );
+    assert.deepEqual(attempted, ["UAL300", "N123AB"]);
+  });
+
   it("skips AirLabs when adsbdb completes the row", async () => {
     let airlabsCalls = 0;
     const mockFetch = async (url) => {

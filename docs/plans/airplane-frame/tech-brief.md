@@ -49,7 +49,7 @@
 [Browser: plain HTML/CSS/JS — repo root; GitHub Pages]
    |  Authorization: Bearer APP_SHARED_SECRET (localStorage)
    |  Query: lat, lon, radiusMi, minAltitudeFt, carrierAllow/Deny,
-   |         destGroup(+Mode), unique
+   |         destGroup(+Mode), unique, sortByDistance
    |  Location: JC default, map click, Open-Meteo place search, device geolocation
    v
 [TODAY] Worker https://airplane-frame.danjohnsonnj.workers.dev  (shared egress — rate-limit prone)

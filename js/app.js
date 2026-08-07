@@ -46,6 +46,7 @@ const els = {
   carrierDeny: document.getElementById("carrierDeny"),
   destGroupPreset: document.getElementById("destGroupPreset"),
   unique: document.getElementById("unique"),
+  sortByDistance: document.getElementById("sortByDistance"),
   refreshBtn: document.getElementById("refresh-btn"),
   searchForm: document.getElementById("search-form"),
   placeQuery: document.getElementById("place-query"),
@@ -113,6 +114,10 @@ function loadSettings() {
     destGroup,
     destGroupMode,
     unique: parseStoredBool(localStorage.getItem(STORAGE_KEYS.unique), DEFAULTS.unique),
+    sortByDistance: parseStoredBool(
+      localStorage.getItem(STORAGE_KEYS.sortByDistance),
+      DEFAULTS.sortByDistance,
+    ),
   };
 }
 
@@ -128,6 +133,7 @@ function savePrefs(s) {
   localStorage.setItem(STORAGE_KEYS.destGroup, s.destGroup || "");
   localStorage.setItem(STORAGE_KEYS.destGroupMode, s.destGroupMode || "");
   localStorage.setItem(STORAGE_KEYS.unique, s.unique ? "1" : "0");
+  localStorage.setItem(STORAGE_KEYS.sortByDistance, s.sortByDistance ? "1" : "0");
 }
 
 function saveSecret(secret) {
@@ -159,6 +165,7 @@ function readFormSettings() {
     destGroup,
     destGroupMode,
     unique: els.unique.checked,
+    sortByDistance: els.sortByDistance.checked,
   };
 }
 
@@ -172,6 +179,7 @@ function fillForm(s) {
   els.carrierDeny.value = s.carrierDeny || "";
   els.destGroupPreset.value = destPresetFromParts(s.destGroup, s.destGroupMode);
   els.unique.checked = Boolean(s.unique);
+  els.sortByDistance.checked = Boolean(s.sortByDistance);
   els.lat.value = String(s.lat);
   els.lon.value = String(s.lon);
   syncRefreshIntervalEnabled();
@@ -560,6 +568,7 @@ async function fetchFlights({ boot = false } = {}) {
     destGroup: s.destGroup,
     destGroupMode: s.destGroupMode,
     unique: s.unique,
+    sortByDistance: s.sortByDistance,
   });
 
   try {

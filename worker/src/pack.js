@@ -25,6 +25,21 @@ export function isMetroAirport(code, metro = NYC_METRO) {
   return metro.has(normalizeAirport(code));
 }
 
+/** Finite non-negative distance in nm, else Infinity for sort-last. */
+export function distanceRank(value) {
+  if (value == null || value === "") return Infinity;
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 0 ? n : Infinity;
+}
+
+export function compareByDistanceAsc(a, b) {
+  return distanceRank(a.distanceNm) - distanceRank(b.distanceNm);
+}
+
+export function sortFlightsByDistanceAsc(flights) {
+  return [...flights].sort(compareByDistanceAsc);
+}
+
 export function interestScore(flight, metro = NYC_METRO) {
   let score = 0;
   if (isMetroAirport(flight.destination, metro)) score += 2;
@@ -85,34 +100,36 @@ function destKey(f) {
   return normalizeAirport(f.destination);
 }
 
-function pickBest(pool, pack, unique) {
+function pickBest(pool, pack, unique, sortByDistance) {
   if (pool.length === 0) return null;
   const usedCarriers = new Set(pack.map(carrierKey));
   const usedDests = new Set(pack.map(destKey));
 
-  const byScore = (a, b) => interestScore(b) - interestScore(a);
+  const byRank = sortByDistance
+    ? compareByDistanceAsc
+    : (a, b) => interestScore(b) - interestScore(a);
 
   if (!unique) {
-    return [...pool].sort(byScore)[0];
+    return [...pool].sort(byRank)[0];
   }
 
   const both = pool.filter(
     (f) => !usedCarriers.has(carrierKey(f)) && !usedDests.has(destKey(f)),
   );
-  if (both.length) return both.sort(byScore)[0];
+  if (both.length) return both.sort(byRank)[0];
 
   const either = pool.filter(
     (f) => !usedCarriers.has(carrierKey(f)) || !usedDests.has(destKey(f)),
   );
-  if (either.length) return either.sort(byScore)[0];
+  if (either.length) return either.sort(byRank)[0];
 
-  return [...pool].sort(byScore)[0];
+  return [...pool].sort(byRank)[0];
 }
 
-function fillFromPool(pack, pool, size, unique) {
+function fillFromPool(pack, pool, size, unique, sortByDistance) {
   const remaining = [...pool];
   while (pack.length < size && remaining.length > 0) {
-    const next = pickBest(remaining, pack, unique);
+    const next = pickBest(remaining, pack, unique, sortByDistance);
     if (!next) break;
     pack.push(next);
     const idx = remaining.indexOf(next);
@@ -124,12 +141,16 @@ function fillFromPool(pack, pool, size, unique) {
 /**
  * Filter then diversity-pack candidates.
  * @param {object[]} candidates
- * @param {{ size: number, unique: boolean, minAltitudeFt: number, carrierAllow: string[], carrierDeny: string[], destGroup: string|null, destGroupMode: string|null }} opts
+ * @param {{ size: number, unique: boolean, sortByDistance?: boolean, minAltitudeFt: number, carrierAllow: string[], carrierDeny: string[], destGroup: string|null, destGroupMode: string|null }} opts
  */
 export function selectPack(candidates, opts) {
   const size = Math.max(1, Number(opts.size) || 5);
   const unique = opts.unique !== false;
-  const filtered = filterCandidates(candidates, opts);
+  const sortByDistance = Boolean(opts.sortByDistance);
+  let filtered = filterCandidates(candidates, opts);
+  if (sortByDistance) {
+    filtered = sortFlightsByDistanceAsc(filtered);
+  }
   const pack = [];
 
   const preferMetro =
@@ -137,12 +158,12 @@ export function selectPack(candidates, opts) {
 
   if (preferMetro) {
     const metroPool = filtered.filter((f) => isMetroAirport(f.destination));
-    fillFromPool(pack, metroPool, size, unique);
+    fillFromPool(pack, metroPool, size, unique, sortByDistance);
     const remaining = filtered.filter((f) => !pack.includes(f));
-    fillFromPool(pack, remaining, size, unique);
+    fillFromPool(pack, remaining, size, unique, sortByDistance);
   } else {
-    fillFromPool(pack, filtered, size, unique);
+    fillFromPool(pack, filtered, size, unique, sortByDistance);
   }
 
-  return pack;
+  return sortByDistance ? sortFlightsByDistanceAsc(pack) : pack;
 }

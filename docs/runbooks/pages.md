@@ -67,6 +67,7 @@ Settings persisted in `localStorage` and sent as Worker query params:
 | Carrier allow / deny           | Comma-separated; deny wins                                       |
 | Destination group              | Off / NYC prefer / NYC exclude                                   |
 | Unique carriers & destinations | Default on                                                       |
+| Sort by distance (closest first) | Off by default; Worker commercial-first pool + closest-first pack |
 | Min altitude                   | Sent to Worker (`minAltitudeFt`); pack already altitude-filtered |
 
 Worker returns ≤10 flights (`PACK_SIZE` default 10). Status line shows pack size, candidate total, stale age (if any), and backend (`local Worker` vs `production API (Pi)` vs `Cloudflare Worker (rollback)`).
