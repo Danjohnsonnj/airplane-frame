@@ -10,11 +10,11 @@ Personal web app: nearby commercial flights (carrier, destination, plane type) a
 | Production API (target) | `https://api.danjnj.com` (Cloudflare Tunnel → Pi; Phase 6.5) |
 | Legacy Worker (rollback) | https://airplane-frame.danjohnsonnj.workers.dev — `?worker=cloudflare` |
 
-**Production note:** API is the Pi via Cloudflare Tunnel (`api.danjnj.com`). Legacy `workers.dev` (`?worker=cloudflare`) often 429/EMPTY. Ops/reboot: [docs/runbooks/pi-worker.md](docs/runbooks/pi-worker.md). Status: [HANDOFF.md](docs/plans/airplane-frame/HANDOFF.md).
+**Production note:** API is the Pi via Cloudflare Tunnel (`api.danjnj.com`). `?worker=cloudflare` hits `workers.dev`, which returns 502 because adsb.fi blocks that address (2026-10-24). Do not switch Pages to it. Ops/reboot: [docs/runbooks/pi-worker.md](docs/runbooks/pi-worker.md). Status: [HANDOFF.md](docs/plans/airplane-frame/HANDOFF.md).
 
 ## Local testing (own IP)
 
-airplanes.live rate-limits by IP. Local preview uses **your** IP via Wrangler, not Cloudflare’s shared egress.
+adsb.fi opendata rate-limits (~1 req/s). Local preview uses Wrangler on your machine; production Pages still targets the Pi tunnel until `js/config.js` is updated and pushed.
 
 ```bash
 ./scripts/dev-pages.sh    # terminal 1 — http://127.0.0.1:8080/

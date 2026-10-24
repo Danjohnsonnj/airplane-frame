@@ -1,7 +1,7 @@
 ---
 type: Runbook
 title: Local development (own IP)
-description: Run Pages plus Wrangler on your IP so airplanes.live is not shared-egress rate-limited.
+description: Run Pages plus Wrangler for local /flights against adsb.fi from your machine.
 status: stable
 generated: { by: agent/cursor-grok-4.6, at: 2026-08-30T14:55:00Z }
 tags: [okf]
@@ -10,7 +10,7 @@ resource: scripts/dev-pages.sh
 
 # Local development (own IP)
 
-Use this when testing on your machine so **airplanes.live** sees **your IP**, not Cloudflare’s shared egress (which often gets **429**).
+Use this when testing on your machine so **adsb.fi** opendata is called from **your IP** (personal ~1 req/s limit).
 
 GitHub Pages always uses the **production** Worker. Local preview at `127.0.0.1:8080` (or your LAN IP on `:8080`) auto-routes to local Wrangler on `:8788`.
 
@@ -83,9 +83,9 @@ If the page loads but flights fail to connect, check **macOS Firewall** (System 
 |---------|----------------|
 | `Network error` / connection refused | `dev-worker.sh` not running, or macOS firewall blocking `:8788` |
 | `401 Unauthorized` | Wrong secret pasted (AirLabs key vs `APP_SHARED_SECRET`) |
-| `502` / upstream 429 on **Cloudflare Worker** | Shared Cloudflare IP — use `?worker=cloudflare` only for diagnosis; prefer local or Pi Tunnel (`api.danjnj.com`) |
+| `502` / upstream 403 or 429 on **Cloudflare Worker** | adsb.fi blocks shared Cloudflare egress (HTTP 403 confirmed 2026-10-24). Do not use `?worker=cloudflare` for live flights. Use local Wrangler or the Pi (`api.danjnj.com`) |
 | `502` / connection error on **api.danjnj.com** | Tunnel or Pi service down — check Pi health / cloudflared; do not silent-failover |
-| `502` on **local** | airplanes.live rate limit on your IP — wait ~1s between refreshes |
+| `502` on **local** | adsb.fi rate limit (429) on your IP — wait ~1s between refreshes |
 
 ## Tests
 

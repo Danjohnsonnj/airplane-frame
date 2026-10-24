@@ -1,6 +1,6 @@
 # Phase 1 data spike — credentials
 
-**Locked stack (Worker, 2026-08-03):** airplanes.live (positions, no key) + **adsbdb** (callsign route, no key) + **AirLabs** (gap-fill, `AIRLABS_API_KEY`).  
+**Locked stack (Worker, 2026-10-24):** adsb.fi opendata (positions, no key) + **adsbdb** (callsign route, no key) + **AirLabs** (gap-fill, `AIRLABS_API_KEY`).  
 OpenSky and Aviationstack are **optional** — not required for MVP.
 
 **Production:** the same AirLabs key is stored as a Cloudflare Worker secret (`AIRLABS_API_KEY`). See `docs/runbooks/secrets.md`. Do not put keys in chat or in `*.example` files.

@@ -33,13 +33,13 @@ HTTPS only. The Worker already allows browser CORS (`Access-Control-Allow-Origin
 ./scripts/dev-worker.sh   # http://127.0.0.1:8788/
 ```
 
-On `127.0.0.1` or a LAN IP (`192.168.x.x`, etc.), the UI auto-targets local Wrangler (your IP for airplanes.live). Overrides:
+On `127.0.0.1` or a LAN IP (`192.168.x.x`, etc.), the UI auto-targets local Wrangler (positions via [adsb.fi](https://adsb.fi/)). Overrides:
 
 | Query | Backend |
 |-------|---------|
 | (none, on github.io) | `https://api.danjnj.com` (Pi Tunnel — Phase 6.5) |
 | `?worker=prod` | Same Pi tunnel API (force from localhost) |
-| `?worker=cloudflare` | Legacy `workers.dev` Worker (explicit rollback; shared egress) |
+| `?worker=cloudflare` | `workers.dev` (not a live fallback: adsb.fi HTTP 403 from Cloudflare, 2026-10-24) |
 
 LAN access: [local-dev.md](./local-dev.md#same-wi-fi-phone--tablet).
 

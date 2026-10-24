@@ -77,6 +77,13 @@
 - Evidence: Plan `enrich_efficiency_pool_355002fc` (2026-08-02); unit tests in `worker/test/providers.test.js`.
 - Crystallize?: Yes — tech-brief pipeline + secrets/deploy env names.
 
+## airplanes.live HTTP 403 — switch positions to adsb.fi
+
+- Context: 2026-10-24 `api.airplanes.live/v2/point/...` returned HTTP 403 (contact-us JSON) from home and Worker egress; Pi file cache could still serve ancient packs with `enrich.cached: true`. adsb.fi opendata v3 returned 200 with the same `ac[]` fields (`flight`, `desc`, `t`, `ownOp`, `dst`, `alt_baro`, `lat`, `lon`).
+- Lesson: Positions source is adsb.fi (`fetchAdsbFi`, about 1 req/s, cite https://adsb.fi/). Keep the existing cache TTLs. Do not add a cache bypass. Do not point Pages at `workers.dev`: that deploy’s `/flights` is HTTP 502 because adsb.fi returns HTTP 403 from Cloudflare (2026-10-24). Production stays on the Pi (`api.danjnj.com`) so the request uses the home IP. The Pi runs `origin/main` only.
+- Evidence: Local poster UAT PASS 2026-10-24. Worker deploy version `ae6ddcd0-4602-4bf6-9001-907f0a0c7f1c` then `/flights` 502.
+- Crystallize?: Yes — tech-brief locked stack + HANDOFF enrich path.
+
 ## airplanes.live 429 on Cloudflare shared egress
 
 - Context: Production Worker gets HTTP 429 from airplanes.live; laptop curl succeeds. Empty `[]` upstream success can also poison the fresh KV window and surface GitHub Pages EMPTY.

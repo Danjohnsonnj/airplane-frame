@@ -384,3 +384,24 @@
 - Learned: n/a.
 - Overwrote: `docs/index.md`, runbook index, probe pointer, product-brief, archived mock README.
 
+## 2026-10-24 - adsb.fi positions feed
+
+- Happened: Renamed `fetchAirplanesLive` → `fetchAdsbFi` with `opendata.adsb.fi/api/v3/lat/.../dist/...`; updated tests, settings credit, and current-state docs. Baseline: airplanes.live still 403; adsb.fi Jersey City 200 with `desc`/`ownOp`.
+- Verified: `cd worker && npm test` PASS (pending local/deploy `/flights` in same session).
+- Learned: airplanes.live closed this egress with 403 (not just 429 on shared IP); adsb.fi fits the existing `ac[]` parser and terms require citing https://adsb.fi/.
+- Overwrote: locked-stack rows in tech-brief, HANDOFF enrich path, ops skill; Pi LAN addresses corrected (`mypi.local`, `.184`/`.45`).
+
+## 2026-10-24 - local poster UAT
+
+- Happened: User loaded the local Pages app with saved settings and confirmed the poster view displays.
+- Verified: `cd worker && npm test` 86 pass; `node --test js/lib.test.js js/plane-asset.test.js js/paper-texture.test.js` 60 pass; local `/flights` 200 with 10 complete flights; second request `enrich.cached` true. Manual poster UAT PASS on `http://127.0.0.1:8080/`.
+- Learned: adsb.fi allows this home IP and blocks Cloudflare Worker egress (502, HTTP 403). Do not point production Pages at `workers.dev` until that changes.
+- Overwrote: HANDOFF last-updated line.
+
+## 2026-10-24 - cold-start docs after adsb.fi
+
+- Happened: Updated HANDOFF, AGENTS.md, runbooks (Pi SSH, Pages overrides, local-dev 502), ops skill, tech-brief, product-brief, process, and the adsb.fi lesson so a new session does not treat `workers.dev` as a live fallback or SSH to `192.168.1.46`.
+- Verified: docs only; local poster UAT already PASS earlier today.
+- Learned: The Pi syncs `origin/main` only. This branch is invisible to production until it is pushed.
+- Overwrote: lesson that said to retire the Pi after a Worker pack probe. That probe failed.
+

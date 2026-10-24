@@ -44,7 +44,7 @@ Hybrid model (live positions in a radius, enriched and ranked as commercial flig
 
 ## Success criteria
 
-- For a Jersey City pin, the API returns a curated pack of enriched flights each with carrier, destination, and human-readable plane type on free/trial tiers at ≤5-minute polling (production: `https://api.danjnj.com`; rollback: `?worker=cloudflare` → workers.dev)
+- For a Jersey City pin, the API returns a curated pack of enriched flights each with carrier, destination, and human-readable plane type on free/trial tiers at ≤5-minute polling (production: `https://api.danjnj.com`). `?worker=cloudflare` is not a live fallback as of 2026-10-24 (adsb.fi HTTP 403 from Cloudflare).
 - Front end loads from GitHub Pages, sends shared secret + location/radius/filters, renders the pack
 - Location pin persists across sessions in that browser (localStorage); MVP includes place search
 - Runbooks exist for deploy, secrets, and Cloudflare setup (`docs/runbooks/`); skill `.cursor/skills/airplane-frame-ops` routes agents to them

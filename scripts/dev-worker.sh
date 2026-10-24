@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Local Wrangler Worker — airplanes.live sees your IP, not Cloudflare shared egress.
+# Local Wrangler Worker — adsb.fi opendata from your IP.
 set -euo pipefail
 cd "$(dirname "$0")/../worker"
 if [[ ! -f .dev.vars ]]; then

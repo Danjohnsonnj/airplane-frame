@@ -9,7 +9,7 @@
   - URL: **https://airplane-frame.danjohnsonnj.workers.dev**
   - Subdomain: `danjohnsonnj.workers.dev`
   - Auth: `Authorization: Bearer <APP_SHARED_SECRET>`
-  - Pipeline: airplanes.live → adsbdb/`ownOp` first → AirLabs gap-fill (capped) → filter/pack → JSON
+  - Pipeline: [adsb.fi](https://adsb.fi/) opendata v3 → adsbdb/`ownOp` first → AirLabs gap-fill (capped) → filter/pack → JSON
   - Outbound fetches: `FETCH_TIMEOUT_MS` 10s (`AbortSignal.timeout`); adsbdb hard failure (timeout / network / 5xx / 429) → `{ _adsbdbUnavailable }` and **request-scoped skip** of further adsbdb; soft 400/404 keeps trying
   - Candidate cache: Workers KV `FLIGHT_CACHE` ~600s fresh for non-empty (`CACHE_TTL_SECONDS`); empty fresh window `EMPTY_CACHE_TTL_SECONDS` (60); stale fallback up to `STALE_TTL_SECONDS` (3600); prefer last-good pack when upstream returns empty; filters re-pack without re-enrich; `enrich` stats on response only (not persisted). **Callsign enrich cache** (same KV / Pi file): keys `cs:{CALLSIGN}` (positive display triple), `cs:miss:adsbdb:{CS}` (400/404 only), `cs:miss:airlabs:{CS}`; value-embedded TTL (`CALLSIGN_CACHE_TTL_SECONDS` 900, `CALLSIGN_NEG_ADSBDB_TTL_SECONDS` 600, `CALLSIGN_NEG_AIRLABS_TTL_SECONDS` 1800); skips repeat adsbdb/AirLabs within TTL; stats `callsignCacheHits`. Display fields only — no route DB mirror; short-TTL risk accepted for personal use. **Pi `FileKv` ignores `expirationTtl`** — clear `/var/lib/airplane-frame/cache.json` manually when stuck on ancient stale packs
   - Pack: `PACK_SIZE` default 10; diversity-first + airport-interest tie-break (`worker/src/pack.js`)
@@ -23,8 +23,8 @@
 
 | Role | Source | Auth | Notes |
 |------|--------|------|-------|
-| Live positions + plane type | [airplanes.live](https://airplanes.live/api-guide/) `/v2/point/{lat}/{lon}/{radius}` | None | Radius in **nautical miles** (max 250). Requires `User-Agent`. ~1 req/s. |
-| Destination + carrier (primary path) | [adsbdb](https://www.adsbdb.com/) `GET /v0/callsign/{callsign}` + airplanes.live `ownOp` | None | Tried first per aircraft; airline-ish callsigns preferred. Route data: David Taylor / Jim Mason via adsbdb — public GET only; do not mirror DB (docs attribution). |
+| Live positions + plane type | [adsb.fi](https://adsb.fi/) opendata `GET /api/v3/lat/{lat}/lon/{lon}/dist/{radiusNm}` | None | Radius in **nautical miles** (max 250). Requires `User-Agent`. Personal use ~1 req/s; cite adsb.fi in UI. |
+| Destination + carrier (primary path) | [adsbdb](https://www.adsbdb.com/) `GET /v0/callsign/{callsign}` + adsb.fi `ownOp` | None | Tried first per aircraft; airline-ish callsigns preferred. Route data: David Taylor / Jim Mason via adsbdb — public GET only; do not mirror DB (docs attribution). |
 | Carrier + origin/destination (gap-fill) | [AirLabs](https://airlabs.co/docs/) `flight_icao` | `AIRLABS_API_KEY` | Only when adsbdb/`ownOp` incomplete; hard cap `MAX_AIRLABS` (default 5) per fresh fetch; quota/key errors trip a per-fetch breaker. |
 
 **Not in MVP stack:** Aviationstack, OpenSky (optional later), adsb.lol routeset, hexdb.io (removed 2026-08-03).
@@ -52,10 +52,10 @@
    |         destGroup(+Mode), unique, sortByDistance
    |  Location: JC default, map click, Open-Meteo place search, device geolocation
    v
-[NOW] https://api.danjnj.com  (Tunnel → Pi Node adapter; home egress)
-[ROLLBACK] Worker https://airplane-frame.danjohnsonnj.workers.dev  (?worker=cloudflare; shared egress — rate-limit prone)
+[NOW] https://api.danjnj.com  (Tunnel → Pi Node adapter; home egress — required)
+[BLOCKED] Worker https://airplane-frame.danjohnsonnj.workers.dev  (?worker=cloudflare; adsb.fi HTTP 403 on 2026-10-24, /flights 502)
    |  secrets: AIRLABS_API_KEY, APP_SHARED_SECRET (Pi env / Worker secrets)
-   |  cache: KV (Worker) or file FLIGHT_CACHE (Pi); airplanes.live → adsbdb/ownOp → AirLabs (capped)
+   |  cache: KV (Worker) or file FLIGHT_CACHE (Pi); adsb.fi → adsbdb/ownOp → AirLabs (capped)
    |  stale serve on upstream failure; filter + diversity pack (≤ PACK_SIZE)
    v
 [JSON: { pin, count, candidateCount, flights[], pack, enrich, stale, ageSeconds, cachedForSeconds }]

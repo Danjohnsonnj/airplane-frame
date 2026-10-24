@@ -18,4 +18,4 @@ Ops procedures: `.cursor/skills/airplane-frame-ops` then [docs/runbooks/](docs/r
 
 ## Stack
 
-GitHub Pages (repo-root static) · Pi Node API at `api.danjnj.com` (Tunnel) · legacy Cloudflare Worker rollback (`?worker=cloudflare`).
+GitHub Pages (repo-root static) · production API `api.danjnj.com` (Pi tunnel, home IP) · positions on this branch: adsb.fi → adsbdb → AirLabs. Do not send Pages at `workers.dev`: adsb.fi returns HTTP 403 from Cloudflare (2026-10-24). Pi SSH is `ssh mypi.local`, not `192.168.1.46`.

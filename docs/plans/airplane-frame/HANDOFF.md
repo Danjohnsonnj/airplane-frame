@@ -7,8 +7,10 @@
 **Next action (cold-start executable):**
 
 1. Read process.md (before any commit).
-2. **Deferred (do not start unless asked):** Phase 6 poster UAT/polish; tune min-altitude default.
-3. Production: https://danjohnsonnj.github.io/airplane-frame/ → `https://api.danjnj.com`. Pi ops: [pi-worker.md](../../runbooks/pi-worker.md).
+2. **Deferred (do not start unless asked):** Phase 6 poster polish; tune min-altitude default.
+3. Do **not** point `PROD_API_BASE` at `workers.dev`. Deployed Worker `/flights` is HTTP 502 because adsb.fi returns HTTP 403 from Cloudflare egress (2026-10-24).
+4. Live Pages still call `https://api.danjnj.com`. The Pi tracks `origin/main`. Branch `adsb-fi-positions` has the adsb.fi feed and a local poster UAT PASS, and it is not on the Pi until it is pushed to `main` and the sync timer pulls it. Until then the Pi can keep serving a stale file-cache pack.
+5. Pi reachability: `ssh mypi.local`. Ethernet `192.168.1.184`, Wi-Fi `192.168.1.45`. `192.168.1.46` is not this Pi. Cursor’s shell often cannot reach the LAN; use Terminal.app.
 
 **Hard invariants:** Free/trial data sources only; destination + carrier + plane type are non-negotiable on every displayed flight; no API secrets in the GitHub Pages front end; personal shared-secret gate on the Worker (or Pi API).
 
@@ -17,7 +19,7 @@
 - process.md — before committing
 - tech-brief.md — pipeline, adsbdb attribution, callsign cache
 - docs/runbooks/pi-worker.md — ops / reboot / sync PATH
-- lessons.md — adsbdb skip semantics + FileKv TTL + callsign cache
+- lessons.md — adsbdb skip semantics, FileKv TTL, callsign cache, adsb.fi Cloudflare 403
 
 **Index (load on demand):**
 
@@ -35,13 +37,13 @@
 
 | Fact | Value |
 |------|--------|
-| Branch | `main` (Pi checkout: `/opt/airplane-frame` on `main`) |
-| Target API | `https://api.danjnj.com` |
-| Rollback | `?worker=cloudflare` → `workers.dev` (often EMPTY/429 — expected) |
+| Branch | Work: `adsb-fi-positions` (local). Pi checkout: `/opt/airplane-frame` on `main` until this branch is on `origin/main` |
+| Target API | `https://api.danjnj.com` (Pi). Do not switch Pages to `workers.dev` |
+| Rollback | `?worker=cloudflare` → `workers.dev` is **not** a live fallback (2026-10-24: adsb.fi HTTP 403, Worker `/flights` 502) |
 | Cloudflare zone | `danjnj.com` **Active**; Squarespace `www` = **DNS only** |
 | Tunnel | `airplane-frame-pi`; `api.danjnj.com` → `http://127.0.0.1:8788`; CNAME → `3f42e0bf-6401-421d-8f4f-fc6d14201893.cfargotunnel.com` |
-| Pi | `mypi` / `192.168.1.46` (Wi‑Fi); **arm64**; eth MAC `B8:27:EB:7C:EE:0F`; Wi‑Fi MAC `B8:27:EB:29:BB:5A` |
-| Pi SSH | `ssh pi@192.168.1.46` from **Terminal.app** (Cursor LAN often blocked) |
+| Pi | `mypi.local`; **arm64**; Ethernet `192.168.1.184` (MAC `B8:27:EB:7C:EE:0F`); Wi‑Fi `192.168.1.45` (MAC `B8:27:EB:29:BB:5A`). `192.168.1.46` is **not** this Pi. |
+| Pi SSH | `ssh mypi.local` (or `pi@192.168.1.184` / `pi@192.168.1.45`) from **Terminal.app** (Cursor LAN often blocked) |
 | Boot services | `airplane-frame-worker.service`, `airplane-frame-sync.timer`, `cloudflared` — must be **enabled** |
 | Sync unit PATH | Must include `/usr/sbin:/sbin` so `runuser` works (`deploy/systemd/airplane-frame-sync.service`) |
 | Secrets | `/etc/airplane-frame/worker.env` root:root mode 600 |
@@ -49,16 +51,16 @@
 | Env (live) | `MAX_ATTEMPT=36`, `MAX_AIRLABS=5`, `PACK_SIZE=10`, `MAX_RESULTS=20` |
 | Callsign cache TTLs | positive `900s`; adsbdb 400/404 miss `600s`; AirLabs miss `1800s` (value-embedded in `FLIGHT_CACHE`) |
 | Outbound fetch | `FETCH_TIMEOUT_MS=10000`; adsbdb hard-fail → request-scoped skip (`enrich.adsbdbSkipped`) |
-| Enrich path | airplanes.live → **adsbdb** first → AirLabs gap-fill; callsign cache skips repeat upstream per key |
+| Enrich path | adsb.fi opendata v3 → **adsbdb** first → AirLabs gap-fill; callsign cache skips repeat upstream per key |
 | File cache | `/var/lib/airplane-frame/cache.json` — ignores KV `expirationTtl`; clear manually if stuck stale |
 | Cache policy | Short-TTL display fields only (`origin`/`destination`/`carrier`); no route DB mirror; risk accepted (exploration B) |
 | Front-end refresh | Auto-refresh **off** by default (`af_autoRefresh`); boot fetch once; manual Refresh always |
-| Last ship | paper texture on flight panels (`css/poster-paper.css`, `assets/textures/`); unit + manual UAT PASS (2026-08-05) |
+| Last ship | adsb.fi positions, local poster UAT PASS 2026-10-24 (`9de7240` on `adsb-fi-positions`). Not on the Pi until `main` sync |
 
 **Verify before coding:**
 
 ```bash
-git branch --show-current   # expect main
+git branch --show-current   # adsb-fi-positions until merged; Pi stays on main
 node --test js/lib.test.js js/plane-asset.test.js js/paper-texture.test.js
 cd worker && npm test
 ```
@@ -70,4 +72,4 @@ cd worker && npm test
 **Potential next (backlog, not started):**
 - Design spike: show airport names in addition to codes
 
-**Last updated:** 2026-08-05 — silhouette scroll-motion shipped; Phase 6 poster polish still deferred unless asked
+**Last updated:** 2026-10-24 — local poster UAT PASS on `adsb-fi-positions`. Pages stay on the Pi. `workers.dev` is blocked by adsb.fi HTTP 403. Pi is `mypi.local` (`.184` / `.45`), not `.46`.

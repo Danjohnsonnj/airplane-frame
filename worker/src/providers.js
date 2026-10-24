@@ -9,7 +9,7 @@ import {
 
 const USER_AGENT = "airplane-frame-worker/0.1 (personal)";
 const RETRY_DELAY_MS = 1200;
-/** Default outbound fetch budget (airplanes.live, adsbdb, AirLabs). */
+/** Default outbound fetch budget (adsb.fi, adsbdb, AirLabs). */
 export const FETCH_TIMEOUT_MS = 10_000;
 
 const AIRLABS_BREAKER_CODES = new Set([
@@ -116,10 +116,10 @@ export async function fetchJson(url, init = {}) {
   return JSON.parse(text);
 }
 
-export async function fetchAirplanesLive(lat, lon, radiusNm, deps = {}) {
+export async function fetchAdsbFi(lat, lon, radiusNm, deps = {}) {
   const fetchImpl = deps.fetch || fetch;
   const retryDelayMs = deps.retryDelayMs ?? RETRY_DELAY_MS;
-  const url = `https://api.airplanes.live/v2/point/${lat}/${lon}/${radiusNm}`;
+  const url = `https://opendata.adsb.fi/api/v3/lat/${lat}/lon/${lon}/dist/${radiusNm}`;
 
   async function attempt() {
     const payload = await fetchJson(url, { fetch: fetchImpl });

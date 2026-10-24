@@ -3,14 +3,16 @@ type: Runbook
 title: Pi Worker (Node adapter + Cloudflare Tunnel)
 description: Node API, systemd, git sync, and Cloudflare Tunnel at api.danjnj.com.
 status: stable
-generated: { by: agent/cursor-grok-4.6, at: 2026-08-30T14:55:00Z }
+generated: { by: agent/cursor-grok-4.7, at: 2026-10-24T14:40:00Z }
 tags: [okf]
 resource: worker/src/node/server.js
 ---
 
 # Pi Worker (Node adapter + Cloudflare Tunnel)
 
-Production API on the Raspberry Pi: home-network egress for airplanes.live, exposed only via Cloudflare Tunnel at `https://api.danjnj.com`. GitHub Pages stays on `main`; the Pi does **not** serve the UI.
+Production API is the Raspberry Pi at `https://api.danjnj.com` (Cloudflare Tunnel → Node on `127.0.0.1:8788`). GitHub Pages does not serve from the Pi. The Pi fast-forwards `origin/main` only, so it does not run branch `adsb-fi-positions` until that branch is merged and pushed. Reach it with `ssh mypi.local`. As of 2026-10-24: Ethernet `192.168.1.184` (`B8:27:EB:7C:EE:0F`), Wi-Fi `192.168.1.45` (`B8:27:EB:29:BB:5A`). `192.168.1.46` is not this Pi.
+
+Do not retire this host in favor of `workers.dev`. On 2026-10-24 the deployed Worker’s `/flights` returned HTTP 502 because adsb.fi returned HTTP 403 from Cloudflare’s address. The home IP can call adsb.fi. Pages stay on `api.danjnj.com`.
 
 Full plan: `~/.cursor/plans/pi_hosted_worker_cloudflare_tunnel_9f3a7c2d.plan.md`.
 
@@ -53,8 +55,8 @@ cd "/Users/danjohnson/Local Documents/repos/airplane-frame"
 scp deploy/systemd/airplane-frame-worker.service \
     deploy/systemd/airplane-frame-sync.service \
     deploy/systemd/airplane-frame-sync.timer \
-    pi@192.168.1.46:/tmp/
-ssh pi@192.168.1.46
+    pi@mypi.local:/tmp/
+ssh mypi.local
 sudo mv /tmp/airplane-frame-worker.service \
         /tmp/airplane-frame-sync.service \
         /tmp/airplane-frame-sync.timer \
@@ -160,11 +162,11 @@ sudo shutdown -h now
 # or: sudo reboot
 ```
 
-**After power returns** (wait for Wi‑Fi; IP may still be `192.168.1.46` if DHCP reservation holds):
+**After power returns** (wait for Wi-Fi; prefer `mypi.local` over a saved IP):
 
 ```bash
 # from Mac Terminal.app once SSH works:
-ssh pi@192.168.1.46
+ssh mypi.local
 sudo systemctl is-active airplane-frame-worker.service cloudflared.service
 sudo systemctl list-timers airplane-frame-sync.timer --no-pager
 # wait ~10s after boot for npm/node to listen, then:

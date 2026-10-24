@@ -5,7 +5,7 @@ import {
   enrichAdsbdb,
   enrichAircraftList,
   enrichAirLabs,
-  fetchAirplanesLive,
+  fetchAdsbFi,
   fetchJson,
   parseAdsbdbPayload,
 } from "../src/providers.js";
@@ -39,11 +39,16 @@ function adsbdbOk(body = UAL1_ROUTE) {
   };
 }
 
-describe("fetchAirplanesLive", () => {
+const ADSB_FI_JC_URL =
+  "https://opendata.adsb.fi/api/v3/lat/40.728/lon/-74.078/dist/22";
+
+describe("fetchAdsbFi", () => {
   it("retries once on 429 then succeeds", async () => {
     let calls = 0;
+    let lastUrl = "";
     const mockFetch = async (url) => {
       calls += 1;
+      lastUrl = String(url);
       if (calls === 1) {
         return { ok: false, status: 429, text: async () => "" };
       }
@@ -53,28 +58,34 @@ describe("fetchAirplanesLive", () => {
         text: async () => JSON.stringify({ ac: [{ flight: "UAL1", desc: "B737", alt_baro: 5000 }] }),
       };
     };
-    const ac = await fetchAirplanesLive(40.728, -74.078, 22, {
+    const ac = await fetchAdsbFi(40.728, -74.078, 22, {
       fetch: mockFetch,
       retryDelayMs: 1,
     });
     assert.equal(calls, 2);
     assert.equal(ac.length, 1);
+    assert.equal(lastUrl, ADSB_FI_JC_URL);
   });
 
   it("throws after retry still fails", async () => {
-    const mockFetch = async () => ({
-      ok: false,
-      status: 429,
-      text: async () => "",
-    });
+    let lastUrl = "";
+    const mockFetch = async (url) => {
+      lastUrl = String(url);
+      return {
+        ok: false,
+        status: 429,
+        text: async () => "",
+      };
+    };
     await assert.rejects(
       () =>
-        fetchAirplanesLive(40.728, -74.078, 22, {
+        fetchAdsbFi(40.728, -74.078, 22, {
           fetch: mockFetch,
           retryDelayMs: 1,
         }),
       /HTTP 429/,
     );
+    assert.equal(lastUrl, ADSB_FI_JC_URL);
   });
 });
 

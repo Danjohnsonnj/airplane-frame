@@ -47,4 +47,4 @@ Older single-effort trees may live at `docs/_plan/`. New efforts use `docs/plans
 - Human ops: `docs/runbooks/` — index in `docs/runbooks/index.md` (cloudflare-signup, secrets, deploy-worker).
 - Agent entrypoint: `.cursor/skills/airplane-frame-ops/SKILL.md` (points at runbooks; do not duplicate procedures into the skill).
 - Data credentials guide: `spike/CREDENTIALS.md` + `spike/README.md`.
-- Production Worker: `https://airplane-frame.danjohnsonnj.workers.dev` (legacy rollback `?worker=cloudflare`; shared egress often 429 — see HANDOFF). Target API: `https://api.danjnj.com` (Pi Tunnel, Phase 6.5).
+- Production API: `https://api.danjnj.com` (Pi Tunnel). `workers.dev` (`?worker=cloudflare`) is not a live fallback — adsb.fi HTTP 403 from Cloudflare as of 2026-10-24. See HANDOFF.

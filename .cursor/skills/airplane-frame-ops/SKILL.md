@@ -31,7 +31,7 @@ Do **not** duplicate long procedures here. Read and follow:
 - Never put API keys (`AIRLABS_API_KEY`, etc.) in the GitHub Pages front end.
 - Front-end Bearer token is **`APP_SHARED_SECRET` only** — not the AirLabs key (see `docs/runbooks/secrets.md`).
 - Only return / display flights that include carrier, destination, and planeType.
-- Locked data stack: airplanes.live + adsbdb + AirLabs (gap-fill).
+- Locked data stack: adsb.fi opendata + adsbdb + AirLabs (gap-fill).
 
 ## Local stack (agent-run)
 
@@ -39,10 +39,10 @@ When the user wants local preview or local UAT, **you** start the servers — fo
 
 ## Live endpoints
 
-- Production API: `https://api.danjnj.com` (Tunnel → Pi; live)
-- Legacy Cloudflare Worker rollback: `https://airplane-frame.danjohnsonnj.workers.dev` (`?worker=cloudflare`; often 429)
+- Production API: `https://api.danjnj.com` (Tunnel → Pi; this is the live path)
+- Cloudflare Worker: `https://airplane-frame.danjohnsonnj.workers.dev` (`?worker=cloudflare`). As of 2026-10-24, `/flights` is 502 because adsb.fi returns HTTP 403 from Cloudflare. Do not point Pages at it.
 - Local / Pi loopback: `http://127.0.0.1:8788` (`airplane-frame-worker` systemd or `scripts/dev-worker.sh`)
-- After Pi power-cycle: confirm `cloudflared` + `airplane-frame-worker` enabled/active — see `docs/runbooks/pi-worker.md` § Reboot. Cursor on macOS may need Terminal.app for LAN SSH.
+- Pi: `ssh mypi.local`. Ethernet `192.168.1.184`, Wi-Fi `192.168.1.45`. Not `192.168.1.46`. After a power-cycle, confirm `cloudflared` + `airplane-frame-worker` — see `docs/runbooks/pi-worker.md`. Cursor on macOS may need Terminal.app for LAN SSH.
 - `GET /health` (no auth)
 - `GET /flights?lat=&lon=&radiusMi=` with `Authorization: Bearer <APP_SHARED_SECRET>`
 

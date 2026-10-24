@@ -19,7 +19,7 @@ export function timingSafeEqual(a, b) {
   return out === 0;
 }
 
-/** Statute miles → nautical miles for airplanes.live radius. */
+/** Statute miles → nautical miles for adsb.fi dist parameter. */
 export function milesToNm(radiusMi) {
   const n = Number(radiusMi);
   if (!Number.isFinite(n) || n <= 0) return 25;

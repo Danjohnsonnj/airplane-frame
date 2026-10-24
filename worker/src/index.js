@@ -4,7 +4,7 @@ import {
   resolveCandidates,
 } from "./cache.js";
 import { selectPack } from "./pack.js";
-import { enrichAircraftList, fetchAirplanesLive } from "./providers.js";
+import { enrichAircraftList, fetchAdsbFi } from "./providers.js";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -63,7 +63,7 @@ function packedResponse(parsed, candidates, packSize, cacheTtl, meta = {}) {
 }
 
 async function fetchFreshCandidates(parsed, env) {
-  const aircraft = await fetchAirplanesLive(
+  const aircraft = await fetchAdsbFi(
     parsed.lat,
     parsed.lon,
     parsed.radiusNm,
