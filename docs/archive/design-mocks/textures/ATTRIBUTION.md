@@ -8,6 +8,6 @@ Textures for `paper-luggage-tag-texture.html` explore mock only.
 | `paper-aged-warm.png` | CC0-1.0 | Generated via `gen-paper.py` (seed 42) — legacy probe asset |
 | `paper-aged-cream.png` | CC0-1.0 | Generated via `gen-paper.py` (seed 137) — legacy probe asset |
 
-**Serve mock:** `python3 -m http.server 8765 --directory docs/design-mocks`
+**Serve mock:** `python3 -m http.server 8765 --directory docs/archive/design-mocks`
 
 These assets are visual-reference only — not shipped to the GitHub Pages app unless a future lock pass approves.

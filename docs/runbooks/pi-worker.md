@@ -1,3 +1,13 @@
+---
+type: Runbook
+title: Pi Worker (Node adapter + Cloudflare Tunnel)
+description: Node API, systemd, git sync, and Cloudflare Tunnel at api.danjnj.com.
+status: stable
+generated: { by: agent/cursor-grok-4.6, at: 2026-08-30T14:55:00Z }
+tags: [okf]
+resource: worker/src/node/server.js
+---
+
 # Pi Worker (Node adapter + Cloudflare Tunnel)
 
 Production API on the Raspberry Pi: home-network egress for airplanes.live, exposed only via Cloudflare Tunnel at `https://api.danjnj.com`. GitHub Pages stays on `main`; the Pi does **not** serve the UI.

@@ -4,12 +4,12 @@ Operational how-tos for airplane-frame. Agents: start at `.cursor/skills/airplan
 
 | Runbook | When |
 |---------|------|
-| [cloudflare-signup.md](./cloudflare-signup.md) | New machine / new Cloudflare account; Wrangler login |
-| [secrets.md](./secrets.md) | Local `.dev.vars`, Pi `worker.env`, Cloudflare secrets, rotation |
-| [deploy-worker.md](./deploy-worker.md) | Test, deploy, and curl-verify the legacy Cloudflare Worker |
-| [pi-worker.md](./pi-worker.md) | Pi Node API, systemd, sync timer, Tunnel cutover |
-| [local-dev.md](./local-dev.md) | Local Pages + Wrangler (own IP); **agents start the stack** for the user |
-| [pages.md](./pages.md) | GitHub Pages enable, local preview, front-end UAT |
+| [Cloudflare signup (free)](./cloudflare-signup.md) | One-time account, email verify, workers.dev subdomain, and wrangler login |
+| [Worker secrets](./secrets.md) | Where APP_SHARED_SECRET and AIRLABS_API_KEY live locally, on the Pi, and in Cloudflare |
+| [Deploy Worker](./deploy-worker.md) | Test, deploy, and curl-verify the legacy Cloudflare Worker |
+| [Pi Worker (Node adapter + Cloudflare Tunnel)](./pi-worker.md) | Node API, systemd, git sync, and Cloudflare Tunnel at api.danjnj.com |
+| [Local development (own IP)](./local-dev.md) | Run Pages plus Wrangler on your IP so airplanes.live is not shared-egress rate-limited |
+| [GitHub Pages (front end)](./pages.md) | Enable, preview, and UAT the repo-root static front end |
 
 **Production API:** `https://api.danjnj.com` — Cloudflare Tunnel → Pi ([pi-worker.md](./pi-worker.md); includes reboot checklist)  
 **Legacy Worker (rollback):** `https://airplane-frame.danjohnsonnj.workers.dev` — `?worker=cloudflare`; shared egress often rate-limited  

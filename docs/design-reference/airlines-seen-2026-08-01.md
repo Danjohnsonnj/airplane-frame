@@ -1,3 +1,13 @@
+---
+type: DesignReference
+title: Airlines seen near JC (local capture)
+description: JC capture of display names and legal/ownOp aliases used by Worker and client brand matching.
+status: stable
+generated: { by: agent/cursor-grok-4.6, at: 2026-08-30T14:55:00Z }
+tags: [okf]
+resource: worker/src/carrier-aliases.js
+---
+
 # Airlines seen near JC (local capture)
 
 Captured 2026-08-01 ~15:46–16:33 UTC via local Worker poller (`CACHE_TTL=60`, `candidateCarriers`).

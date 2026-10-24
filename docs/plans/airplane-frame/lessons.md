@@ -94,7 +94,7 @@
 ## Poster design: grill → visual-direction → mock probe → ask before ship
 
 - Context: Post–Phase 5 visual path.
-- Lesson: Lock IA in `visual-direction.md` via interview; refine hexes/type/status copy in `design-mock-probe` HTML under `docs/design-mocks/`. Mocks are reference only — never port DOM/CSS into Pages until user green-lights poster implementation. Pointer: `docs/agents/design-mock-probe-pointer.md`.
+- Lesson: Lock IA in `visual-direction.md` via interview; refine hexes/type/status copy in `design-mock-probe` HTML under `docs/archive/design-mocks/`. Mocks are reference only — never port DOM/CSS into Pages until user green-lights poster implementation. Pointer: `docs/agents/design-mock-probe-pointer.md`.
 - Evidence: Design interview 2026-08-01; HANDOFF next = poster mock probe.
 - Crystallize?: Yes — HANDOFF required reading + pointer.
 
@@ -149,7 +149,7 @@
 
 ## Plane silhouettes: ship SoT is assets/planes/
 
-- Context: Silhouette explore mock under `docs/design-mocks/planes/` then NEC ship.
+- Context: Silhouette explore mock under `docs/archive/design-mocks/planes/` then NEC ship.
 - Lesson: Mock probe may stay a small subset. Production resolve/load uses `assets/planes/` + `js/plane-asset.js`. Key is Worker `icaoType` only — never parse `planeType` English strings. Three tiers: manifest exact → family-map → generic-jet. Inline SVG required for `currentColor` ink. Family SVGs live under `assets/planes/family/` (**not** `_family` — GitHub Pages/Jekyll skips underscore directories). Keep root `.nojekyll` as belt-and-suspenders.
 - Evidence: 2026-08-02 silhouette ship; 2026-08-02 prod 404 on `_family/regional-jet.svg` while `B738.svg` 200 (E75L blank).
 - Crystallize?: Yes — visual-direction Hero aircraft silhouette row.
@@ -200,5 +200,5 @@
 
 - Context: Paper luggage-tag texture probe (2026-08-05) and production ship.
 - Lesson: SVG `feDisplacementMap` filters apply reliably to `<img>` pixels in Chrome; `background-image` on empty divs does not displace consistently. Ship hybrid photo + warp via `<img class="paper-surface">` per flight panel; dial knobs on `:root`.
-- Evidence: `docs/design-mocks/paper-luggage-tag-texture.html` probe; ship in `css/poster-paper.css` + `js/app.js`.
+- Evidence: `docs/archive/design-mocks/paper-luggage-tag-texture.html` probe; ship in `css/poster-paper.css` + `js/app.js`.
 - Crystallize?: Yes — visual-direction Panel paper texture row + paper-texture-ship.plan.md.

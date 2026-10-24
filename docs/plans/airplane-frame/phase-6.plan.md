@@ -14,7 +14,7 @@
 ## Required reading
 
 - [visual-direction.md](./visual-direction.md) — locked IA (panel ground, ink, wall, status, routing)
-- [poster-ad-wall.html](../../design-mocks/poster-ad-wall.html) — visual reference only (composition, type scale, settle motion, tag layouts)
+- [poster-ad-wall.html](../../archive/design-mocks/poster-ad-wall.html) — visual reference only (composition, type scale, settle motion, tag layouts)
 - [airline-brand-colors.md](../../design-reference/airline-brand-colors.md) — 50 carrier hexes
 - [tech-brief.md](./tech-brief.md) — `/flights` JSON contract
 - [local-dev.md](../../runbooks/local-dev.md) — agent starts Pages + Wrangler
@@ -91,7 +91,7 @@
 ### 5 — Docs close + automated tests
 
 - Update HANDOFF (phase status / next action), [phases.md](./phases.md) Phase 6 status, append [progress-log.md](./progress-log.md); fold gotchas into lessons if any.
-- Note in [docs/design-mocks/README.md](../../design-mocks/README.md) that gen also writes app CSS/JS.
+- Note in [docs/archive/design-mocks/README.md](../../archive/design-mocks/README.md) that gen also writes app CSS/JS.
 - **Verify:** `node --test js/lib.test.js`; `cd worker && npm test` (no Worker change expected — still green).
 
 ## UAT (user)

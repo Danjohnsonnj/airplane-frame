@@ -46,7 +46,7 @@
 
 - Implement poster wall per [visual-direction.md](./visual-direction.md): carrier/swatch panel grounds, complementary hero+tag ink, row/column responsive wall, status panel, settings glyph.
 - Carrier colors from [airline-brand-colors.md](../../design-reference/airline-brand-colors.md); unknown carriers get unique sequential swatches; duplicate book carriers share brand color.
-- Reference mock: [poster-ad-wall.html](../../design-mocks/poster-ad-wall.html) — visual only, not literal DOM port.
+- Reference mock: [poster-ad-wall.html](../../archive/design-mocks/poster-ad-wall.html) — visual only, not literal DOM port.
 - Verify: local stack shows poster view with live Worker pack; mobile rows + wide columns; empty/error/stale states; unique swatches for unknowns; duplicate brand carriers share color; readable complementary ink.
 - **Status: IMPLEMENTATION COMPLETE — UAT DEFERRED** — poster/settings views, `css/poster.css`, carrier gen pipeline, status panel; see [phase-6.plan.md](./phase-6.plan.md). Egress fixed via Phase 6.5; filled ICAO silhouettes shipped 2026-08-02 (`assets/planes/` + `js/plane-asset.js`); paper texture on flight panels shipped 2026-08-05 (`css/poster-paper.css`); silhouette scroll-motion shipped 2026-08-05 (`css/poster-silhouette-motion.css` + `js/silhouette-motion.js`, lock in visual-direction; plan [silhouette-scroll-motion.plan.md](./silhouette-scroll-motion.plan.md)). Remaining poster polish parked.
 

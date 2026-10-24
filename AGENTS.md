@@ -1,0 +1,21 @@
+# airplane-frame
+
+Personal web app: nearby commercial flights (carrier, destination, plane type) around a saved pin.
+
+Canonical docs: [docs/index.md](docs/index.md). Resume: [docs/plans/airplane-frame/HANDOFF.md](docs/plans/airplane-frame/HANDOFF.md).
+
+## Commands
+
+```bash
+./scripts/dev-pages.sh
+./scripts/dev-worker.sh
+node --test js/lib.test.js
+cd worker && npm test
+node docs/design-mocks/gen-carrier-css.mjs
+```
+
+Ops procedures: `.cursor/skills/airplane-frame-ops` then [docs/runbooks/](docs/runbooks/).
+
+## Stack
+
+GitHub Pages (repo-root static) · Pi Node API at `api.danjnj.com` (Tunnel) · legacy Cloudflare Worker rollback (`?worker=cloudflare`).

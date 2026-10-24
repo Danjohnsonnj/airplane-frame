@@ -36,3 +36,7 @@ cd worker && npm test
 - [docs/runbooks/pi-worker.md](docs/runbooks/pi-worker.md) — Pi Node API, systemd, sync, Tunnel
 - [docs/plans/airplane-frame/HANDOFF.md](docs/plans/airplane-frame/HANDOFF.md) — current phase
 - `.cursor/skills/airplane-frame-ops` — agent entry to runbooks
+
+## Docs
+
+Canonical hub (settled + in progress): [docs/index.md](docs/index.md). Agents start at [AGENTS.md](AGENTS.md).

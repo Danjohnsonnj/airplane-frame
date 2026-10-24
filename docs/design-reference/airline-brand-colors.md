@@ -1,3 +1,15 @@
+---
+type: DesignReference
+title: Airline brand colors
+description: Fifty carrier hex values; source for css/carriers.css and js/carrier-brands.js.
+status: stable
+generated: { by: agent/cursor-grok-4.6, at: 2026-08-30T14:55:00Z }
+tags: [okf]
+resource: css/carriers.css
+---
+
+# Airline brand colors
+
 1. United Airlines - #005DAA
 2. Delta Air Lines - #003366
 3. American Airlines - #0078D2

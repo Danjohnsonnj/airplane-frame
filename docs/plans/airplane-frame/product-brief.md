@@ -2,7 +2,7 @@
 
 ## Background
 
-Greenfield personal project. The user watches commercial air traffic near Jersey City, NJ (dense airspace: EWR, LGA, JFK, and overflights). They want a small curated set of flights on a webpage, later presented in a 1950s airline-travel-advertising visual style with plane+livery illustrations. Interview completed 2026-07-31; no app code yet.
+Greenfield personal project. The user watches commercial air traffic near Jersey City, NJ (dense airspace: EWR, LGA, JFK, and overflights). They want a small curated set of flights on a webpage, later presented in a 1950s airline-travel-advertising visual style with plane+livery illustrations. Interview completed 2026-07-31. The app is live (Pages + Pi API); poster SPA is shipped; livery illustrations remain out of scope.
 
 ## Goal
 
@@ -10,7 +10,7 @@ Show **3–5** commercial flights near a user-defined, session-persisted locatio
 
 ## Rationale
 
-Hybrid model (live positions in a radius, enriched and ranked as commercial flights) matches “what’s near me” while requiring named commercial identity for art direction. **Target IA** (not shipped): full-screen poster wall as the main view; today’s controls live in a settings view — see [visual-direction.md](./visual-direction.md). Panel language (locked 2026-08-01): poster **hero** (airline + flight#) + **luggage-tag** zone (dest code + route/aircraft/altitude/distance); mobile-first. MVP remains a functional tool until poster implementation is explicitly started; design mocks precede implementation.
+Hybrid model (live positions in a radius, enriched and ranked as commercial flights) matches “what’s near me” while requiring named commercial identity for art direction. **IA (shipped):** full-screen poster wall as the main view; controls live in a settings view — see [visual-direction.md](./visual-direction.md). Panel language (locked 2026-08-01): poster **hero** (airline + flight#) + **luggage-tag** zone (dest code + route/aircraft/altitude/distance); mobile-first. Phase 6 polish/UAT is deferred (HANDOFF). Visual mocks are archived under `docs/archive/design-mocks/`.
 
 ## Non-goals
 
@@ -23,7 +23,7 @@ Hybrid model (live positions in a radius, enriched and ranked as commercial flig
 ## Boundaries
 
 - Always: free/trial data sources; required fields on every displayed flight; secrets only in the Worker; personal shared-secret access gate; update cadence ~5 minutes (user-adjustable); document ops in runbooks + Cursor skill
-- Ask first: switching off free/trial sources; changing architecture away from Pages + Worker; adding live geolocation; starting poster/livery art phase
+- Ask first: switching off free/trial sources; changing architecture away from Pages + Worker; adding live geolocation; Phase 6 poster polish; airline livery illustrations
 - Never: put API client secrets in the GitHub Pages front end; ship flights missing carrier, destination, or plane type; expand into paid infra without explicit approval
 
 ## Locked decisions (interview)
@@ -38,13 +38,13 @@ Hybrid model (live positions in a radius, enriched and ranked as commercial flig
 | Radius | ~25 miles default, user-adjustable |
 | Filters | Carrier allow/deny, destination group (`nyc` prefer/exclude), uniqueness — Phase 4 DONE |
 | Selection | Diversity-first pack ≤5 (`PACK_SIZE`); light interest score as tie-break; N slider deferred |
-| UI | Shipped: functional MVP. Target: poster-main / settings-secondary SPA per [visual-direction.md](./visual-direction.md). Next: design mocks (`docs/design-mocks/`), then ask before implement |
+| UI | Poster-main / settings-secondary SPA shipped per [visual-direction.md](./visual-direction.md). Mocks archived at `docs/archive/design-mocks/`. Next: Phase 6 polish/UAT only if asked (HANDOFF) |
 | Maintenance | `docs/runbooks/` + Cursor skill pointing at them |
 | Data vendors | Spike-driven; no brand lock until success criteria met |
 
 ## Success criteria
 
-- For a Jersey City pin, the Worker returns a curated pack (≤5) of enriched flights each with carrier, destination, and human-readable plane type on free/trial tiers at ≤5-minute polling (deployed: `https://airplane-frame.danjohnsonnj.workers.dev`)
+- For a Jersey City pin, the API returns a curated pack of enriched flights each with carrier, destination, and human-readable plane type on free/trial tiers at ≤5-minute polling (production: `https://api.danjnj.com`; rollback: `?worker=cloudflare` → workers.dev)
 - Front end loads from GitHub Pages, sends shared secret + location/radius/filters, renders the pack
 - Location pin persists across sessions in that browser (localStorage); MVP includes place search
 - Runbooks exist for deploy, secrets, and Cloudflare setup (`docs/runbooks/`); skill `.cursor/skills/airplane-frame-ops` routes agents to them

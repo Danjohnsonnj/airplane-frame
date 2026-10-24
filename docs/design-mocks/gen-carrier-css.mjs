@@ -1,9 +1,10 @@
 /**
  * Regenerate carrier tokens from docs/design-reference/airline-brand-colors.md into:
- * - poster-ad-wall.html (inline mock blocks)
+ * - docs/archive/design-mocks/poster-ad-wall.html (inline mock blocks)
  * - css/carriers.css (shipped Pages stylesheet)
  * - js/carrier-brands.js (exact brand name list for ground assignment)
  *
+ * Usage (from repo root): node docs/design-mocks/gen-carrier-css.mjs
  * Usage (from this directory): node gen-carrier-css.mjs
  */
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
@@ -13,7 +14,7 @@ import { fileURLToPath } from "node:url";
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(here, "../../");
 const colorsPath = join(here, "../design-reference/airline-brand-colors.md");
-const mockPath = join(here, "poster-ad-wall.html");
+const mockPath = join(here, "../archive/design-mocks/poster-ad-wall.html");
 const carriersCssPath = join(repoRoot, "css/carriers.css");
 const brandsJsPath = join(repoRoot, "js/carrier-brands.js");
 

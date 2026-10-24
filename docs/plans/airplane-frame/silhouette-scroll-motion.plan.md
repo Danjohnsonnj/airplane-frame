@@ -11,9 +11,9 @@ Start here: this plan.
 ## Required reading
 
 - [docs/agents/design-mock-probe-pointer.md](../../agents/design-mock-probe-pointer.md) — `mock_dir`, authority order
-- [docs/design-mocks/README.md](../../design-mocks/README.md) — inventory + local HTTP
+- [docs/archive/design-mocks/README.md](../../archive/design-mocks/README.md) — inventory + local HTTP
 - [visual-direction.md](visual-direction.md) — Hero silhouette + Motion locks (**preserve in Phase A**; amend in Phase B only)
-- [docs/design-mocks/poster-ad-wall.html](../../design-mocks/poster-ad-wall.html) — silhouette rest poses / panel chrome to **fork from** (do **not** edit)
+- [docs/archive/design-mocks/poster-ad-wall.html](../../archive/design-mocks/poster-ad-wall.html) — silhouette rest poses / panel chrome to **fork from** (do **not** edit)
 - [css/poster.css](../../../css/poster.css) — live rest transforms, `#view-poster { overflow: scroll }`, settle keyframes
 - [js/app.js](../../../js/app.js) — `createFlightPanel` / `fillPlaneSilhouette` (Phase B only)
 - [process.md](process.md) — before any commit
@@ -61,16 +61,16 @@ Start here: this plan.
 
 ### 1 — Explore mock
 
-- [`docs/design-mocks/silhouette-scroll-motion.html`](../../design-mocks/silhouette-scroll-motion.html)
+- [`docs/archive/design-mocks/silhouette-scroll-motion.html`](../../archive/design-mocks/silhouette-scroll-motion.html)
 - **Verify:**
   ```bash
-  python3 -m http.server 8765 --directory docs/design-mocks
+  python3 -m http.server 8765 --directory docs/archive/design-mocks
   # open http://localhost:8765/silhouette-scroll-motion.html
   ```
 
 ### 2 — Mock inventory only
 
-- Row in [`docs/design-mocks/README.md`](../../design-mocks/README.md): `silhouette-scroll-motion.html` · **EXPLORE**
+- Row in [`docs/archive/design-mocks/README.md`](../../archive/design-mocks/README.md): `silhouette-scroll-motion.html` · **EXPLORE**
 - Do **not** edit `visual-direction.md`, `HANDOFF.md`, or `phases.md` in Phase A.
 
 ### 3 — Probe UAT (user gate)

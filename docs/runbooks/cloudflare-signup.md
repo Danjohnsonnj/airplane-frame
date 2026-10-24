@@ -1,3 +1,13 @@
+---
+type: Runbook
+title: Cloudflare signup (free)
+description: One-time account, email verify, workers.dev subdomain, and wrangler login.
+status: stable
+generated: { by: agent/cursor-grok-4.6, at: 2026-08-30T14:55:00Z }
+tags: [okf]
+resource: worker/wrangler.toml
+---
+
 # Cloudflare signup (free)
 
 Needed for Worker deploy and `wrangler login`. Free tier is enough for personal use.

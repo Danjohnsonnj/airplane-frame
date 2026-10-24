@@ -1,3 +1,13 @@
+---
+type: Runbook
+title: Deploy Worker
+description: Test, deploy, and curl-verify the legacy Cloudflare Worker.
+status: stable
+generated: { by: agent/cursor-grok-4.6, at: 2026-08-30T14:55:00Z }
+tags: [okf]
+resource: worker/wrangler.toml
+---
+
 # Deploy Worker
 
 Prerequisite: [cloudflare-signup.md](./cloudflare-signup.md), then [secrets.md](./secrets.md).

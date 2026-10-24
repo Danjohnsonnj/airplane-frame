@@ -52,7 +52,7 @@ Do **not** need: spike code, Worker rewrite (unless CORS/auth regression).
 | `README.md` | **Add** — Pages URL placeholder, how to enter shared secret, link to runbooks |
 | `docs/runbooks/pages.md` | **Add** — enable Pages (root), local preview (`npx serve` or `python -m http.server`), UAT checklist |
 | `.cursor/skills/airplane-frame-ops/SKILL.md` | **Update** — pointer to `pages.md` |
-| `docs/runbooks/README.md` | **Update** — index `pages.md` |
+| `docs/runbooks/index.md` | **Update** — index `pages.md` |
 | Plan briefs | **Update on wrap-up** — HANDOFF next action → Phase 4; tech/product/phases/progress-log/lessons as needed |
 
 No Worker code changes required for the happy path (CORS already `*`; flights include `altitudeFt`).

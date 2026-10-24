@@ -11,7 +11,7 @@ Start here: this plan. Then load the set below.
 ## Required reading
 
 - [paper-texture-probe.plan.md](docs/plans/airplane-frame/paper-texture-probe.plan.md) — probe decisions + what was explicitly out of scope until now
-- [paper-luggage-tag-texture.html](docs/design-mocks/paper-luggage-tag-texture.html) — **authoritative visual/CSS reference** for paper layers (do not edit the mock during ship)
+- [paper-luggage-tag-texture.html](docs/archive/design-mocks/paper-luggage-tag-texture.html) — **authoritative visual/CSS reference** for paper layers (do not edit the mock during ship)
 - [visual-direction.md](docs/plans/airplane-frame/visual-direction.md) — existing panel ground/ink/tag locks to **preserve**; add one new lock row for paper texture
 - [poster.css](css/poster.css) + [app.js](js/app.js) (`createFlightPanel`, `renderPosterWall`) + [index.html](index.html) — ship targets
 - [process.md](docs/plans/airplane-frame/process.md) — read before commit
@@ -86,7 +86,7 @@ flowchart TB
 
 ### 3 — Poster CSS (paper layers)
 
-Port mock rules ([`paper-luggage-tag-texture.html`](docs/design-mocks/paper-luggage-tag-texture.html) ~lines 153–308) into **only** [`css/poster-paper.css`](css/poster-paper.css).
+Port mock rules ([`paper-luggage-tag-texture.html`](docs/archive/design-mocks/paper-luggage-tag-texture.html) ~lines 153–308) into **only** [`css/poster-paper.css`](css/poster-paper.css).
 
 Link from [`index.html`](index.html) **after** `css/poster.css`:
 
@@ -172,11 +172,11 @@ Amend [`visual-direction.md`](docs/plans/airplane-frame/visual-direction.md) **L
 
 | Topic               | Lock                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Panel paper texture | Flight panels only. Photo [`assets/textures/paper-texture-size-medium.jpg`](../../../assets/textures/paper-texture-size-medium.jpg) on `<img class="paper-surface">` with per-slot SVG warp (`paper-warp-1`…`10`), blend via `--paper-blend-mode` (default **color-burn**) at `--paper-opacity` (default **0.65**). Wear gradients on `.paper-wear-layer`. Dial: `--paper-opacity`, `--paper-blend-mode`, `--paper-wrinkle`, `--paper-wear` on `:root`. Slot assignment `assignPaperSlot(index)` → 1–10. Status panel excluded. Ship CSS: [`css/poster-paper.css`](../../../css/poster-paper.css). Reference: [`paper-luggage-tag-texture.html`](../../design-mocks/paper-luggage-tag-texture.html) + [`paper-texture-ship.plan.md`](./paper-texture-ship.plan.md). |
+| Panel paper texture | Flight panels only. Photo [`assets/textures/paper-texture-size-medium.jpg`](../../../assets/textures/paper-texture-size-medium.jpg) on `<img class="paper-surface">` with per-slot SVG warp (`paper-warp-1`…`10`), blend via `--paper-blend-mode` (default **color-burn**) at `--paper-opacity` (default **0.65**). Wear gradients on `.paper-wear-layer`. Dial: `--paper-opacity`, `--paper-blend-mode`, `--paper-wrinkle`, `--paper-wear` on `:root`. Slot assignment `assignPaperSlot(index)` → 1–10. Status panel excluded. Ship CSS: [`css/poster-paper.css`](../../../css/poster-paper.css). Reference: [`paper-luggage-tag-texture.html`](../../archive/design-mocks/paper-luggage-tag-texture.html) + [`paper-texture-ship.plan.md`](./paper-texture-ship.plan.md). |
 
 Also in the same file:
 
-- **Mock inventory:** add a row for `docs/design-mocks/paper-luggage-tag-texture.html` — rectangular flight panels, photo + SVG warp; status **EXPLORE** (visual reference) → production port **DONE** via this ship.
+- **Mock inventory:** add a row for `docs/archive/design-mocks/paper-luggage-tag-texture.html` — rectangular flight panels, photo + SVG warp; status **EXPLORE** (visual reference) → production port **DONE** via this ship.
 - **Next path:** add a done line after silhouette ship, e.g. `6. ~~Ship paper texture~~ (DONE — flight-panel paper overlay; see paper-texture-ship.plan.md).` Renumber the existing deferred Phase 6 polish item to follow it.
 
 **Verify:** lock row, inventory row, and done next-path line all present.
@@ -191,7 +191,7 @@ Also in the same file:
   - Remove “old-paper article texture” from the 2026-08-03 design-spikes list.
   - Add a one-line note under Phase 6 that paper texture shipped (lock in `visual-direction.md`; plan `paper-texture-ship.plan.md`). UAT remains deferred.
 - Append [`progress-log.md`](docs/plans/airplane-frame/progress-log.md) with ship date + verify commands.
-- Update [`docs/design-mocks/README.md`](docs/design-mocks/README.md): `paper-luggage-tag-texture.html` note — “ported to production poster (see paper-texture-ship.plan.md)”.
+- Update [`docs/archive/design-mocks/README.md`](docs/archive/design-mocks/README.md): `paper-luggage-tag-texture.html` note — “ported to production poster (see paper-texture-ship.plan.md)”.
 - Update [`paper-texture-probe.plan.md`](docs/plans/airplane-frame/paper-texture-probe.plan.md) status line: probe complete; production ship tracked in `paper-texture-ship.plan.md`.
 - Fold gotcha into [`lessons.md`](docs/plans/airplane-frame/lessons.md) if not already there: SVG displacement requires `<img>` (not `background-image` on empty divs).
 
@@ -231,7 +231,7 @@ Local stack ([local-dev.md](docs/runbooks/local-dev.md)): Pages `127.0.0.1:8080`
 - Soft tag silhouette / frayed edges (`--paper-fray` — probe retired)
 - Product settings UI for texture intensity
 - Changing Worker API or pack size
-- Editing canonical [`poster-ad-wall.html`](docs/design-mocks/poster-ad-wall.html) or [`paper-luggage-tag-texture.html`](docs/design-mocks/paper-luggage-tag-texture.html)
+- Editing canonical [`poster-ad-wall.html`](docs/archive/design-mocks/poster-ad-wall.html) or [`paper-luggage-tag-texture.html`](docs/archive/design-mocks/paper-luggage-tag-texture.html)
 - Phase 6 full poster polish UAT beyond paper-texture smoke above
 - Scroll-driven silhouette animation (separate backlog spike)
 - Exporting `createFlightPanel` / adding a DOM test runner

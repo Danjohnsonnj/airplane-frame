@@ -1,3 +1,13 @@
+---
+type: Runbook
+title: Worker secrets
+description: Where APP_SHARED_SECRET and AIRLABS_API_KEY live locally, on the Pi, and in Cloudflare.
+status: stable
+generated: { by: agent/cursor-grok-4.6, at: 2026-08-30T14:55:00Z }
+tags: [okf]
+resource: worker/.dev.vars.example
+---
+
 # Worker secrets
 
 Secrets never go in git.

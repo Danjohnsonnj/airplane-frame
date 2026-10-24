@@ -6,4 +6,4 @@ SVG outlines vendored from [RexKramer1/AircraftShapesSVG](https://github.com/Rex
 
 **Normalization (this folder only):** Inkscape/sodipodi/RDF metadata stripped; detail stroke paths dropped; main body path uses `fill="currentColor"` (solid silhouette) for mock ink inheritance. Geometry (`d` / `viewBox`) from upstream outline.
 
-**Scope:** Design-mock probe assets under `docs/design-mocks/planes/` — not production ship assets.
+**Scope:** Design-mock probe assets under `docs/archive/design-mocks/planes/` — not production ship assets.

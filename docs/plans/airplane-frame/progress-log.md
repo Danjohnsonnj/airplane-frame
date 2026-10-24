@@ -369,3 +369,18 @@
 - Verified: `node --test js/lib.test.js js/plane-asset.test.js js/paper-texture.test.js` PASS; mock browser check rows/columns latch at scroll end.
 - Learned: Column motion needs separate scroll frame (toggle/hidden broke `view()`); row latch must use trailing edge not viewport center for bottom panels.
 - Overwrote: visual-direction Motion lock, HANDOFF, phases, design-mocks README, lessons.
+
+## 2026-08-30 - OKF docs retrofit
+
+- Happened: Ported repo docs to software-repo OKF (hub, indexes, runbook frontmatter). Archived visual mocks to `docs/archive/design-mocks/`; kept `docs/design-mocks/gen-carrier-css.mjs`. Superseded runbooks README with `index.md`.
+- Verified: `node --test js/lib.test.js` PASS; `node --test docs/archive/design-mocks/planes/resolve.test.mjs` PASS.
+- Learned: n/a.
+- Overwrote: path pointers in briefs/plans/ops skill; added `AGENTS.md` and `docs/index.md`.
+
+## 2026-08-30 - OKF docs review fixes
+
+- Happened: Applied docs-review items (hub Retired vs Settled, archive README links, runbook titles, restored historical progress-log paths, stale poster copy).
+- Verified: follow-up docs review in session.
+- Learned: n/a.
+- Overwrote: `docs/index.md`, runbook index, probe pointer, product-brief, archived mock README.
+

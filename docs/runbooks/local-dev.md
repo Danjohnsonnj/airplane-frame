@@ -1,3 +1,13 @@
+---
+type: Runbook
+title: Local development (own IP)
+description: Run Pages plus Wrangler on your IP so airplanes.live is not shared-egress rate-limited.
+status: stable
+generated: { by: agent/cursor-grok-4.6, at: 2026-08-30T14:55:00Z }
+tags: [okf]
+resource: scripts/dev-pages.sh
+---
+
 # Local development (own IP)
 
 Use this when testing on your machine so **airplanes.live** sees **your IP**, not Cloudflare’s shared egress (which often gets **429**).

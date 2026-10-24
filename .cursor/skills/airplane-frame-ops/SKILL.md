@@ -13,7 +13,7 @@ description: >-
 
 Do **not** duplicate long procedures here. Read and follow:
 
-- `docs/runbooks/README.md` — runbook index
+- `docs/runbooks/index.md` — runbook index
 - `docs/runbooks/local-dev.md` — local Pages + Wrangler (own IP)
 - `docs/runbooks/cloudflare-signup.md`
 - `docs/runbooks/secrets.md`

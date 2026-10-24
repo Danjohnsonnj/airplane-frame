@@ -52,9 +52,8 @@
    |         destGroup(+Mode), unique, sortByDistance
    |  Location: JC default, map click, Open-Meteo place search, device geolocation
    v
-[TODAY] Worker https://airplane-frame.danjohnsonnj.workers.dev  (shared egress — rate-limit prone)
-[TARGET] https://api.danjnj.com  (Tunnel → Pi Node adapter; home egress)
-         ?worker=cloudflare → legacy workers.dev rollback
+[NOW] https://api.danjnj.com  (Tunnel → Pi Node adapter; home egress)
+[ROLLBACK] Worker https://airplane-frame.danjohnsonnj.workers.dev  (?worker=cloudflare; shared egress — rate-limit prone)
    |  secrets: AIRLABS_API_KEY, APP_SHARED_SECRET (Pi env / Worker secrets)
    |  cache: KV (Worker) or file FLIGHT_CACHE (Pi); airplanes.live → adsbdb/ownOp → AirLabs (capped)
    |  stale serve on upstream failure; filter + diversity pack (≤ PACK_SIZE)
@@ -68,7 +67,7 @@
 - Modern browsers (last ~1 year)
 - `localStorage`: home pin, radius, auto-refresh toggle (default off), refresh interval, min altitude, filters, **`APP_SHARED_SECRET` only**
 - Location: JC default; map click (Leaflet/OSM); place search (Open-Meteo); device geolocation
-- Shipped: functional UI only; no poster art. Target poster-main / settings-secondary IA: [visual-direction.md](./visual-direction.md). Design mocks: `docs/design-mocks/` (pointer `docs/agents/design-mock-probe-pointer.md`); do not implement poster SPA until asked.
+- Shipped: poster-main / settings-secondary SPA ([visual-direction.md](./visual-direction.md)); Phase 6 polish deferred. Archived mocks: `docs/archive/design-mocks/` (pointer `docs/agents/design-mock-probe-pointer.md`).
 - Unit tests: `node --test js/lib.test.js`
 - Local: `127.0.0.1:8080` → `resolveWorkerBase` → local Wrangler `:8788` (or `?worker=prod` → Pi API / `?worker=cloudflare` → workers.dev)
 - Live: https://danjohnsonnj.github.io/airplane-frame/

@@ -1,3 +1,13 @@
+---
+type: Runbook
+title: GitHub Pages (front end)
+description: Enable, preview, and UAT the repo-root static front end.
+status: stable
+generated: { by: agent/cursor-grok-4.6, at: 2026-08-30T14:55:00Z }
+tags: [okf]
+resource: index.html
+---
+
 # GitHub Pages (front end)
 
 The Phase 3 UI is static files at the **repo root**: `index.html`, `css/`, `js/`.
