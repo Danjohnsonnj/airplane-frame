@@ -16,7 +16,7 @@ import {
   formatDistanceNm,
   formatPackStatus,
   formatRoute,
-  formatCityRoute,
+  formatPlaceLabel,
   guardFlights,
   parseStoredBool,
   parseStoredNumber,
@@ -412,13 +412,20 @@ function createFlightPanel(f, ground, index, wallMode) {
   code.className = "tag-code";
   code.textContent = f.destination;
   codeWrap.append(kicker, code);
+  const destinationPlace = String(f.destinationCity || "").trim();
+  if (destinationPlace) {
+    const place = document.createElement("div");
+    place.className = "tag-place";
+    place.textContent = destinationPlace;
+    codeWrap.append(place);
+  }
 
   const fields = document.createElement("div");
   fields.className = "tag-fields";
   fields.append(
     createField(
-      "Route",
-      formatCityRoute(f.origin, f.originCity, f.destination, f.destinationCity),
+      "Origin",
+      formatPlaceLabel(f.originCity, f.origin),
     ),
     createField("Aircraft", f.planeType),
     createField("Altitude", `${Number(f.altitudeFt).toLocaleString()} ft`),

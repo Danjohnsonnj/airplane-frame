@@ -6,6 +6,7 @@ import { describe, it } from "node:test";
 import {
   buildMapFromCsv,
   buildModuleFromCsv,
+  formatAirportPlace,
   generateModuleSource,
   parseCsvLine,
 } from "./generate-airport-city-map.mjs";
@@ -15,6 +16,12 @@ const fixtureCsv = readFileSync(
   join(here, "fixtures/airports-mini.csv"),
   "utf8",
 );
+const countryNames = {
+  US: "United States",
+  GB: "United Kingdom",
+  KR: "South Korea",
+  CA: "Canada",
+};
 
 describe("parseCsvLine", () => {
   it("handles quoted commas", () => {
@@ -23,17 +30,38 @@ describe("parseCsvLine", () => {
 });
 
 describe("buildMapFromCsv", () => {
-  it("maps IATA and ICAO keys to municipality", () => {
-    const { map, conflicts } = buildMapFromCsv(fixtureCsv);
-    assert.equal(map.JFK, "New York");
-    assert.equal(map.KJFK, "New York");
-    assert.equal(map.LHR, "London");
-    assert.equal(map.EGLL, "London");
-    assert.equal(map.SFO, "San Francisco");
-    assert.equal(map.LAX, "Los Angeles");
+  it("maps IATA and ICAO keys to formatted places", () => {
+    const { map, conflicts } = buildMapFromCsv(fixtureCsv, countryNames);
+    assert.equal(map.JFK, "New York, NY");
+    assert.equal(map.KJFK, "New York, NY");
+    assert.equal(map.LHR, "London, United Kingdom");
+    assert.equal(map.EGLL, "London, United Kingdom");
+    assert.equal(map.ICN, "Seoul, South Korea");
+    assert.equal(map.GUL, "Gulfport");
+    assert.equal(map.SFO, "San Francisco, CA");
+    assert.equal(map.LAX, "Los Angeles, CA");
     assert.equal(map.AAA, undefined);
     assert.equal(conflicts.some((c) => c.startsWith("BBB:")), true);
     assert.equal(map.BBB, undefined);
+  });
+
+  it("formats place labels according to country and region", () => {
+    assert.equal(
+      formatAirportPlace("New York", "US", "US-NY", countryNames),
+      "New York, NY",
+    );
+    assert.equal(
+      formatAirportPlace("Washington", "US", "US-DC", countryNames),
+      "Washington, DC",
+    );
+    assert.equal(
+      formatAirportPlace("Gulfport", "US", "", countryNames),
+      "Gulfport",
+    );
+    assert.equal(
+      formatAirportPlace("Seoul", "KR", "KR-11", countryNames),
+      "Seoul, South Korea",
+    );
   });
 });
 
@@ -59,7 +87,7 @@ describe("buildModuleFromCsv", () => {
   it("builds importable module from fixture", () => {
     const { source, keyCount } = buildModuleFromCsv(fixtureCsv, {
       generatedAt: "2026-08-07",
-    });
+    }, countryNames);
     assert.ok(keyCount >= 8);
     assert.match(source, /AIRPORT_CITY_MAP_KEY_COUNT = \d+/);
   });

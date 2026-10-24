@@ -232,8 +232,8 @@ describe("buildFlightRow", () => {
     assert.equal(row.carrier, "United Airlines");
     assert.equal(row.destination, "LAX");
     assert.equal(row.origin, "BOS");
-    assert.equal(row.originCity, "Boston");
-    assert.equal(row.destinationCity, "Los Angeles");
+    assert.equal(row.originCity, "Boston, MA");
+    assert.equal(row.destinationCity, "Los Angeles, CA");
     assert.equal(row.enrichmentSource, "airlabs");
     assert.equal(row.planeType, "BOEING 737 MAX 9");
   });
@@ -242,8 +242,8 @@ describe("buildFlightRow", () => {
     const row = buildFlightRow(base, null, adsbdbRow);
     assert.equal(row.destination, "EWR");
     assert.equal(row.origin, "SFO");
-    assert.equal(row.originCity, "San Francisco");
-    assert.equal(row.destinationCity, "Newark");
+    assert.equal(row.originCity, "San Francisco, CA");
+    assert.equal(row.destinationCity, "Newark, NJ");
     assert.equal(row.enrichmentSource, "adsbdb");
     assert.equal(row.carrier, "United Airlines");
   });

@@ -10,7 +10,7 @@ Show **3–5** commercial flights near a user-defined, session-persisted locatio
 
 ## Rationale
 
-Hybrid model (live positions in a radius, enriched and ranked as commercial flights) matches “what’s near me” while requiring named commercial identity for art direction. **IA (shipped):** full-screen poster wall as the main view; controls live in a settings view — see [visual-direction.md](./visual-direction.md). Panel language (locked 2026-08-01): poster **hero** (airline + flight#) + **luggage-tag** zone (dest code + route/aircraft/altitude/distance); mobile-first. Phase 6 polish/UAT is deferred (HANDOFF). Visual mocks are archived under `docs/archive/design-mocks/`.
+Hybrid model (live positions in a radius, enriched and ranked as commercial flights) matches “what’s near me” while requiring named commercial identity for art direction. **IA (shipped):** full-screen poster wall as the main view; controls live in a settings view — see [visual-direction.md](./visual-direction.md). Panel language (locked 2026-08-01): poster **hero** (airline + flight#) + **luggage-tag** zone (destination code + place + Origin/aircraft/altitude/distance); mobile-first. Phase 6 polish/UAT is deferred (HANDOFF). Visual mocks are archived under `docs/archive/design-mocks/`.
 
 ## Non-goals
 

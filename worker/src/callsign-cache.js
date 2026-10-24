@@ -49,14 +49,16 @@ export async function readPositive(kv, callsign, nowMs, ttlSec) {
   const destination = record.destination && String(record.destination).trim();
   if (!destination) return null;
   const origin = record.origin ? String(record.origin).trim() : null;
-  const originCity =
+  const storedOriginCity =
     record.originCity != null && String(record.originCity).trim()
       ? String(record.originCity).trim()
-      : lookupAirportCity(origin);
-  const destinationCity =
+      : null;
+  const storedDestinationCity =
     record.destinationCity != null && String(record.destinationCity).trim()
       ? String(record.destinationCity).trim()
-      : lookupAirportCity(destination);
+      : null;
+  const originCity = lookupAirportCity(origin) || storedOriginCity;
+  const destinationCity = lookupAirportCity(destination) || storedDestinationCity;
   return {
     origin,
     destination,

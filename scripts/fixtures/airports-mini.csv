@@ -6,3 +6,5 @@ id,ident,type,name,latitude_deg,longitude_deg,elevation_ft,continent,iso_country
 5,KAAA,small_airport,No City Airport,0,0,0,NA,US,US-XX,,yes,KAAA,AAA,KAAA,AAA,,,
 6,KBBB,small_airport,Conflict A,0,0,0,NA,US,US-XX,Alpha,yes,KBBB,BBB,KBBB,BBB,,,
 7,KCCC,small_airport,Conflict B,0,0,0,NA,US,US-XX,Beta,yes,KBBB,BBB,KCCC,CCC,,,
+8,RKSI,large_airport,Incheon International Airport,37.469,-126.451,23,AS,KR,KR-11,Seoul,yes,RKSI,ICN,RKSI,,
+9,KGUF,small_airport,Gulfport Airport,30.4,-89.07,28,NA,US,,Gulfport,yes,KGUF,GUL,KGUF,,

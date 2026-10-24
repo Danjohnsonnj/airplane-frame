@@ -21,7 +21,7 @@ Compass for later poster UI work and for `design-mock-probe`. Not an implementat
 | Panel ground | **Full-panel solid field.** Matched carrier: `data-carrier` on `article.flight-panel` → `--carrier-color` from [airline-brand-colors.md](../../design-reference/airline-brand-colors.md) (regen via [`gen-carrier-css.mjs`](../../design-mocks/gen-carrier-css.mjs)). Unknown carrier: assign next **unique** swatch from sequential book via `ground-*` class (`--panel-ground`). Resolved as `--panel-color` = `var(--carrier-color, var(--panel-ground, var(--sun)))` |
 | Unique ground per pack | Within one wall pack, **no two unknown-carrier panels** may share the same fallback swatch (`--panel-ground` such as `--sun`, `--rose`). Branded carriers **may repeat** — duplicate flights from the same book carrier always share `--carrier-color` |
 | Panel ink (hero + tag) | **One ink** for hero and luggage-tag zones (airline, flight#, tag code, labels, hairlines, rivet dots). When OKLCH relative color + `color-mix` + `contrast-color` supported: `--tag-ink` = OKLCH complement of `--panel-color` (hue **+180°**, lightness `clamp(0.1, (1−L)+(0.5−L)×0.25, 0.9)`, chroma unchanged) mixed **52%** complement / **48%** `contrast-color(--panel-color)`. Fallback: `--panel-ink` from `ground-*` dual-ink or `contrast-color`. Reference CSS in [`poster-ad-wall.html`](../../archive/design-mocks/poster-ad-wall.html) |
-| Luggage tag (flight panel) | Dominant = **destination airport code**; fields: **route** `origin → destination`, **aircraft** make/model (`planeType`), **altitude** (`altitudeFt`), **distance** (`distanceNm`). `origin` may be null (show partial route) |
+| Luggage tag (flight panel) | Dominant = **destination airport code**, with the **destination place** under the code; fields: **Origin** (`originCity`, falling back to `origin` or `—`), **aircraft** (`planeType`), **altitude** (`altitudeFt`), **distance** (`distanceNm`). `origin` may be null (show Origin `—` or the code when only the code exists). Place rules: US + `US-` plus two-letter region → `City, ST` (including `US-DC`); other US regions → city only; other countries → `City, Country` from OurAirports `countries.csv`; no country name → city only; no municipality → omit; conflicting codes → omit. |
 | Tag orientation | **Horizontal** tag layout in **row** wall mode; **bespoke vertical** tag layout in **column** wall mode (reflowed stacking — **not** CSS-rotated horizontal art) |
 | Panel colors | Closed **swatch book** for unknown carriers; rotate saturated solid fields across the pack (**sequential** cycle: sun → navy → rose → teal → coral → mint). **Unique swatch per unknown panel** (see above). Status panel uses **reserved neutral** (`--neutral`) outside the bright set |
 | Swatch book | **Mixed warm+cool** (6 grounds): sun `#F2C84B` · navy `#17324D` · rose `#D98C8C` · teal `#167D7A` · coral `#E85D44` · mint `#A7D8C5`. Status neutral `#D8D0C1`. Ink: `#171A18` on light grounds · `#F7F0DE` on dark |
@@ -35,7 +35,7 @@ Compass for later poster UI work and for `design-mock-probe`. Not an implementat
 | Status surface | **One luggage tag** (same visual language as flight tags); its fields carry stale / error / updating / empty copy — not a separate chrome chip |
 | Status tag fields (mock-provisional) | Dominant state word (`EMPTY` / `STALE` / `WAIT` / `ERR`); labeled rows: **status**, **detail**, **action**, **updated**. Exact sentences refined in mock |
 | Empty / error / updating (sticky on poster) | Single full-bleed panel: hero strip **“Nearby flights”** + status luggage tag; settings control remains (escape to settings on error) |
-| API field contract (display) | Use shipped Worker row fields as-is. Gaps acked: nullable `origin`; no city-name field; `flight` is callsign; distance is nm from pin (not remaining to dest) |
+| API field contract (display) | Use shipped Worker row fields as-is. `originCity` / `destinationCity` are nullable map-derived place strings; `origin` is nullable; `flight` is callsign; distance is nm from pin (not remaining to dest) |
 | Panel paper texture | Flight panels only. Photo [`assets/textures/paper-texture-size-medium.jpg`](../../../assets/textures/paper-texture-size-medium.jpg) on `<img class="paper-surface">` with per-slot SVG warp (`paper-warp-1`…`10`), blend via `--paper-blend-mode` (default **color-burn**) at `--paper-opacity` (default **0.65**). Wear gradients on `.paper-wear-layer`. Dial: `--paper-opacity`, `--paper-blend-mode`, `--paper-wrinkle`, `--paper-wear` on `:root`. Slot assignment `assignPaperSlot(index)` → 1–10. Status panel excluded. Ship CSS: [`css/poster-paper.css`](../../../css/poster-paper.css). Reference: [`paper-luggage-tag-texture.html`](../../archive/design-mocks/paper-luggage-tag-texture.html) + [`paper-texture-ship.plan.md`](./paper-texture-ship.plan.md). |
 
 ## Reference intake
@@ -56,7 +56,7 @@ Confirmed 2026-08-01 from `docs/design-reference/`. Takeaways remain compass for
 ### Working inferences (refine in mock probes)
 
 - **Hero fields:** Airline reads as poster headline; flight# as quieter sub-hed — not destination-as-poster-title (supersedes earlier destination-led panel hierarchy).
-- **Tag fields:** Dest code dominates; route / aircraft / altitude / distance as labeled utilitarian rows (or columns in vertical tag mode).
+- **Tag fields:** Destination code and place dominate; Origin / aircraft / altitude / distance are labeled utilitarian rows (or columns in vertical tag mode).
 - **Illustration:** Type + ephemera + filled ICAO silhouettes (locked); later livery stays sparse — no people/figures, no busy street scenes.
 - **Palette feel:** Saturated solid grounds from a closed swatch book; high contrast type; optional one punch accent.
 - **Reject cluster:** People, figures, dense multi-object illustration, checklist/form clutter on the poster wall; CSS-rotated tags; continuous ambient motion.
@@ -69,7 +69,6 @@ Confirmed 2026-08-01 from `docs/design-reference/`. Takeaways remain compass for
 - Settings period polish (framing accents)
 - Livery / multi-color aircraft art (filled ICAO silhouettes are locked; see Hero aircraft silhouette)
 - Geocoder UX polish
-- City-name enrichment under dest code (no API field today)
 
 ## Mock inventory
 

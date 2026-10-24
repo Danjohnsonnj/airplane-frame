@@ -274,6 +274,15 @@
   letter-spacing: -0.075em;
 }
 
+.tag-place {
+  margin-top: 3px;
+  font-size: var(--type-0);
+  font-weight: 700;
+  line-height: 1.15;
+  text-transform: none;
+  white-space: normal;
+}
+
 .tag-fields {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -468,7 +477,7 @@
 
 .vertical-tag .field {
   display: grid;
-  grid-template-columns: 48px minmax(0, 1fr);
+  grid-template-columns: 58px minmax(0, 1fr);
   align-items: center;
   gap: 5px;
   padding: 4px 0;

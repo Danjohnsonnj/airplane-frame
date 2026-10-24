@@ -9,6 +9,8 @@ import { fileURLToPath } from "node:url";
 
 export const OURAIRPORTS_CSV_URL =
   "https://davidmegginson.github.io/ourairports-data/airports.csv";
+export const OURAIRPORTS_COUNTRIES_CSV_URL =
+  "https://davidmegginson.github.io/ourairports-data/countries.csv";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(here, "..");
@@ -50,10 +52,35 @@ export function parseCsvLine(line) {
 }
 
 /**
+ * @param {string} city
+ * @param {string} isoCountry
+ * @param {string} isoRegion
+ * @param {Record<string, string>} countryNames
+ */
+export function formatAirportPlace(
+  city,
+  isoCountry,
+  isoRegion,
+  countryNames = {},
+) {
+  const place = String(city || "").trim();
+  const country = String(isoCountry || "").trim().toUpperCase();
+  const region = String(isoRegion || "").trim().toUpperCase();
+  if (country === "US" && /^US-[A-Z]{2}$/.test(region)) {
+    return `${place}, ${region.slice(3)}`;
+  }
+  if (country !== "US" && countryNames[country]) {
+    return `${place}, ${String(countryNames[country]).trim()}`;
+  }
+  return place;
+}
+
+/**
  * @param {string} csvText
+ * @param {Record<string, string>} [countryNames]
  * @returns {{ map: Record<string, string>, conflicts: string[], skippedNoMunicipality: number, rowCount: number }}
  */
-export function buildMapFromCsv(csvText) {
+export function buildMapFromCsv(csvText, countryNames = {}) {
   const lines = csvText.trim().split(/\r?\n/);
   if (lines.length < 2) {
     return {
@@ -69,6 +96,8 @@ export function buildMapFromCsv(csvText) {
     municipality: header.indexOf("municipality"),
     iata: header.indexOf("iata_code"),
     icao: header.indexOf("icao_code"),
+    isoCountry: header.indexOf("iso_country"),
+    isoRegion: header.indexOf("iso_region"),
   };
   if (idx.municipality < 0 || idx.iata < 0 || idx.icao < 0) {
     throw new Error("airports.csv missing required columns");
@@ -96,6 +125,12 @@ export function buildMapFromCsv(csvText) {
     if (iata) codes.push(iata);
     if (icao) codes.push(icao);
     if (codes.length === 0) continue;
+    const place = formatAirportPlace(
+      municipality,
+      cols[idx.isoCountry],
+      cols[idx.isoRegion],
+      countryNames,
+    );
 
     for (const code of codes) {
       let cities = codeToCities.get(code);
@@ -103,7 +138,7 @@ export function buildMapFromCsv(csvText) {
         cities = new Set();
         codeToCities.set(code, cities);
       }
-      cities.add(municipality);
+      cities.add(place);
     }
   }
 
@@ -157,9 +192,13 @@ export function lookupAirportCity(code) {
 /**
  * @param {string} csvText
  * @param {{ sourceUrl?: string, generatedAt?: string }} [opts]
+ * @param {Record<string, string>} [countryNames]
  */
-export function buildModuleFromCsv(csvText, opts = {}) {
-  const { map, conflicts, skippedNoMunicipality, rowCount } = buildMapFromCsv(csvText);
+export function buildModuleFromCsv(csvText, opts = {}, countryNames = {}) {
+  const { map, conflicts, skippedNoMunicipality, rowCount } = buildMapFromCsv(
+    csvText,
+    countryNames,
+  );
   const sourceUrl = opts.sourceUrl ?? OURAIRPORTS_CSV_URL;
   const generatedAt = opts.generatedAt ?? new Date().toISOString().slice(0, 10);
   const source = generateModuleSource(map, {
@@ -182,7 +221,23 @@ async function fetchCsv(url) {
 
 export async function generateAirportCityMap(outPath = defaultOutPath, csvText = null) {
   const text = csvText ?? (await fetchCsv(OURAIRPORTS_CSV_URL));
-  const { source, map, conflicts, keyCount } = buildModuleFromCsv(text);
+  const countriesText = await fetchCsv(OURAIRPORTS_COUNTRIES_CSV_URL);
+  const countryHeader = parseCsvLine(countriesText.trim().split(/\r?\n/)[0]);
+  const countryCodeIndex = countryHeader.indexOf("code");
+  const countryNameIndex = countryHeader.indexOf("name");
+  const countryNames = Object.create(null);
+  for (const line of countriesText.trim().split(/\r?\n/).slice(1)) {
+    if (!line.trim()) continue;
+    const fields = parseCsvLine(line);
+    const code = String(fields[countryCodeIndex] || "").trim().toUpperCase();
+    const name = String(fields[countryNameIndex] || "").trim();
+    if (code && name) countryNames[code] = name;
+  }
+  const { source, map, conflicts, keyCount } = buildModuleFromCsv(
+    text,
+    {},
+    countryNames,
+  );
   writeFileSync(outPath, source, "utf8");
   const byteSize = Buffer.byteLength(source, "utf8");
   return { outPath, keyCount, byteSize, conflicts };

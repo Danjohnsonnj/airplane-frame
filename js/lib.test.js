@@ -10,7 +10,7 @@ import {
   formatDistanceNm,
   formatPackStatus,
   formatRoute,
-  formatCityRoute,
+  formatPlaceLabel,
   isCompleteFlight,
   parseStoredNumber,
   pickGeocodeResult,
@@ -305,21 +305,17 @@ describe("formatDistanceNm", () => {
   });
 });
 
-describe("formatCityRoute", () => {
-  it("uses cities when present", () => {
-    assert.equal(
-      formatCityRoute("BOS", "Boston", "LAX", "Los Angeles"),
-      "Boston → Los Angeles",
-    );
+describe("formatPlaceLabel", () => {
+  it("uses the trimmed city when present", () => {
+    assert.equal(formatPlaceLabel("  Boston  ", "BOS"), "Boston");
   });
 
-  it("falls back per endpoint to airport code", () => {
-    assert.equal(formatCityRoute("BOS", null, "LAX", "Los Angeles"), "BOS → Los Angeles");
-    assert.equal(formatCityRoute("BOS", "Boston", "ZZZ", null), "Boston → ZZZ");
+  it("falls back to the trimmed airport code", () => {
+    assert.equal(formatPlaceLabel(" ", "  BOS  "), "BOS");
   });
 
-  it("matches formatRoute shape for code-only labels", () => {
-    assert.equal(formatCityRoute("SFO", null, "EWR", null), formatRoute("SFO", "EWR"));
+  it("uses an em dash when city and code are empty", () => {
+    assert.equal(formatPlaceLabel("  ", " "), "—");
   });
 });
 
